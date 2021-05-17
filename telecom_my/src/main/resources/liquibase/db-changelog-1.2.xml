@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet id="3" author="Mykola Hordieiev">
+
+        <dropForeignKeyConstraint baseTableName="operator" constraintName="op_id_fk"/>
+        <dropTable tableName="operator"/>
+
+        <addColumn tableName="subscriber">
+            <column name="balance" type="double" defaultValue="0"/>
+            <column name="locked" type="boolean" defaultValueBoolean="false"/>
+        </addColumn>
+
+        <createTable tableName="product">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name_product" type="varchar(60)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="rate">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name_rate" type="varchar(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="bigint"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="rate"
+                                 baseColumnNames="product_id"
+                                 constraintName="product_id_fk"
+                                 referencedTableName="product"
+                                 referencedColumnNames="id"/>
+
+        <createTable tableName="subscribing">
+            <column name="subscriber_id" type="bigint"/>
+            <column name="product_id" type="bigint"/>
+            <column name="rate_id" type="bigint"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="subscribing"
+                                 baseColumnNames="subscriber_id"
+                                 constraintName="subscribing_subscriber_id_fk"
+                                 referencedTableName="subscriber"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="subscribing"
+                                 baseColumnNames="product_id"
+                                 constraintName="subscribing_product_id_fk"
+                                 referencedTableName="product"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="subscribing"
+                                 baseColumnNames="rate_id"
+                                 constraintName="subscribing_rate_id_fk"
+                                 referencedTableName="rate"
+                                 referencedColumnNames="id"/>
+
+        <addPrimaryKey tableName="subscribing" columnNames="subscriber_id, product_id, rate_id"/>
+    </changeSet>
+
+</databaseChangeLog>
