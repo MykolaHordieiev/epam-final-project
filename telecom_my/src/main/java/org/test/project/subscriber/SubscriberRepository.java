@@ -1,11 +1,11 @@
 package org.test.project.subscriber;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.test.project.entity.Product;
 import org.test.project.entity.Rate;
+import org.test.project.entity.Subscribing;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -40,6 +40,7 @@ public class SubscriberRepository {
 
     }
 
+    @SneakyThrows
     public Subscriber insertSubscriber(Subscriber subscriber) {
         String insertInToUser = "INSERT INTO user (login,password,role) VALUES (?,?,?);";
         String insertInToSubscriber = "INSERT INTO subscriber (id) VALUES (?)";
@@ -65,11 +66,8 @@ public class SubscriberRepository {
             }
         } catch (Exception ex) {
             if (connection != null) {
-                try {
                     connection.rollback();
-                } catch (SQLException e) {
-                    log.error(e.getMessage());
-                }
+
             }
             System.out.println("throw fieldTransaction");
             throw new FiledTransactionException("transaction failed");
@@ -139,7 +137,7 @@ public class SubscriberRepository {
                 rate.setId(resultSet.getLong("id"));
                 rate.setName(resultSet.getString("name_rate"));
                 rate.setPrice(resultSet.getDouble("price"));
-                rate.setProduct_id(resultSet.getLong("product_id"));
+                rate.setProductId(resultSet.getLong("productId"));
                 return Optional.of(rate);
             }
         }
@@ -162,37 +160,61 @@ public class SubscriberRepository {
         return Optional.empty();
     }
 
-    public void addSubscribing(Long idOfSubscriber, Long idOfProduct, Long idOfRate, Double balance) {
+    @SneakyThrows
+    public Subscriber addSubscribing(Subscribing subscribing) {
         String addSubscribing = "INSERT INTO subscribing VALUES(?,?,?)";
-        String withdrawn = "UPDATE subscriber SET balance=? WHERE id=" + idOfSubscriber;
+        String withdrawn = "UPDATE subscriber SET balance=? WHERE id=" + subscribing.getSubscriber().getId();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
             connection = dataSource.getConnection();
             connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(addSubscribing);
-            preparedStatement.setDouble(1, idOfSubscriber);
-            preparedStatement.setDouble(2, idOfProduct);
-            preparedStatement.setDouble(3, idOfRate);
+            preparedStatement.setDouble(1, subscribing.getSubscriber().getId());
+            preparedStatement.setDouble(2, subscribing.getProduct().getId());
+            preparedStatement.setDouble(3, subscribing.getRate().getId());
             preparedStatement.execute();
             try (PreparedStatement preparedStatement1 = connection.prepareStatement(withdrawn)) {
-                preparedStatement1.setDouble(1, balance);
+                preparedStatement1.setDouble(1, subscribing.getSubscriber().getBalance());
                 preparedStatement1.execute();
                 connection.commit();
             }
         } catch (Exception ex) {
             if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException e) {
-                    log.error(e.getMessage());
-                }
+                connection.rollback();
             }
             throw new FiledTransactionException("filed transaction in addSubscribing");
         } finally {
             close(preparedStatement);
             close(connection);
         }
+        return subscribing.getSubscriber();
+    }
+
+    @SneakyThrows
+    public List<Subscribing> getSubscribingBySubscriberId(Long id) {
+        String getSubscribing = "SELECT * FROM subscribing WHERE subscriber_id=" + id;
+        List<Subscribing> listOfSubscribing = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(getSubscribing)) {
+            while (resultSet.next()) {
+                Product product = new Product();
+                Rate rate = new Rate();
+                product.setId(resultSet.getLong("productId"));
+                rate.setId(resultSet.getLong("rate_id"));
+                Subscribing subscribing = new Subscribing();
+                subscribing.setProduct(product);
+                subscribing.setRate(rate);
+                listOfSubscribing.add(subscribing);
+            }
+            for (int i = 0; i < listOfSubscribing.size(); i++) {
+                System.out.println(listOfSubscribing.get(i).getProduct().getId());
+                System.out.println(listOfSubscribing.get(i).getRate().getId());
+            }
+            System.out.println(listOfSubscribing);
+        }
+        return listOfSubscribing;
     }
 
     @SneakyThrows

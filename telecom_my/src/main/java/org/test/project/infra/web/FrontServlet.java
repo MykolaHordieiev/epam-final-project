@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.test.project.User.UserController;
 import org.test.project.operator.OperatorController;
+import org.test.project.rate.RateController;
 import org.test.project.subscriber.SubscriberController;
 
 import javax.servlet.RequestDispatcher;
@@ -20,6 +21,7 @@ public class FrontServlet extends HttpServlet {
     private final SubscriberController subscriberController;
     private final UserController userController;
     private final OperatorController operatorController;
+    private final RateController rateController;
     private final ExceptionHandler exceptionHandler;
     @Getter
     private final String name;
@@ -48,7 +50,7 @@ public class FrontServlet extends HttpServlet {
                 modelAndView = operatorController.getAllProductsWithRate(req, resp);
             } else if (controllerPath.equals("/subscriber/getallentity") && method.equals("GET")) {
                 modelAndView = operatorController.getAllProductsWithRate(req, resp);
-            }else if (controllerPath.equals("/operator/addrate") && method.equals("POST")) {
+            } else if (controllerPath.equals("/operator/addrate") && method.equals("POST")) {
                 modelAndView = operatorController.addRate(req, resp);
             } else if (controllerPath.equals("/operator/deleterate") && method.equals("POST")) {
                 modelAndView = operatorController.deleteRate(req, resp);
@@ -58,6 +60,10 @@ public class FrontServlet extends HttpServlet {
                 modelAndView = subscriberController.topUpTheBalance(req, resp);
             } else if (controllerPath.equals("/subscriber/addsubscribing") && method.equals("POST")) {
                 modelAndView = subscriberController.addSubscribing(req, resp);
+            } else if (controllerPath.equals("/rate/product") && method.equals("GET")) {
+                modelAndView = rateController.getAllRates(req, resp);
+            } else if (controllerPath.equals("/rate") && method.equals("GET")) {
+                modelAndView = rateController.getRateById(req, resp);
             } else {
                 modelAndView = ModelAndView.withView("/error/pagenotfound.jsp");
             }

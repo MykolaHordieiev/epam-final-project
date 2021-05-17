@@ -1,9 +1,7 @@
 package org.test.project.operator;
 
-import liquibase.pro.packaged.E;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.test.project.entity.Entity;
 import org.test.project.entity.Product;
 import org.test.project.entity.Rate;
 
@@ -72,7 +70,7 @@ public class OperatorRepository {
                 rate.setId(resultSet.getLong("id"));
                 rate.setName(resultSet.getString("name_rate"));
                 rate.setPrice(resultSet.getDouble("price"));
-                rate.setProduct_id(resultSet.getLong("product_id"));
+                rate.setProductId(resultSet.getLong("product_id"));
                 listOfRate.add(rate);
             }
             return listOfRate;

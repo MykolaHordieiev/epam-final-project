@@ -28,10 +28,6 @@ public class OperatorService {
         return operatorRepository.getAllRatesOfProduct();
     }
 
-    public Map<Product, Rate> getProductsAndRates() {
-        return operatorRepository.getProductsAndRates();
-    }
-
     public void doChangeRateById(Long id,String name,Double price){
         if(name.equals("")&&price.equals(0.0)){
             throw new FiledChangeRate("please," +

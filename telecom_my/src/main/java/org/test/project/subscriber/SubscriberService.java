@@ -3,6 +3,7 @@ package org.test.project.subscriber;
 import lombok.RequiredArgsConstructor;
 import org.test.project.entity.Product;
 import org.test.project.entity.Rate;
+import org.test.project.entity.Subscribing;
 
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class SubscriberService {
                 + id + " doesn't exist"));
     }
 
-    public Product getProductById(Long id){
+    public Product getProductById(Long id) {
         return subscriberRepository.getProduct(id).orElseThrow(() -> new FiledTransactionException("product with id: "
                 + id + " doesn't exist"));
     }
@@ -58,13 +59,30 @@ public class SubscriberService {
         Subscriber subscriber = getSubscriberById(idOfSubscriber);
         Product product = getProductById(idOfProduct);
         Rate rate = getRateById(idOfRate);
-        Double balance = checkStateOfSubscriber(subscriber, rate);
-        if (balance<0){
-            throw new FiledTransactionException("not enough money to add subscribing");
-        }else{
-            subscriberRepository.addSubscribing(idOfSubscriber, idOfProduct, idOfRate, balance);
+        Subscribing subscribing = new Subscribing(subscriber, product, rate);
+        if (!rate.getProductId().equals(product.getId())) {
+            throw new SubscriberException("incorrect rate id: " + idOfRate + " for chose product");
         }
-            return null;
+        Double balance = checkStateOfSubscriber(subscriber, rate);
+        if (balance < 0) {
+            throw new FiledTransactionException("not enough money to add subscribing");
+        }
+        subscriber.setBalance(balance);
+        return subscriberRepository.addSubscribing(subscribing);
+    }
+
+    public List<Subscribing> getSubscribing(Long id) {
+        List<Subscribing> list = subscriberRepository.getSubscribingBySubscriberId(id);
+        if (!list.isEmpty()) {
+            for (Subscribing subs : list) {
+                Long idOfProduct = subs.getProduct().getId();
+                Long idOfRate = subs.getRate().getId();
+                subs.getProduct().setName(getProductById(idOfProduct).getName());
+                subs.getRate().setName(getRateById(idOfRate).getName());
+                System.out.println(list);
+            }
+        }
+        return list;
     }
 
     private Double checkStateOfSubscriber(Subscriber subscriber, Rate rate) {

@@ -4,19 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.test.project.subscriber.Subscriber;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Rate {
+public class Subscribing {
 
-    private Long id;
-    private String name;
-    private Double price;
-    private Long productId;
+    private Subscriber subscriber;
+    private Product product;
+    private Rate rate;
 
-    @Override
-    public String toString(){
-        return name;
-    }
 }

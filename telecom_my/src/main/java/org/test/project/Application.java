@@ -11,6 +11,9 @@ import org.test.project.infra.web.*;
 import org.test.project.operator.OperatorController;
 import org.test.project.operator.OperatorRepository;
 import org.test.project.operator.OperatorService;
+import org.test.project.rate.RateController;
+import org.test.project.rate.RateRepository;
+import org.test.project.rate.RateService;
 import org.test.project.subscriber.*;
 
 import javax.sql.DataSource;
@@ -36,9 +39,11 @@ public class Application {
         SubscriberController subscriberController = configureSubscriber(dataSource);
         UserController userController = configureUser(dataSource);
         OperatorController operatorController = configureOperator(dataSource);
+        RateController rateController = configureRate(dataSource);
         //web
         ExceptionHandler exceptionHandler = new ExceptionHandlerImplMy();
-        FrontServlet frontServlet = new FrontServlet(subscriberController,userController,operatorController, exceptionHandler, "front", "/service");
+        FrontServlet frontServlet = new FrontServlet(subscriberController,userController,operatorController,
+                rateController, exceptionHandler, "front", "/service");
         ServerStarter serverStarter = serverStarterConfig.configureServer(frontServlet);
         serverStarter.startServer();
     }
@@ -62,6 +67,12 @@ public class Application {
         OperatorRepository operatorRepository = new OperatorRepository(dataSource);
         OperatorService operatorService = new OperatorService(operatorRepository);
         return new OperatorController(operatorService);
+    }
+    private static RateController configureRate(DataSource dataSource){
+        //Operator config
+        RateRepository rateRepository = new RateRepository(dataSource);
+        RateService rateService = new RateService(rateRepository);
+        return new RateController(rateService);
     }
 
 }

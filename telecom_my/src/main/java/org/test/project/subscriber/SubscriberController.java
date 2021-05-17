@@ -22,10 +22,11 @@ public class SubscriberController {
 
 
     public ModelAndView getSubscriberById(HttpServletRequest request, HttpServletResponse response) {
-        String id = request.getParameter("id");
+        Long id = Long.parseLong(request.getParameter("id"));
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/subscriber/infobyid.jsp");
-        modelAndView.addAttribute("subscriber", subscriberService.getSubscriberById(Long.parseLong(id)));
+        modelAndView.addAttribute("subscriber", subscriberService.getSubscriberById(id));
+        modelAndView.addAttribute("subscriptions",subscriberService.getSubscribing(id));
         return modelAndView;
     }
 
@@ -35,8 +36,8 @@ public class SubscriberController {
         Subscriber subscriber = new Subscriber();
         subscriber.setLogin(login);
         subscriber.setPassword(password);
-        subscriberService.create(subscriber);
-        ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + subscriber.getId());
+        Subscriber createdSubscriber = subscriberService.create(subscriber);
+        ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + createdSubscriber.getId());
         modelAndView.setRedirect(true);
         return modelAndView;
     }
@@ -75,11 +76,10 @@ public class SubscriberController {
         Long idOfProduct = Long.parseLong(request.getParameter("idOfProduct"));
         Long idofRate = Long.parseLong(request.getParameter("idOfRate"));
         Subscriber subscriber = getUserOfSession(request);
-        ModelAndView modelAndView = new ModelAndView();
         subscriberService.addSubscribing(subscriber.getId(),idOfProduct,idofRate);
-        System.out.println(subscriber.getId());
-
-        return null;
+        ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + subscriber.getId());
+        modelAndView.setRedirect(true);
+        return modelAndView;
     }
 
     private Subscriber getUserOfSession(HttpServletRequest request) {
