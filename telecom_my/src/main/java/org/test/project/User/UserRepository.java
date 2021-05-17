@@ -6,10 +6,7 @@ import org.test.project.operator.Operator;
 import org.test.project.subscriber.Subscriber;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -41,6 +38,21 @@ public class UserRepository {
                 user.setLogin(login);
                 user.setPassword(password);
                 return Optional.of(user);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @SneakyThrows
+    public Optional<Subscriber> checkSubscriberLock(Long id) {
+        String query = "SELECT locked FROM subscriber WHERE id=" + id;
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+            if (resultSet.next()) {
+                Subscriber subscriber = new Subscriber();
+                subscriber.setLock(resultSet.getBoolean("locked"));
+                return Optional.of(subscriber);
             }
         }
         return Optional.empty();

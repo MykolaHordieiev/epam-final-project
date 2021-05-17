@@ -24,6 +24,7 @@ public class UserController {
         if (user.getUserRole().equals(UserRole.OPERATOR)) {
             modelAndView = ModelAndView.withView("/homePage/forOperator.jsp");
         } else {
+            userService.checkLockSubscriber(user.getId());
             modelAndView = ModelAndView.withView("/homePage/forSubscriber.jsp");
         }
         modelAndView.setRedirect(true);

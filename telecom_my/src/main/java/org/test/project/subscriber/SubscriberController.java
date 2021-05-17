@@ -1,10 +1,8 @@
 package org.test.project.subscriber;
 
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import lombok.AllArgsConstructor;
 import org.test.project.User.User;
-import org.test.project.User.UserRole;
 import org.test.project.infra.web.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +25,7 @@ public class SubscriberController {
         String id = request.getParameter("id");
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/subscriber/infobyid.jsp");
-        modelAndView.addAttribute("subscriber", subscriberService.getById(Long.parseLong(id)));
+        modelAndView.addAttribute("subscriber", subscriberService.getSubscriberById(Long.parseLong(id)));
         return modelAndView;
     }
 

@@ -3,17 +3,17 @@ package org.test.project.subscriber;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
+import org.test.project.entity.Product;
 import org.test.project.entity.Rate;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @RequiredArgsConstructor
 public class SubscriberRepository {
 
@@ -40,7 +40,6 @@ public class SubscriberRepository {
 
     }
 
-    @SneakyThrows
     public Subscriber insertSubscriber(Subscriber subscriber) {
         String insertInToUser = "INSERT INTO user (login,password,role) VALUES (?,?,?);";
         String insertInToSubscriber = "INSERT INTO subscriber (id) VALUES (?)";
@@ -66,17 +65,17 @@ public class SubscriberRepository {
             }
         } catch (Exception ex) {
             if (connection != null) {
-                connection.rollback();
+                try {
+                    connection.rollback();
+                } catch (SQLException e) {
+                    log.error(e.getMessage());
+                }
             }
             System.out.println("throw fieldTransaction");
             throw new FiledTransactionException("transaction failed");
         } finally {
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
+            close(preparedStatement);
+            close(connection);
         }
         return subscriber;
     }
@@ -145,5 +144,61 @@ public class SubscriberRepository {
             }
         }
         return Optional.empty();
+    }
+
+    @SneakyThrows
+    public Optional<Product> getProduct(Long id) {
+        String query = "SELECT * FROM product WHERE id=" + id;
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+            if (resultSet.next()) {
+                Product product = new Product();
+                product.setId(resultSet.getLong("id"));
+                product.setName(resultSet.getString("name_product"));
+                return Optional.of(product);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public void addSubscribing(Long idOfSubscriber, Long idOfProduct, Long idOfRate, Double balance) {
+        String addSubscribing = "INSERT INTO subscribing VALUES(?,?,?)";
+        String withdrawn = "UPDATE subscriber SET balance=? WHERE id=" + idOfSubscriber;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(addSubscribing);
+            preparedStatement.setDouble(1, idOfSubscriber);
+            preparedStatement.setDouble(2, idOfProduct);
+            preparedStatement.setDouble(3, idOfRate);
+            preparedStatement.execute();
+            try (PreparedStatement preparedStatement1 = connection.prepareStatement(withdrawn)) {
+                preparedStatement1.setDouble(1, balance);
+                preparedStatement1.execute();
+                connection.commit();
+            }
+        } catch (Exception ex) {
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException e) {
+                    log.error(e.getMessage());
+                }
+            }
+            throw new FiledTransactionException("filed transaction in addSubscribing");
+        } finally {
+            close(preparedStatement);
+            close(connection);
+        }
+    }
+
+    @SneakyThrows
+    private void close(AutoCloseable autoCloseable) {
+        if (autoCloseable != null) {
+            autoCloseable.close();
+        }
     }
 }

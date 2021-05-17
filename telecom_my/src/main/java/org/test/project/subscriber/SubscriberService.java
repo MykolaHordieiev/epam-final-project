@@ -1,6 +1,7 @@
 package org.test.project.subscriber;
 
 import lombok.RequiredArgsConstructor;
+import org.test.project.entity.Product;
 import org.test.project.entity.Rate;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class SubscriberService {
         return subscriberRepository.insertSubscriber(subscriber);
     }
 
-    public Subscriber getById(Long id) {
+    public Subscriber getSubscriberById(Long id) {
         return subscriberRepository.getById(id).orElseThrow(() -> new FiledTransactionException("subscriber with id: "
                 + id + " doesn't exist"));
     }
@@ -33,7 +34,7 @@ public class SubscriberService {
     }
 
     public Subscriber topUpBalance(Long id, Double amount) {
-        Subscriber subscriber = getById(id);
+        Subscriber subscriber = getSubscriberById(id);
         Double balnceOfSubscriber = subscriber.getBalance() + amount;
         if (!subscriberRepository.topUpBalanceById(id, balnceOfSubscriber)) {
             subscriber.setBalance(balnceOfSubscriber);
@@ -48,19 +49,27 @@ public class SubscriberService {
                 + id + " doesn't exist"));
     }
 
+    public Product getProductById(Long id){
+        return subscriberRepository.getProduct(id).orElseThrow(() -> new FiledTransactionException("product with id: "
+                + id + " doesn't exist"));
+    }
+
     public Subscriber addSubscribing(Long idOfSubscriber, Long idOfProduct, Long idOfRate) {
-        Subscriber subscriber = getById(idOfSubscriber);
+        Subscriber subscriber = getSubscriberById(idOfSubscriber);
+        Product product = getProductById(idOfProduct);
         Rate rate = getRateById(idOfRate);
-        if (checkStateOfSubscriber(subscriber, rate)){
+        Double balance = checkStateOfSubscriber(subscriber, rate);
+        if (balance<0){
             throw new FiledTransactionException("not enough money to add subscribing");
+        }else{
+            subscriberRepository.addSubscribing(idOfSubscriber, idOfProduct, idOfRate, balance);
         }
             return null;
     }
 
-    private boolean checkStateOfSubscriber(Subscriber subscriber, Rate rate) {
+    private Double checkStateOfSubscriber(Subscriber subscriber, Rate rate) {
         Double balance = subscriber.getBalance();
         Double cost = rate.getPrice();
-        Double state = balance - cost;
-        return state < 0;
+        return balance - cost;
     }
 }
