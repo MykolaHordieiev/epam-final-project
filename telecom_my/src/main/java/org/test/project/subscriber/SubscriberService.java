@@ -52,7 +52,7 @@ public class SubscriberService {
         Subscriber subscriber = getById(idOfSubscriber);
         Rate rate = getRateById(idOfRate);
         if (checkStateOfSubscriber(subscriber, rate)){
-            throw new FiledTransactionException("not enough funds to add subscribing");
+            throw new FiledTransactionException("not enough money to add subscribing");
         }
             return null;
     }
