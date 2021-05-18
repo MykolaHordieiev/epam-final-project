@@ -1,9 +1,12 @@
 package org.test.project.subscriber;
 
 import lombok.RequiredArgsConstructor;
-import org.test.project.entity.Product;
+import org.test.project.product.Product;
+import org.test.project.product.ProductService;
 import org.test.project.rate.Rate;
-import org.test.project.entity.Subscribing;
+import org.test.project.rate.RateService;
+import org.test.project.subscribing.Subscribing;
+import org.test.project.subscribing.SubscribingService;
 
 import java.util.List;
 
@@ -11,14 +14,15 @@ import java.util.List;
 public class SubscriberService {
 
     private final SubscriberRepository subscriberRepository;
-
+    private final ProductService productService;
+    private final RateService rateService;
 
     public Subscriber create(Subscriber subscriber) {
         return subscriberRepository.insertSubscriber(subscriber);
     }
 
     public Subscriber getSubscriberById(Long id) {
-        return subscriberRepository.getById(id).orElseThrow(() -> new FiledTransactionException("subscriber with id: "
+        return subscriberRepository.getById(id).orElseThrow(() -> new SubscriberException("subscriber with id: "
                 + id + " doesn't exist"));
     }
 
@@ -26,49 +30,26 @@ public class SubscriberService {
         return subscriberRepository.getAll();
     }
 
-    public boolean lockSubscriberById(Long id) {
-        return subscriberRepository.lockSubById(id);
+    public Subscriber lockSubscriberById(Long id) {
+        Subscriber subscriber = getSubscriberById(id);
+        Subscriber returnedSubs = subscriberRepository.lockSubById(subscriber);
+        returnedSubs.setLock(true);
+        return returnedSubs;
     }
 
-    public boolean unLockSubscriberById(Long id) {
-        return subscriberRepository.unLockSubById(id);
+    public Subscriber unLockSubscriberById(Long id) {
+        Subscriber subscriber = getSubscriberById(id);
+        Subscriber returnedSubs = subscriberRepository.unLockSubById(subscriber);
+        returnedSubs.setLock(false);
+        return returnedSubs;
     }
 
     public Subscriber topUpBalance(Long id, Double amount) {
         Subscriber subscriber = getSubscriberById(id);
-        Double balnceOfSubscriber = subscriber.getBalance() + amount;
-        if (!subscriberRepository.topUpBalanceById(id, balnceOfSubscriber)) {
-            subscriber.setBalance(balnceOfSubscriber);
-        } else {
-            throw new FiledTransactionException("filed top Up Balance");
-        }
-        return subscriber;
-    }
-
-    public Rate getRateById(Long id) {
-        return subscriberRepository.getRate(id).orElseThrow(() -> new FiledTransactionException("rate with id: "
-                + id + " doesn't exist"));
-    }
-
-    public Product getProductById(Long id) {
-        return subscriberRepository.getProduct(id).orElseThrow(() -> new FiledTransactionException("product with id: "
-                + id + " doesn't exist"));
-    }
-
-    public Subscriber addSubscribing(Long idOfSubscriber, Long idOfProduct, Long idOfRate) {
-        Subscriber subscriber = getSubscriberById(idOfSubscriber);
-        Product product = getProductById(idOfProduct);
-        Rate rate = getRateById(idOfRate);
-        Subscribing subscribing = new Subscribing(subscriber, product, rate);
-        if (!rate.getProductId().equals(product.getId())) {
-            throw new SubscriberException("incorrect rate id: " + idOfRate + " for chose product");
-        }
-        Double balance = checkStateOfSubscriber(subscriber, rate);
-        if (balance < 0) {
-            throw new FiledTransactionException("not enough money to add subscribing");
-        }
-        subscriber.setBalance(balance);
-        return subscriberRepository.addSubscribing(subscribing);
+        Double newBalance = subscriber.getBalance() + amount;
+        Subscriber returnedSubscriber = subscriberRepository.topUpBalanceById(subscriber, newBalance);
+        returnedSubscriber.setBalance(newBalance);
+        return returnedSubscriber;
     }
 
     public List<Subscribing> getSubscribing(Long id) {
@@ -76,18 +57,12 @@ public class SubscriberService {
         if (!list.isEmpty()) {
             for (Subscribing subs : list) {
                 Long idOfProduct = subs.getProduct().getId();
+                System.out.println(idOfProduct);
                 Long idOfRate = subs.getRate().getId();
-                subs.getProduct().setName(getProductById(idOfProduct).getName());
-                subs.getRate().setName(getRateById(idOfRate).getName());
-                System.out.println(list);
+                subs.getProduct().setName(productService.getProductById(idOfProduct).getName());
+                subs.getRate().setName(rateService.getRateById(idOfRate).getName());
             }
         }
         return list;
-    }
-
-    private Double checkStateOfSubscriber(Subscriber subscriber, Rate rate) {
-        Double balance = subscriber.getBalance();
-        Double cost = rate.getPrice();
-        return balance - cost;
     }
 }

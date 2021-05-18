@@ -30,14 +30,9 @@
         <p>
             To get information about all product.
         </p>
-            <form method="GET" action="/telecom/service/operator/getallproduct">
+            <form method="GET" action="/telecom/service/get/all/product">
                 <input type="submit" value="get all"><br><br>
             </form>
-        <p>
-             To do change with rates.
-        </p>
-            <form method="GET" action="/telecom/operator/refactorrate.jsp">
-            <input type="submit" value="do change"><br><br>
-            </form>
+
     </body>
 </html>

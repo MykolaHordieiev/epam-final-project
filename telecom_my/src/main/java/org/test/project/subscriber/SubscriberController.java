@@ -14,13 +14,6 @@ public class SubscriberController {
 
     private final SubscriberService subscriberService;
 
-
-//        addMapping("GET", "/subscriber", this::getSubscriberById);
-//        addMapping("POST","/checkExist",this::checkExistUserInSystem);
-//        addMapping("POST", "/subscriber", this::createSubscriber);
-//        addMapping("GET", "/subscriber/all", this::getAll);
-
-
     public ModelAndView getSubscriberById(HttpServletRequest request, HttpServletResponse response) {
         String idFromRequest = request.getParameter("id");
         validEntryParameter(idFromRequest, "id");
@@ -46,13 +39,6 @@ public class SubscriberController {
         return modelAndView;
     }
 
-    private String validEntryParameter(String entryParameter,String parameter) {
-        if (entryParameter.equals("")) {
-            throw new SubscriberException("entry parameter cannot be empty: "+ parameter);
-        }
-        return entryParameter;
-    }
-
     public ModelAndView getAll(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/subscriber/all.jsp");
@@ -62,35 +48,30 @@ public class SubscriberController {
 
     public ModelAndView lockUser(HttpServletRequest request, HttpServletResponse response) {
         String id = request.getParameter("id");
-        System.out.println(id);
         subscriberService.lockSubscriberById(Long.parseLong(id));
         return getSubscriberById(request, response);
     }
 
     public ModelAndView unLockUser(HttpServletRequest request, HttpServletResponse response) {
         String id = request.getParameter("id");
-        System.out.println(id);
         subscriberService.unLockSubscriberById(Long.parseLong(id));
         return getSubscriberById(request, response);
     }
 
     public ModelAndView topUpTheBalance(HttpServletRequest request, HttpServletResponse response) {
-        String amount = request.getParameter("amount");
+        String amount = validEntryParameter(request.getParameter("amount"),"amount");
         User subscriber = getUserOfSession(request);
-        subscriberService.topUpBalance(subscriber.getId(), Double.parseDouble(amount));
-        ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + subscriber.getId());
+        Subscriber returnedSubscriber = subscriberService.topUpBalance(subscriber.getId(), Double.parseDouble(amount));
+        ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + returnedSubscriber.getId());
         modelAndView.setRedirect(true);
         return modelAndView;
     }
 
-    public ModelAndView addSubscribing(HttpServletRequest request, HttpServletResponse response) {
-        Long idOfProduct = Long.parseLong(request.getParameter("idOfProduct"));
-        Long idofRate = Long.parseLong(request.getParameter("idOfRate"));
-        Subscriber subscriber = getUserOfSession(request);
-        subscriberService.addSubscribing(subscriber.getId(), idOfProduct, idofRate);
-        ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + subscriber.getId());
-        modelAndView.setRedirect(true);
-        return modelAndView;
+    private String validEntryParameter(String entryParameter,String parameter) {
+        if (entryParameter.equals("")) {
+            throw new SubscriberException("entry parameter cannot be empty: "+ parameter);
+        }
+        return entryParameter;
     }
 
     private Subscriber getUserOfSession(HttpServletRequest request) {

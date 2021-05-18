@@ -1,4 +1,4 @@
-package org.test.project.entity;
+package org.test.project.product;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

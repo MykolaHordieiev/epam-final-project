@@ -3,9 +3,9 @@ package org.test.project.subscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.test.project.entity.Product;
+import org.test.project.product.Product;
 import org.test.project.rate.Rate;
-import org.test.project.entity.Subscribing;
+import org.test.project.subscribing.Subscribing;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -17,9 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SubscriberRepository {
 
-
     private final DataSource dataSource;
-
 
     @SneakyThrows
     public Optional<Subscriber> getById(Long id) {
@@ -37,7 +35,6 @@ public class SubscriberRepository {
             }
             return Optional.empty();
         }
-
     }
 
     @SneakyThrows
@@ -66,11 +63,9 @@ public class SubscriberRepository {
             }
         } catch (Exception ex) {
             if (connection != null) {
-                    connection.rollback();
-
+                connection.rollback();
             }
-            System.out.println("throw fieldTransaction");
-            throw new FiledTransactionException("transaction failed");
+            throw new FiledTransactionException("transaction failed with create Subscriber");
         } finally {
             close(preparedStatement);
             close(connection);
@@ -99,96 +94,36 @@ public class SubscriberRepository {
     }
 
     @SneakyThrows
-    public boolean lockSubById(Long id) {
-        String query = "UPDATE subscriber SET locked=true WHERE id=" + id;
+    public Subscriber lockSubById(Subscriber subscriber) {
+        String query = "UPDATE subscriber SET locked=true WHERE id=" + subscriber.getId();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
-            return statement.execute(query);
+            statement.execute(query);
         }
+        return subscriber;
     }
 
     @SneakyThrows
-    public boolean unLockSubById(Long id) {
-        String query = "UPDATE subscriber SET locked=false WHERE id=" + id;
+    public Subscriber unLockSubById(Subscriber subscriber) {
+        String query = "UPDATE subscriber SET locked=false WHERE id=" + subscriber.getId();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
-            return statement.execute(query);
+            statement.execute(query);
         }
+        return subscriber;
     }
 
     @SneakyThrows
-    public boolean topUpBalanceById(Long id, Double amount) {
-        String query = "UPDATE subscriber SET balance=? WHERE id=" + id;
+    public Subscriber topUpBalanceById(Subscriber subscriber, Double newBalance) {
+        String query = "UPDATE subscriber SET balance=? WHERE id=" + subscriber.getId();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setDouble(1, amount);
-            return preparedStatement.execute();
-        }
-    }
-
-    @SneakyThrows
-    public Optional<Rate> getRate(Long id) {
-        String query = "SELECT * FROM rate WHERE id=" + id;
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-            if (resultSet.next()) {
-                Rate rate = new Rate();
-                rate.setId(resultSet.getLong("id"));
-                rate.setName(resultSet.getString("name_rate"));
-                rate.setPrice(resultSet.getDouble("price"));
-                rate.setProductId(resultSet.getLong("product_id"));
-                return Optional.of(rate);
-            }
-        }
-        return Optional.empty();
-    }
-
-    @SneakyThrows
-    public Optional<Product> getProduct(Long id) {
-        String query = "SELECT * FROM product WHERE id=" + id;
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-            if (resultSet.next()) {
-                Product product = new Product();
-                product.setId(resultSet.getLong("id"));
-                product.setName(resultSet.getString("name_product"));
-                return Optional.of(product);
-            }
-        }
-        return Optional.empty();
-    }
-
-    @SneakyThrows
-    public Subscriber addSubscribing(Subscribing subscribing) {
-        String addSubscribing = "INSERT INTO subscribing VALUES(?,?,?)";
-        String withdrawn = "UPDATE subscriber SET balance=? WHERE id=" + subscribing.getSubscriber().getId();
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = dataSource.getConnection();
-            connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(addSubscribing);
-            preparedStatement.setDouble(1, subscribing.getSubscriber().getId());
-            preparedStatement.setDouble(2, subscribing.getProduct().getId());
-            preparedStatement.setDouble(3, subscribing.getRate().getId());
+            preparedStatement.setDouble(1, newBalance);
             preparedStatement.execute();
-            try (PreparedStatement preparedStatement1 = connection.prepareStatement(withdrawn)) {
-                preparedStatement1.setDouble(1, subscribing.getSubscriber().getBalance());
-                preparedStatement1.execute();
-                connection.commit();
-            }
-        } catch (Exception ex) {
-            if (connection != null) {
-                connection.rollback();
-            }
-            throw new FiledTransactionException("filed transaction in addSubscribing");
-        } finally {
-            close(preparedStatement);
-            close(connection);
+        } catch (SQLException ex) {
+            throw new SubscriberException("filed top up balance");
         }
-        return subscribing.getSubscriber();
+        return subscriber;
     }
 
     @SneakyThrows
@@ -216,6 +151,7 @@ public class SubscriberRepository {
         }
         return listOfSubscribing;
     }
+
 
     @SneakyThrows
     private void close(AutoCloseable autoCloseable) {

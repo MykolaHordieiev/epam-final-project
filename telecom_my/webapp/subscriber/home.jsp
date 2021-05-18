@@ -17,9 +17,9 @@
                 <input type="submit" value="top up"><br><br>
             </form>
         <p>
-            Press the button to add some product.
+            Click the button to select a subscription.
         </p>
-        <form method="GET" action="/telecom/service/subscriber/getallentity">
+        <form method="GET" action="/telecom/service/get/all/product">
             <input type="submit" value="add"><br><br>
         </form>
     </body>

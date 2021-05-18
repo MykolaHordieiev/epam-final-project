@@ -38,7 +38,7 @@ public class RateRepository {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 long productId = resultSet.getLong("product_id");
                 String name = resultSet.getString("name_rate");
                 double prise = resultSet.getDouble("price");

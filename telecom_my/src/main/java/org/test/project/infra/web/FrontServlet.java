@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.test.project.User.UserController;
 import org.test.project.operator.OperatorController;
+import org.test.project.product.ProductController;
 import org.test.project.rate.RateController;
 import org.test.project.subscriber.SubscriberController;
+import org.test.project.subscribing.SubscribingController;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -22,6 +24,8 @@ public class FrontServlet extends HttpServlet {
     private final UserController userController;
     private final OperatorController operatorController;
     private final RateController rateController;
+    private final ProductController productController;
+    private final SubscribingController subscribingController;
     private final ExceptionHandler exceptionHandler;
     @Getter
     private final String name;
@@ -46,27 +50,21 @@ public class FrontServlet extends HttpServlet {
                 modelAndView = subscriberController.lockUser(req, resp);
             } else if (controllerPath.equals("/subscriber/unlock") && method.equals("POST")) {
                 modelAndView = subscriberController.unLockUser(req, resp);
-            } else if (controllerPath.equals("/operator/getallproduct") && method.equals("GET")) {
-                modelAndView = operatorController.getAllProductsWithRate(req, resp);
-            } else if (controllerPath.equals("/subscriber/getallentity") && method.equals("GET")) {
-                modelAndView = operatorController.getAllProductsWithRate(req, resp);
-            } else if (controllerPath.equals("/operator/deleterate") && method.equals("POST")) {
-                modelAndView = operatorController.deleteRate(req, resp);
-            } else if (controllerPath.equals("/operator/changerate") && method.equals("POST")) {
-                modelAndView = operatorController.changeRate(req, resp);
-            } else if (controllerPath.equals("/subscriber/balance") && method.equals("POST")) {
+            }else if (controllerPath.equals("/subscriber/balance") && method.equals("POST")) {
                 modelAndView = subscriberController.topUpTheBalance(req, resp);
-            } else if (controllerPath.equals("/subscriber/addsubscribing") && method.equals("POST")) {
-                modelAndView = subscriberController.addSubscribing(req, resp);
+            } else if (controllerPath.equals("/get/all/product") && method.equals("GET")) {
+                modelAndView = productController.getAllProductsWithRate(req, resp);
+            }   else if (controllerPath.equals("/add/subscribing") && method.equals("POST")) {
+                modelAndView = subscribingController.addSubscribing(req, resp);
             } else if (controllerPath.equals("/rate/product") && method.equals("GET")) {
                 modelAndView = rateController.getAllRates(req, resp);
-            } else if (controllerPath.equals("/rate") && method.equals("GET")) {
+            } else if (controllerPath.equals("/rate/info") && method.equals("GET")) {
                 modelAndView = rateController.getRateById(req, resp);
             } else if (controllerPath.equals("/rate") && method.equals("POST")) {
                 modelAndView = rateController.changeRates(req, resp);
             } else if (controllerPath.equals("/rate/add") && method.equals("GET")) {
                 modelAndView = rateController.returnViewAddRates(req, resp);
-            }else if (controllerPath.equals("/rate/addrate") && method.equals("POST")) {
+            }else if (controllerPath.equals("/rate/add") && method.equals("POST")) {
                 modelAndView = rateController.addRate(req, resp);
             } else  {
                 modelAndView = ModelAndView.withView("/error/pagenotfound.jsp");

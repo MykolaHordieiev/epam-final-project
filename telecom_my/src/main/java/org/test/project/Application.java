@@ -11,19 +11,22 @@ import org.test.project.infra.web.*;
 import org.test.project.operator.OperatorController;
 import org.test.project.operator.OperatorRepository;
 import org.test.project.operator.OperatorService;
+import org.test.project.product.ProductController;
+import org.test.project.product.ProductRepository;
+import org.test.project.product.ProductService;
 import org.test.project.rate.RateController;
 import org.test.project.rate.RateRepository;
 import org.test.project.rate.RateService;
 import org.test.project.subscriber.*;
+import org.test.project.subscribing.SubscribingController;
+import org.test.project.subscribing.SubscribingRepository;
+import org.test.project.subscribing.SubscribingService;
 
 import javax.sql.DataSource;
 
 public class Application {
 
     public static void main(String[] args) {
-
-        //infra
-        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
 
         //config
         DataSourceConfig dataSourceConfig = new DataSourceConfig();
@@ -34,16 +37,18 @@ public class Application {
         LiquibaseStarter liquibaseStarter = new LiquibaseStarter(dataSource);
         liquibaseStarter.updateDatabase();
 
-
         //application
         SubscriberController subscriberController = configureSubscriber(dataSource);
         UserController userController = configureUser(dataSource);
         OperatorController operatorController = configureOperator(dataSource);
         RateController rateController = configureRate(dataSource);
+        ProductController productController = configureProduct(dataSource);
+        SubscribingController subscribingController = configureSubscribing(dataSource);
+
         //web
         ExceptionHandler exceptionHandler = new ExceptionHandlerImplMy();
         FrontServlet frontServlet = new FrontServlet(subscriberController,userController,operatorController,
-                rateController, exceptionHandler, "front", "/service");
+                rateController,productController,subscribingController, exceptionHandler, "front", "/service");
         ServerStarter serverStarter = serverStarterConfig.configureServer(frontServlet);
         serverStarter.startServer();
     }
@@ -51,8 +56,9 @@ public class Application {
     private static SubscriberController configureSubscriber(DataSource dataSource) {
         //Subscriber config
         SubscriberRepository subscriberRepository = new SubscriberRepository(dataSource);
-        SubscriberService subscriberService = new SubscriberService(subscriberRepository);
-
+        SubscriberService subscriberService = new SubscriberService(subscriberRepository,
+                new ProductService(new ProductRepository(dataSource)),
+                new RateService(new RateRepository(dataSource)));
         return new SubscriberController(subscriberService);
     }
 
@@ -75,4 +81,22 @@ public class Application {
         return new RateController(rateService);
     }
 
+    private static ProductController configureProduct(DataSource dataSource){
+        //Operator config
+        ProductRepository productRepository = new ProductRepository(dataSource);
+        ProductService productService = new ProductService(productRepository);
+        return new ProductController(productService);
+    }
+    private static SubscribingController configureSubscribing(DataSource dataSource) {
+        //Subscriber config
+        SubscribingRepository subscribingRepository = new SubscribingRepository(dataSource);
+        SubscribingService subscribingService = new SubscribingService(subscribingRepository,
+                new SubscriberService(new SubscriberRepository(dataSource),
+                        new ProductService(new ProductRepository(dataSource)),
+                        new RateService(new RateRepository(dataSource))),
+                new ProductService(new ProductRepository(dataSource)),
+                new RateService(new RateRepository(dataSource)));
+
+        return new SubscribingController(subscribingService);
+    }
 }

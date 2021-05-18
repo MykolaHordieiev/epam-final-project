@@ -9,7 +9,7 @@
         <p>
             Please, write info about rate.
         </p>
-            <form method="POST" action="/telecom/service/rate/addrate">
+            <form method="POST" action="/telecom/service/rate/add">
               <label for="name">name of rate:</label><br>
               <input type="text" id="name" name="name"><br><br>
               <label for="name">price of rate:</label><br>

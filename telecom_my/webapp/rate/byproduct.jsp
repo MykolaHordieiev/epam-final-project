@@ -23,12 +23,21 @@
     <td>${rate.price}</td>
     <c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">
         <td>
-            <form method="GET" action="/telecom/service/rate">
+            <form method="GET" action="/telecom/service/rate/info">
                 <input type="hidden" name="id" value="${rate.id}"/>
                 <input type="submit" value="rate info">
             </form>
          </td>
     </c:if>
+    <c:if test = "${sessionScope.user.userRole == 'SUBSCRIBER'}">
+            <td>
+                <form method="POST" action="/telecom/service/add/subscribing">
+                    <input type="hidden" name="rateId" value="${rate.id}"/>
+                    <input type="hidden" name="productId" value="${productId}"/>
+                    <input type="submit" value="subscribing">
+                </form>
+             </td>
+        </c:if>
   </tr>
   </c:forEach>
 </table>
