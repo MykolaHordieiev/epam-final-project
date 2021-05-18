@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>subscriber by id</title>
+        <title>rate by id</title>
         <meta charset="UTF-8">
     </head>
     <body>
@@ -23,7 +23,7 @@
     <td>${rate.price}</td>
     <c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">
         <td>
-            <form method="get" action="/telecom/service/rate">
+            <form method="GET" action="/telecom/service/rate">
                 <input type="hidden" name="id" value="${rate.id}"/>
                 <input type="submit" value="rate info">
             </form>
@@ -32,6 +32,14 @@
   </tr>
   </c:forEach>
 </table>
+<c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">
+
+      <form method="GET" action="/telecom/service/rate/add">
+            <input type="hidden" name="id" value="${productId}"/>
+                <input type="submit" value="add new rate">
+      </form>
+
+    </c:if>
 
 
 

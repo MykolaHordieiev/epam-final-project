@@ -2,19 +2,16 @@ package org.test.project.operator;
 
 import lombok.RequiredArgsConstructor;
 import org.test.project.entity.Product;
-import org.test.project.entity.Rate;
+import org.test.project.rate.Rate;
 
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 public class OperatorService {
 
     private final OperatorRepository operatorRepository;
 
-    public void addRateForProduct(String nameOfRate, double price, Long idOfProduct) {
-        operatorRepository.addRateByProductId(nameOfRate, price, idOfProduct);
-    }
+
 
     public boolean deleteRateForProduct(Long id) {
         return operatorRepository.deleteRateByProductId(id);

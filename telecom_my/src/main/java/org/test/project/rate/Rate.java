@@ -1,4 +1,4 @@
-package org.test.project.entity;
+package org.test.project.rate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -10,7 +10,7 @@
             Welcome to home page, ${sessionScope.user.login}<br>
             If you want create new subscriber, press the button.
         </p>
-             <form method="POST" action="/telecom/subscriber/create.jsp">
+             <form method="POST" action="/telecom/operator/create.jsp">
                     <input type="submit" value="create">
              </form>
         <p>
@@ -28,23 +28,9 @@
                         <input type="submit" value="get all">
                 </form>
         <p>
-             Lock/Unlock subscriber.
+            To get information about all product.
         </p>
-            <form method="POST" action="/telecom/service/subscriber/lock">
-               <label for="name">Enter Subscriber`s id for lock:</label><br>
-               <input type="text" id="id" name="id"><br><br>
-               <input type="submit" value="lock"><br><br>
-
-            </form>
-            <form method="POST" action="/telecom/service/subscriber/unlock">
-                <label for="name">Enter Subscriber`s id for Unlock:</label><br>
-                <input type="text" id="id" name="id"><br><br>
-                <input type="submit" value="unlock">
-            </form>
-        <p>
-            To get all list of rates.
-        </p>
-            <form method="GET" action="/telecom/service/operator/getallentity">
+            <form method="GET" action="/telecom/service/operator/getallproduct">
                 <input type="submit" value="get all"><br><br>
             </form>
         <p>

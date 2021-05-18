@@ -3,7 +3,7 @@ package org.test.project.operator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.test.project.entity.Product;
-import org.test.project.entity.Rate;
+import org.test.project.rate.Rate;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -11,26 +11,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 public class OperatorRepository {
 
     private final DataSource dataSource;
 
-    @SneakyThrows
-    public boolean addRateByProductId(String nameOfRate, double price, Long idofProduct) {
-        String addRate = "INSERT INTO rate (name_rate, price, product_id) VALUES (?,?,?)";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(addRate)) {
-            preparedStatement.setString(1, nameOfRate);
-            preparedStatement.setDouble(2, price);
-            preparedStatement.setLong(3, idofProduct);
-            return preparedStatement.execute();
-        }
-    }
+
 
     @SneakyThrows
     public boolean deleteRateByProductId(Long id) {
@@ -75,27 +63,6 @@ public class OperatorRepository {
             }
             return listOfRate;
         }
-    }
-
-    @SneakyThrows
-    public Map<Product, Rate> getProductsAndRates() {
-        Map<Product, Rate> mapOfProductAndRate = new Hashtable<>();
-        String getProductsAndRates = "SELECT * FROM product JOIN rate ON product.id=rate.product_id ORDER BY product_id";
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(getProductsAndRates)) {
-            while (resultSet.next()) {
-                Product product = new Product();
-                Rate rate = new Rate();
-                product.setId(resultSet.getLong(1));
-                product.setName(resultSet.getString("name_product"));
-                rate.setId(resultSet.getLong(3));
-                rate.setName(resultSet.getString("name_rate"));
-                rate.setPrice(resultSet.getDouble("price"));
-                mapOfProductAndRate.put(product, rate);
-            }
-        }
-        return mapOfProductAndRate;
     }
 
     @SneakyThrows

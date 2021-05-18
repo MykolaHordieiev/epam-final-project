@@ -21,4 +21,9 @@ public class Subscriber extends User {
         this.balance = balance;
         this.lock = lock;
     }
+
+    @Override
+    public String toString(){
+        return this.getLogin();
+    }
 }

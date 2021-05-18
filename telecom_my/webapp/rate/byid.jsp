@@ -12,11 +12,13 @@
                       <input type="number" id="price" name="price" value="${rate.price}">
                       <input type="hidden" name="method" value="PUT">
                       <input type="hidden" name="id" value="${rate.id}">
+                      <input type="hidden" name="productId" value="${rate.productId}">
                       <input type="submit" value="update">
         </form>
         <form method="POST" action="/telecom/service/rate">
                  <input type="hidden" name="method" value="DELETE">
                  <input type="hidden" name="id" value="${rate.id}">
+                  <input type="hidden" name="productId" value="${rate.productId}">
                  <input type="submit" value="delete">
         </form>
     </body>

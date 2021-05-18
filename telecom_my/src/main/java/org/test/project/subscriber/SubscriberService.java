@@ -2,7 +2,7 @@ package org.test.project.subscriber;
 
 import lombok.RequiredArgsConstructor;
 import org.test.project.entity.Product;
-import org.test.project.entity.Rate;
+import org.test.project.rate.Rate;
 import org.test.project.entity.Subscribing;
 
 import java.util.List;

@@ -23,7 +23,7 @@
 
          <c:forEach items="${rates}" var="rate">
                         <p>rate id: ${rate.id} rate_name: ${rate.name} price: ${rate.price}
-                        product_id: ${rate.product_id}</p>
+                        product_id: ${rate.productId}</p>
          </c:forEach>
 
     </body>

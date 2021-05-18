@@ -3,7 +3,7 @@ package org.test.project.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import org.test.project.rate.Rate;
 import org.test.project.subscriber.Subscriber;
 
 @Data

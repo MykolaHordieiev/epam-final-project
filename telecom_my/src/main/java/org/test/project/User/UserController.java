@@ -22,10 +22,10 @@ public class UserController {
         session.setAttribute("user", user);
         ModelAndView modelAndView;
         if (user.getUserRole().equals(UserRole.OPERATOR)) {
-            modelAndView = ModelAndView.withView("/homePage/forOperator.jsp");
+            modelAndView = ModelAndView.withView("/operator/home.jsp");
         } else {
             userService.checkLockSubscriber(user.getId());
-            modelAndView = ModelAndView.withView("/homePage/forSubscriber.jsp");
+            modelAndView = ModelAndView.withView("/subscriber/home.jsp");
         }
         modelAndView.setRedirect(true);
         return modelAndView;

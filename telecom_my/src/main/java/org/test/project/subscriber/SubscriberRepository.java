@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.test.project.entity.Product;
-import org.test.project.entity.Rate;
+import org.test.project.rate.Rate;
 import org.test.project.entity.Subscribing;
 
 import javax.sql.DataSource;
@@ -137,7 +137,7 @@ public class SubscriberRepository {
                 rate.setId(resultSet.getLong("id"));
                 rate.setName(resultSet.getString("name_rate"));
                 rate.setPrice(resultSet.getDouble("price"));
-                rate.setProductId(resultSet.getLong("productId"));
+                rate.setProductId(resultSet.getLong("product_id"));
                 return Optional.of(rate);
             }
         }
@@ -201,7 +201,7 @@ public class SubscriberRepository {
             while (resultSet.next()) {
                 Product product = new Product();
                 Rate rate = new Rate();
-                product.setId(resultSet.getLong("productId"));
+                product.setId(resultSet.getLong("product_id"));
                 rate.setId(resultSet.getLong("rate_id"));
                 Subscribing subscribing = new Subscribing();
                 subscribing.setProduct(product);

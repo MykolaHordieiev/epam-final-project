@@ -34,10 +34,10 @@ public class FrontServlet extends HttpServlet {
         String method = req.getMethod();
         ModelAndView modelAndView;
         try {
-            if (controllerPath.equals("/subscriber") && method.equals("GET")) {
-                modelAndView = subscriberController.getSubscriberById(req, resp);
-            } else if (controllerPath.equals("/login") && method.equals("POST")) {
+            if (controllerPath.equals("/login") && method.equals("POST")) {
                 modelAndView = userController.login(req, resp);
+            } else if (controllerPath.equals("/subscriber") && method.equals("GET")) {
+                modelAndView = subscriberController.getSubscriberById(req, resp);
             } else if (controllerPath.equals("/subscriber") && method.equals("POST")) {
                 modelAndView = subscriberController.createSubscriber(req, resp);
             } else if (controllerPath.equals("/subscriber/all") && method.equals("GET")) {
@@ -46,12 +46,10 @@ public class FrontServlet extends HttpServlet {
                 modelAndView = subscriberController.lockUser(req, resp);
             } else if (controllerPath.equals("/subscriber/unlock") && method.equals("POST")) {
                 modelAndView = subscriberController.unLockUser(req, resp);
-            } else if (controllerPath.equals("/operator/getallentity") && method.equals("GET")) {
+            } else if (controllerPath.equals("/operator/getallproduct") && method.equals("GET")) {
                 modelAndView = operatorController.getAllProductsWithRate(req, resp);
             } else if (controllerPath.equals("/subscriber/getallentity") && method.equals("GET")) {
                 modelAndView = operatorController.getAllProductsWithRate(req, resp);
-            } else if (controllerPath.equals("/operator/addrate") && method.equals("POST")) {
-                modelAndView = operatorController.addRate(req, resp);
             } else if (controllerPath.equals("/operator/deleterate") && method.equals("POST")) {
                 modelAndView = operatorController.deleteRate(req, resp);
             } else if (controllerPath.equals("/operator/changerate") && method.equals("POST")) {
@@ -64,7 +62,13 @@ public class FrontServlet extends HttpServlet {
                 modelAndView = rateController.getAllRates(req, resp);
             } else if (controllerPath.equals("/rate") && method.equals("GET")) {
                 modelAndView = rateController.getRateById(req, resp);
-            } else {
+            } else if (controllerPath.equals("/rate") && method.equals("POST")) {
+                modelAndView = rateController.changeRates(req, resp);
+            } else if (controllerPath.equals("/rate/add") && method.equals("GET")) {
+                modelAndView = rateController.returnViewAddRates(req, resp);
+            }else if (controllerPath.equals("/rate/addrate") && method.equals("POST")) {
+                modelAndView = rateController.addRate(req, resp);
+            } else  {
                 modelAndView = ModelAndView.withView("/error/pagenotfound.jsp");
             }
         } catch (Exception ex) {

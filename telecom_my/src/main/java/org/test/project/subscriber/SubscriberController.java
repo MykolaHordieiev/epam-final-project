@@ -22,17 +22,21 @@ public class SubscriberController {
 
 
     public ModelAndView getSubscriberById(HttpServletRequest request, HttpServletResponse response) {
-        Long id = Long.parseLong(request.getParameter("id"));
+        String idFromRequest = request.getParameter("id");
+        validEntryParameter(idFromRequest, "id");
+        Long id = Long.parseLong(idFromRequest);
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/subscriber/infobyid.jsp");
         modelAndView.addAttribute("subscriber", subscriberService.getSubscriberById(id));
-        modelAndView.addAttribute("subscriptions",subscriberService.getSubscribing(id));
+        modelAndView.addAttribute("subscriptions", subscriberService.getSubscribing(id));
         return modelAndView;
     }
 
     public ModelAndView createSubscriber(HttpServletRequest request, HttpServletResponse response) {
         String login = request.getParameter("login");
         String password = request.getParameter("password");
+        validEntryParameter(login,"login");
+        validEntryParameter(password,"password");
         Subscriber subscriber = new Subscriber();
         subscriber.setLogin(login);
         subscriber.setPassword(password);
@@ -40,6 +44,13 @@ public class SubscriberController {
         ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + createdSubscriber.getId());
         modelAndView.setRedirect(true);
         return modelAndView;
+    }
+
+    private String validEntryParameter(String entryParameter,String parameter) {
+        if (entryParameter.equals("")) {
+            throw new SubscriberException("entry parameter cannot be empty: "+ parameter);
+        }
+        return entryParameter;
     }
 
     public ModelAndView getAll(HttpServletRequest request, HttpServletResponse response) {
@@ -76,7 +87,7 @@ public class SubscriberController {
         Long idOfProduct = Long.parseLong(request.getParameter("idOfProduct"));
         Long idofRate = Long.parseLong(request.getParameter("idOfRate"));
         Subscriber subscriber = getUserOfSession(request);
-        subscriberService.addSubscribing(subscriber.getId(),idOfProduct,idofRate);
+        subscriberService.addSubscribing(subscriber.getId(), idOfProduct, idofRate);
         ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + subscriber.getId());
         modelAndView.setRedirect(true);
         return modelAndView;
