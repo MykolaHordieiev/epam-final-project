@@ -42,19 +42,4 @@ public class UserRepository {
         }
         return Optional.empty();
     }
-
-    @SneakyThrows
-    public Optional<Subscriber> checkSubscriberLock(Long id) {
-        String query = "SELECT locked FROM subscriber WHERE id=" + id;
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-            if (resultSet.next()) {
-                Subscriber subscriber = new Subscriber();
-                subscriber.setLock(resultSet.getBoolean("locked"));
-                return Optional.of(subscriber);
-            }
-        }
-        return Optional.empty();
-    }
 }

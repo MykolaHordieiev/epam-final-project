@@ -33,6 +33,8 @@
             <form method="GET" action="/telecom/service/get/all/product">
                 <input type="submit" value="get all"><br><br>
             </form>
-
+<form method="GET" action="/telecom">
+            <input type="submit" value="log out"><br><br>
+        </form>
     </body>
 </html>

@@ -27,15 +27,23 @@ public class SubscribingService {
         if (!rate.getProductId().equals(product.getId())) {
             throw new SubscriberException("incorrect rate id: " + idOfRate + " for chose product");
         }
-        Double balance = checkStateOfSubscriber(subscriber, rate);
-        if (balance < 0) {
-            subscriberService.lockSubscriberById(subscriber.getId());
-            throw new SubscribingException("not enough money to add subscribing. " +
-                    "You are locked, until you replenish your balance. " +
-                    "Your balance = " + subscriber.getBalance());
-        }
-        subscriber.setBalance(balance);
+        double balance = checkStateOfSubscriber(subscriber, rate);
+        subscribing.getSubscriber().setBalance(balance);
         return subscribingRepository.addSubscribing(subscribing);
+    }
+
+    public List<Subscribing> getSubscribing(Long id) {
+        List<Subscribing> list = subscribingRepository.getSubscribingBySubscriberId(id);
+        if (!list.isEmpty()) {
+            for (Subscribing subs : list) {
+                Long idOfProduct = subs.getProduct().getId();
+                System.out.println(idOfProduct);
+                Long idOfRate = subs.getRate().getId();
+                subs.getProduct().setName(productService.getProductById(idOfProduct).getName());
+                subs.getRate().setName(rateService.getRateById(idOfRate).getName());
+            }
+        }
+        return list;
     }
 
     private Double checkStateOfSubscriber(Subscriber subscriber, Rate rate) {

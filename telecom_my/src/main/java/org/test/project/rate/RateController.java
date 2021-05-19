@@ -1,10 +1,15 @@
 package org.test.project.rate;
 
 import lombok.RequiredArgsConstructor;
+import org.test.project.User.User;
+import org.test.project.User.UserRole;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.subscriber.Subscriber;
+import org.test.project.subscriber.SubscriberService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 import static java.lang.Long.parseLong;
@@ -13,6 +18,7 @@ import static java.lang.Long.parseLong;
 public class RateController {
 
     private final RateService rateService;
+    private final SubscriberService subscriberService;
 
     public ModelAndView getAllRates(HttpServletRequest request, HttpServletResponse response) {
         Long productId = parseLong(request.getParameter("productId"));
@@ -21,7 +27,16 @@ public class RateController {
         modelAndView.setView("/rate/byproduct.jsp");
         modelAndView.addAttribute("rates", rates);
         modelAndView.addAttribute("productId",productId);
+        modelAndView.addAttribute("subscriber",getSubscriberFromSession(request));
         return modelAndView;
+    }
+    private Subscriber getSubscriberFromSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        User user = (User) session.getAttribute("user");
+        if(user.getUserRole().equals(UserRole.SUBSCRIBER)){
+            return subscriberService.getSubscriberById(user.getId());
+        }
+        return new Subscriber();
     }
 
     public ModelAndView getRateById(HttpServletRequest request, HttpServletResponse response) {

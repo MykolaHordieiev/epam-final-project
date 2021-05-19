@@ -4,6 +4,7 @@ package org.test.project.subscriber;
 import lombok.AllArgsConstructor;
 import org.test.project.User.User;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.subscribing.SubscribingService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpSession;
 public class SubscriberController {
 
     private final SubscriberService subscriberService;
+    private final SubscribingService subscribingService;
 
     public ModelAndView getSubscriberById(HttpServletRequest request, HttpServletResponse response) {
         String idFromRequest = request.getParameter("id");
@@ -21,15 +23,15 @@ public class SubscriberController {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/subscriber/infobyid.jsp");
         modelAndView.addAttribute("subscriber", subscriberService.getSubscriberById(id));
-        modelAndView.addAttribute("subscriptions", subscriberService.getSubscribing(id));
+        modelAndView.addAttribute("subscriptions", subscribingService.getSubscribing(id));
         return modelAndView;
     }
 
     public ModelAndView createSubscriber(HttpServletRequest request, HttpServletResponse response) {
         String login = request.getParameter("login");
         String password = request.getParameter("password");
-        validEntryParameter(login,"login");
-        validEntryParameter(password,"password");
+        validEntryParameter(login, "login");
+        validEntryParameter(password, "password");
         Subscriber subscriber = new Subscriber();
         subscriber.setLogin(login);
         subscriber.setPassword(password);
@@ -59,17 +61,19 @@ public class SubscriberController {
     }
 
     public ModelAndView topUpTheBalance(HttpServletRequest request, HttpServletResponse response) {
-        String amount = validEntryParameter(request.getParameter("amount"),"amount");
+        String amount = validEntryParameter(request.getParameter("amount"), "amount");
         User subscriber = getUserOfSession(request);
         Subscriber returnedSubscriber = subscriberService.topUpBalance(subscriber.getId(), Double.parseDouble(amount));
         ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + returnedSubscriber.getId());
+        HttpSession session = request.getSession(true);
+        session.setAttribute("user", returnedSubscriber);
         modelAndView.setRedirect(true);
         return modelAndView;
     }
 
-    private String validEntryParameter(String entryParameter,String parameter) {
+    private String validEntryParameter(String entryParameter, String parameter) {
         if (entryParameter.equals("")) {
-            throw new SubscriberException("entry parameter cannot be empty: "+ parameter);
+            throw new SubscriberException("entry parameter cannot be empty: " + parameter);
         }
         return entryParameter;
     }

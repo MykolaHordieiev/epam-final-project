@@ -1,6 +1,7 @@
 package org.test.project.subscriber;
 
 import lombok.RequiredArgsConstructor;
+import org.test.project.User.UserLoginException;
 import org.test.project.product.Product;
 import org.test.project.product.ProductService;
 import org.test.project.rate.Rate;
@@ -8,6 +9,7 @@ import org.test.project.rate.RateService;
 import org.test.project.subscribing.Subscribing;
 import org.test.project.subscribing.SubscribingService;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -46,23 +48,14 @@ public class SubscriberService {
 
     public Subscriber topUpBalance(Long id, Double amount) {
         Subscriber subscriber = getSubscriberById(id);
-        Double newBalance = subscriber.getBalance() + amount;
+        double balanceBefore = subscriber.getBalance();
+        double newBalance = subscriber.getBalance() + amount;
         Subscriber returnedSubscriber = subscriberRepository.topUpBalanceById(subscriber, newBalance);
         returnedSubscriber.setBalance(newBalance);
-        return returnedSubscriber;
-    }
-
-    public List<Subscribing> getSubscribing(Long id) {
-        List<Subscribing> list = subscriberRepository.getSubscribingBySubscriberId(id);
-        if (!list.isEmpty()) {
-            for (Subscribing subs : list) {
-                Long idOfProduct = subs.getProduct().getId();
-                System.out.println(idOfProduct);
-                Long idOfRate = subs.getRate().getId();
-                subs.getProduct().setName(productService.getProductById(idOfProduct).getName());
-                subs.getRate().setName(rateService.getRateById(idOfRate).getName());
-            }
+        if (balanceBefore < 0 && newBalance > 0) {
+            unLockSubscriberById(returnedSubscriber.getId());
+            returnedSubscriber.setLock(false);
         }
-        return list;
+        return returnedSubscriber;
     }
 }

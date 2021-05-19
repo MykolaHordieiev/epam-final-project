@@ -30,6 +30,7 @@
          </td>
     </c:if>
     <c:if test = "${sessionScope.user.userRole == 'SUBSCRIBER'}">
+        <c:if test = "${subscriber.lock == 'false'}">
             <td>
                 <form method="POST" action="/telecom/service/add/subscribing">
                     <input type="hidden" name="rateId" value="${rate.id}"/>
@@ -38,6 +39,7 @@
                 </form>
              </td>
         </c:if>
+    </c:if>
   </tr>
   </c:forEach>
 </table>

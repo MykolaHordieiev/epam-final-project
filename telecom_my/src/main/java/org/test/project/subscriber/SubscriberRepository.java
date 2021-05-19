@@ -127,33 +127,6 @@ public class SubscriberRepository {
     }
 
     @SneakyThrows
-    public List<Subscribing> getSubscribingBySubscriberId(Long id) {
-        String getSubscribing = "SELECT * FROM subscribing WHERE subscriber_id=" + id;
-        List<Subscribing> listOfSubscribing = new ArrayList<>();
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(getSubscribing)) {
-            while (resultSet.next()) {
-                Product product = new Product();
-                Rate rate = new Rate();
-                product.setId(resultSet.getLong("product_id"));
-                rate.setId(resultSet.getLong("rate_id"));
-                Subscribing subscribing = new Subscribing();
-                subscribing.setProduct(product);
-                subscribing.setRate(rate);
-                listOfSubscribing.add(subscribing);
-            }
-            for (int i = 0; i < listOfSubscribing.size(); i++) {
-                System.out.println(listOfSubscribing.get(i).getProduct().getId());
-                System.out.println(listOfSubscribing.get(i).getRate().getId());
-            }
-            System.out.println(listOfSubscribing);
-        }
-        return listOfSubscribing;
-    }
-
-
-    @SneakyThrows
     private void close(AutoCloseable autoCloseable) {
         if (autoCloseable != null) {
             autoCloseable.close();

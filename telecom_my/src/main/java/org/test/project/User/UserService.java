@@ -27,13 +27,6 @@ public class UserService {
         return user;
     }
 
-    public Subscriber checkLockSubscriber(Long id){
-       Subscriber subscriber = userRepository.checkSubscriberLock(id).orElseThrow(
-               ()->new UserLoginException("subscriber no found, when try check lock"));
-       if(subscriber.isLock()){
-           throw new UserLoginException("you are lock, please, write to admin");
-       }
-        return subscriber;
-    }
+
 
 }

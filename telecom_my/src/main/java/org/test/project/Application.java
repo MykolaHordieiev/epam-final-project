@@ -1,7 +1,6 @@
 package org.test.project;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
 import org.test.project.User.UserController;
 import org.test.project.User.UserRepository;
 import org.test.project.User.UserService;
@@ -59,14 +58,21 @@ public class Application {
         SubscriberService subscriberService = new SubscriberService(subscriberRepository,
                 new ProductService(new ProductRepository(dataSource)),
                 new RateService(new RateRepository(dataSource)));
-        return new SubscriberController(subscriberService);
+        return new SubscriberController(subscriberService, new SubscribingService(new SubscribingRepository(dataSource),
+                new SubscriberService(new SubscriberRepository(dataSource),
+                        new ProductService(new ProductRepository(dataSource)),
+                        new RateService(new RateRepository(dataSource))),
+                new ProductService(new ProductRepository(dataSource)),
+                new RateService(new RateRepository(dataSource))));
     }
 
     private static UserController configureUser(DataSource dataSource) {
         //User config
         UserRepository userRepository = new UserRepository(dataSource);
         UserService userService = new UserService(userRepository);
-        return new UserController(userService);
+        return new UserController(userService,new SubscriberService(new SubscriberRepository(dataSource),
+                new ProductService(new ProductRepository(dataSource)),
+                new RateService(new RateRepository(dataSource))));
     }
     private static OperatorController configureOperator(DataSource dataSource){
         //Operator config
@@ -78,7 +84,9 @@ public class Application {
         //Operator config
         RateRepository rateRepository = new RateRepository(dataSource);
         RateService rateService = new RateService(rateRepository);
-        return new RateController(rateService);
+        return new RateController(rateService, new SubscriberService(new SubscriberRepository(dataSource),
+                new ProductService(new ProductRepository(dataSource)),
+                new RateService(new RateRepository(dataSource))));
     }
 
     private static ProductController configureProduct(DataSource dataSource){
@@ -97,6 +105,8 @@ public class Application {
                 new ProductService(new ProductRepository(dataSource)),
                 new RateService(new RateRepository(dataSource)));
 
-        return new SubscribingController(subscribingService);
+        return new SubscribingController(subscribingService,new SubscriberService(new SubscriberRepository(dataSource),
+                new ProductService(new ProductRepository(dataSource)),
+                new RateService(new RateRepository(dataSource))));
     }
 }
