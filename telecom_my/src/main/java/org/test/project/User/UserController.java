@@ -22,12 +22,22 @@ public class UserController {
         if (user.getUserRole().equals(UserRole.OPERATOR)) {
             modelAndView = ModelAndView.withView("/operator/home.jsp");
         } else {
-            System.out.println(user.getId());
             user = subscriberService.getSubscriberById(user.getId());
             modelAndView = ModelAndView.withView("/subscriber/home.jsp");
         }
         HttpSession session = request.getSession();
         session.setAttribute("user", user);
+        modelAndView.setRedirect(true);
+        return modelAndView;
+    }
+
+    public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setView("/index.jsp");
         modelAndView.setRedirect(true);
         return modelAndView;
     }

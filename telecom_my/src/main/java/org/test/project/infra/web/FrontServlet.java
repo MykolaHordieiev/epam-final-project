@@ -4,9 +4,7 @@ package org.test.project.infra.web;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.test.project.User.UserController;
-import org.test.project.operator.OperatorController;
 import org.test.project.product.ProductController;
-import org.test.project.rate.Rate;
 import org.test.project.rate.RateController;
 import org.test.project.subscriber.SubscriberController;
 import org.test.project.subscribing.SubscribingController;
@@ -17,15 +15,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
 
 @RequiredArgsConstructor
 public class FrontServlet extends HttpServlet {
 
     private final SubscriberController subscriberController;
     private final UserController userController;
-    private final OperatorController operatorController;
     private final RateController rateController;
     private final ProductController productController;
     private final SubscribingController subscribingController;
@@ -54,13 +49,13 @@ public class FrontServlet extends HttpServlet {
             } else if (controllerPath.equals("/subscriber/all") && method.equals("GET")) {
                 modelAndView = subscriberController.getAll(req, resp);
             } else if (controllerPath.equals("/subscriber/lock") && method.equals("POST")) {
-                modelAndView = subscriberController.lockUser(req, resp);
+                modelAndView = subscriberController.lockSubscriber(req, resp);
             } else if (controllerPath.equals("/subscriber/unlock") && method.equals("POST")) {
-                modelAndView = subscriberController.unLockUser(req, resp);
+                modelAndView = subscriberController.unLockSubscriber(req, resp);
             } else if (controllerPath.equals("/subscriber/balance") && method.equals("POST")) {
                 modelAndView = subscriberController.topUpTheBalance(req, resp);
             } else if (controllerPath.equals("/get/all/product") && method.equals("GET")) {
-                modelAndView = productController.getAllProductsWithRate(req, resp);
+                modelAndView = productController.getAllProducts(req, resp);
             } else if (controllerPath.equals("/add/subscribing") && method.equals("POST")) {
                 modelAndView = subscribingController.addSubscribing(req, resp);
             } else if (controllerPath.equals("/rate/product") && method.equals("GET")) {
@@ -73,6 +68,8 @@ public class FrontServlet extends HttpServlet {
                 modelAndView = rateController.returnViewAddRates(req, resp);
             } else if (controllerPath.equals("/rate/add") && method.equals("POST")) {
                 modelAndView = rateController.addRate(req, resp);
+            } else if (controllerPath.equals("/logout") && method.equals("GET")) {
+                modelAndView = userController.logout(req, resp);
             } else {
                 modelAndView = ModelAndView.withView("/error/pagenotfound.jsp");
             }

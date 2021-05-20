@@ -1,23 +1,13 @@
 package org.test.project.subscriber;
 
 import lombok.RequiredArgsConstructor;
-import org.test.project.User.UserLoginException;
-import org.test.project.product.Product;
-import org.test.project.product.ProductService;
-import org.test.project.rate.Rate;
-import org.test.project.rate.RateService;
-import org.test.project.subscribing.Subscribing;
-import org.test.project.subscribing.SubscribingService;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RequiredArgsConstructor
 public class SubscriberService {
 
     private final SubscriberRepository subscriberRepository;
-    private final ProductService productService;
-    private final RateService rateService;
 
     public Subscriber create(Subscriber subscriber) {
         return subscriberRepository.insertSubscriber(subscriber);

@@ -17,6 +17,7 @@ import org.test.project.rate.RateController;
 import org.test.project.rate.RateRepository;
 import org.test.project.rate.RateService;
 import org.test.project.subscriber.*;
+import org.test.project.subscribing.Subscribing;
 import org.test.project.subscribing.SubscribingController;
 import org.test.project.subscribing.SubscribingRepository;
 import org.test.project.subscribing.SubscribingService;
@@ -37,76 +38,60 @@ public class Application {
         liquibaseStarter.updateDatabase();
 
         //application
-        SubscriberController subscriberController = configureSubscriber(dataSource);
-        UserController userController = configureUser(dataSource);
-        OperatorController operatorController = configureOperator(dataSource);
-        RateController rateController = configureRate(dataSource);
-        ProductController productController = configureProduct(dataSource);
-        SubscribingController subscribingController = configureSubscribing(dataSource);
+        UserService userService = getUserService(dataSource);
+        SubscriberService subscriberService = getSubscriberService(dataSource);
+        ProductService productService = getProductService(dataSource);
+        RateService rateService = getRateService(dataSource);
+        SubscribingService subscribingService = getSubscribingService(dataSource);
+
+        SubscriberController subscriberController = new SubscriberController(subscriberService, subscribingService);
+        UserController userController = new UserController(userService, subscriberService);
+        RateController rateController = new RateController(rateService, subscriberService, productService);
+        ProductController productController = new ProductController(productService);
+        SubscribingController subscribingController = new SubscribingController(subscribingService, subscriberService,
+                productService, rateService);
 
         //web
         ExceptionHandler exceptionHandler = new ExceptionHandlerImplMy();
-        FrontServlet frontServlet = new FrontServlet(subscriberController,userController,operatorController,
-                rateController,productController,subscribingController, exceptionHandler, "front", "/service");
+        FrontServlet frontServlet = new FrontServlet(subscriberController, userController, rateController,
+                productController, subscribingController, exceptionHandler, "front", "/service");
         ServerStarter serverStarter = serverStarterConfig.configureServer(frontServlet);
         serverStarter.startServer();
     }
 
-    private static SubscriberController configureSubscriber(DataSource dataSource) {
+    private static SubscriberService getSubscriberService(DataSource dataSource) {
         //Subscriber config
         SubscriberRepository subscriberRepository = new SubscriberRepository(dataSource);
-        SubscriberService subscriberService = new SubscriberService(subscriberRepository,
-                new ProductService(new ProductRepository(dataSource)),
-                new RateService(new RateRepository(dataSource)));
-        return new SubscriberController(subscriberService, new SubscribingService(new SubscribingRepository(dataSource),
-                new SubscriberService(new SubscriberRepository(dataSource),
-                        new ProductService(new ProductRepository(dataSource)),
-                        new RateService(new RateRepository(dataSource))),
-                new ProductService(new ProductRepository(dataSource)),
-                new RateService(new RateRepository(dataSource))));
+        return new SubscriberService(subscriberRepository);
     }
 
-    private static UserController configureUser(DataSource dataSource) {
+    private static UserService getUserService(DataSource dataSource) {
         //User config
         UserRepository userRepository = new UserRepository(dataSource);
-        UserService userService = new UserService(userRepository);
-        return new UserController(userService,new SubscriberService(new SubscriberRepository(dataSource),
-                new ProductService(new ProductRepository(dataSource)),
-                new RateService(new RateRepository(dataSource))));
+        return new UserService(userRepository);
     }
-    private static OperatorController configureOperator(DataSource dataSource){
-        //Operator config
-        OperatorRepository operatorRepository = new OperatorRepository(dataSource);
-        OperatorService operatorService = new OperatorService(operatorRepository);
-        return new OperatorController(operatorService);
-    }
-    private static RateController configureRate(DataSource dataSource){
+
+    private static RateService getRateService(DataSource dataSource) {
         //Operator config
         RateRepository rateRepository = new RateRepository(dataSource);
-        RateService rateService = new RateService(rateRepository);
-        return new RateController(rateService, new SubscriberService(new SubscriberRepository(dataSource),
-                new ProductService(new ProductRepository(dataSource)),
-                new RateService(new RateRepository(dataSource))),new ProductService(new ProductRepository(dataSource)));
+        return new RateService(rateRepository);
     }
 
-    private static ProductController configureProduct(DataSource dataSource){
+    private static ProductService getProductService(DataSource dataSource) {
         //Operator config
         ProductRepository productRepository = new ProductRepository(dataSource);
-        ProductService productService = new ProductService(productRepository);
-        return new ProductController(productService);
+        return new ProductService(productRepository);
     }
-    private static SubscribingController configureSubscribing(DataSource dataSource) {
+
+    private static SubscribingService getSubscribingService(DataSource dataSource) {
         //Subscriber config
         SubscribingRepository subscribingRepository = new SubscribingRepository(dataSource);
-        SubscribingService subscribingService = new SubscribingService(subscribingRepository,
-                new SubscriberService(new SubscriberRepository(dataSource),
-                        new ProductService(new ProductRepository(dataSource)),
-                        new RateService(new RateRepository(dataSource))),
-                new ProductService(new ProductRepository(dataSource)),
-                new RateService(new RateRepository(dataSource)));
+        return new SubscribingService(subscribingRepository);
+    }
 
-        return new SubscribingController(subscribingService,new SubscriberService(new SubscriberRepository(dataSource),
-                new ProductService(new ProductRepository(dataSource)),
-                new RateService(new RateRepository(dataSource))));
+    private static OperatorService getOperatorService(DataSource dataSource) {
+        //Operator config
+        OperatorRepository operatorRepository = new OperatorRepository(dataSource);
+        return new OperatorService(operatorRepository);
     }
 }

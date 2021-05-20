@@ -17,9 +17,8 @@ public class SubscriberController {
     private final SubscribingService subscribingService;
 
     public ModelAndView getSubscriberById(HttpServletRequest request, HttpServletResponse response) {
-        String idFromRequest = request.getParameter("id");
-        validEntryParameter(idFromRequest, "id");
-        Long id = Long.parseLong(idFromRequest);
+        String subscriberId = validEntryParameter(request.getParameter("id"), "id");
+        Long id = Long.parseLong(subscriberId);
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/subscriber/infobyid.jsp");
         modelAndView.addAttribute("subscriber", subscriberService.getSubscriberById(id));
@@ -28,10 +27,8 @@ public class SubscriberController {
     }
 
     public ModelAndView createSubscriber(HttpServletRequest request, HttpServletResponse response) {
-        String login = request.getParameter("login");
-        String password = request.getParameter("password");
-        validEntryParameter(login, "login");
-        validEntryParameter(password, "password");
+        String login = validEntryParameter(request.getParameter("login"), "login");
+        String password = validEntryParameter(request.getParameter("password"), "password");
         Subscriber subscriber = new Subscriber();
         subscriber.setLogin(login);
         subscriber.setPassword(password);
@@ -48,13 +45,13 @@ public class SubscriberController {
         return modelAndView;
     }
 
-    public ModelAndView lockUser(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView lockSubscriber(HttpServletRequest request, HttpServletResponse response) {
         String id = request.getParameter("id");
         subscriberService.lockSubscriberById(Long.parseLong(id));
         return getSubscriberById(request, response);
     }
 
-    public ModelAndView unLockUser(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView unLockSubscriber(HttpServletRequest request, HttpServletResponse response) {
         String id = request.getParameter("id");
         subscriberService.unLockSubscriberById(Long.parseLong(id));
         return getSubscriberById(request, response);

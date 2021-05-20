@@ -1,8 +1,6 @@
 package org.test.project.subscriber;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.test.project.User.User;
 import org.test.project.User.UserRole;
 

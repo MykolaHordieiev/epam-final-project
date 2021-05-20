@@ -1,7 +1,6 @@
 package org.test.project.product;
 
 import lombok.RequiredArgsConstructor;
-import org.test.project.rate.Rate;
 
 import java.util.List;
 
@@ -17,9 +16,5 @@ public class ProductService {
 
     public List<Product> getAllProduct() {
         return productRepository.getAllProducts();
-    }
-
-    public List<Rate> getAllRates() {
-        return productRepository.getAllRatesOfProduct();
     }
 }

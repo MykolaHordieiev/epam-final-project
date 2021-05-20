@@ -2,7 +2,6 @@ package org.test.project.product;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.test.project.rate.Rate;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -31,24 +30,6 @@ public class ProductRepository {
                 listOfProducts.add(product);
             }
             return listOfProducts;
-        }
-    }
-    @SneakyThrows
-    public List<Rate> getAllRatesOfProduct() {
-        List<Rate> listOfRate = new ArrayList<>();
-        String getAllRates = "SELECT * FROM rate ORDER BY product_id";
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(getAllRates)) {
-            while (resultSet.next()) {
-                Rate rate = new Rate();
-                rate.setId(resultSet.getLong("id"));
-                rate.setName(resultSet.getString("name_rate"));
-                rate.setPrice(resultSet.getDouble("price"));
-                rate.setProductId(resultSet.getLong("product_id"));
-                listOfRate.add(rate);
-            }
-            return listOfRate;
         }
     }
 

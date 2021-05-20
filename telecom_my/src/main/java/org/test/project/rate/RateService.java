@@ -8,24 +8,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RateService {
 
-   private final RateRepository rateRepository;
+    private final RateRepository rateRepository;
 
     public List<Rate> getRatesByProductId(Long productId) {
         return rateRepository.getRatesByProduct(productId);
     }
 
     public Rate getRateById(long id) {
-        return rateRepository.getRateById(id).orElseThrow(()->new RateException("rate by id: "+
-                id+" not found"));
+        return rateRepository.getRateById(id).orElseThrow(() -> new RateException("rate by id: " +
+                id + " not found"));
     }
 
-    public Rate changeRateById(Rate rate){
-       rate.setProductId(getRateById(rate.getId()).getProductId());
-       return rateRepository.changeRateById(rate);
+    public Rate changeRateById(Rate rate) {
+        rate.setProductId(getRateById(rate.getId()).getProductId());
+        return rateRepository.changeRateById(rate);
     }
 
     public Rate addRateForProduct(Rate rate) {
-       return rateRepository.addRateByProductId(rate).orElseThrow(()->new RateException("filed create new rate"));
+        return rateRepository.addRateByProductId(rate).orElseThrow(() -> new RateException("filed create new rate"));
     }
 
     public Rate deleteRateById(Rate rate) {
@@ -35,9 +35,9 @@ public class RateService {
 
     public List<Subscriber> checkUsingRateBeforeDelete(Rate rate) {
         List<Subscriber> listOfSubscribers = rateRepository.checkUsingRateBySubscribers(rate);
-        if(!listOfSubscribers.isEmpty()){
-            throw new RateException("this rate "+rate.getName()+
-                    " is using by "+listOfSubscribers);
+        if (!listOfSubscribers.isEmpty()) {
+            throw new RateException("this rate " + rate.getName() +
+                    " is using by " + listOfSubscribers);
         }
         return listOfSubscribers;
     }

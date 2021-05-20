@@ -93,7 +93,6 @@ public class RateController {
     public ModelAndView returnViewAddRates(HttpServletRequest req, HttpServletResponse resp) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/rate/add.jsp");
-        System.out.println(req.getParameter("id"));
         modelAndView.addAttribute("productId", req.getParameter("id"));
         return modelAndView;
     }
@@ -129,11 +128,5 @@ public class RateController {
             writer.write("\n");
         }
         writer.close();
-//        ModelAndView modelAndView = new ModelAndView();
-//        modelAndView.setView("/rate/byproduct.jsp");
-//        modelAndView.addAttribute("rates", rates);
-//        modelAndView.addAttribute("productId", productId);
-//        modelAndView.addAttribute("subscriber", getSubscriberFromSession(request));
-//        return modelAndView;
     }
 }

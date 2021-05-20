@@ -10,10 +10,9 @@ import javax.servlet.http.HttpServletResponse;
 public class ProductController {
     private final ProductService productService;
 
-    public ModelAndView getAllProductsWithRate(HttpServletRequest req, HttpServletResponse resp) {
+    public ModelAndView getAllProducts(HttpServletRequest req, HttpServletResponse resp) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/product/all.jsp");
-        modelAndView.addAttribute("rates", productService.getAllRates());
         modelAndView.addAttribute("products", productService.getAllProduct());
         return modelAndView;
     }
