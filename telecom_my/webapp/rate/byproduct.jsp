@@ -52,6 +52,16 @@
 
     </c:if>
 
+     <form method="GET" action="/telecom/service/rate/download">
+                <input type="hidden" name="productId" value="${productId}"/>
+                <input type="submit" value="download">
+                <select name="format">
+                    <option value=".txt">.txt</option>
+                    <option value=".pdf">.pdf</option>
+                    <option value=".docx">.docx</option>
+                </select>
+          </form>
+
 
 
 <script>

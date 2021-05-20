@@ -86,7 +86,7 @@ public class Application {
         RateService rateService = new RateService(rateRepository);
         return new RateController(rateService, new SubscriberService(new SubscriberRepository(dataSource),
                 new ProductService(new ProductRepository(dataSource)),
-                new RateService(new RateRepository(dataSource))));
+                new RateService(new RateRepository(dataSource))),new ProductService(new ProductRepository(dataSource)));
     }
 
     private static ProductController configureProduct(DataSource dataSource){

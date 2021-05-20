@@ -1,16 +1,21 @@
 package org.test.project.rate;
 
+import com.sun.deploy.net.HttpResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.test.project.User.User;
 import org.test.project.User.UserRole;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.product.ProductService;
 import org.test.project.subscriber.Subscriber;
 import org.test.project.subscriber.SubscriberService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.PrintWriter;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.lang.Long.parseLong;
 
@@ -19,6 +24,7 @@ public class RateController {
 
     private final RateService rateService;
     private final SubscriberService subscriberService;
+    private final ProductService productService;
 
     public ModelAndView getAllRates(HttpServletRequest request, HttpServletResponse response) {
         Long productId = parseLong(request.getParameter("productId"));
@@ -26,14 +32,15 @@ public class RateController {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/rate/byproduct.jsp");
         modelAndView.addAttribute("rates", rates);
-        modelAndView.addAttribute("productId",productId);
-        modelAndView.addAttribute("subscriber",getSubscriberFromSession(request));
+        modelAndView.addAttribute("productId", productId);
+        modelAndView.addAttribute("subscriber", getSubscriberFromSession(request));
         return modelAndView;
     }
+
     private Subscriber getSubscriberFromSession(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute("user");
-        if(user.getUserRole().equals(UserRole.SUBSCRIBER)){
+        if (user.getUserRole().equals(UserRole.SUBSCRIBER)) {
             return subscriberService.getSubscriberById(user.getId());
         }
         return new Subscriber();
@@ -52,8 +59,8 @@ public class RateController {
         Rate rate = new Rate();
         String method = request.getParameter("method");
         if (method.equals("PUT")) {
-            String rateName = validatorEntryValue(request.getParameter("name"),"name");
-            Double newPrice = Double.parseDouble(validatorEntryValue(request.getParameter("price"),"price"));
+            String rateName = validatorEntryValue(request.getParameter("name"), "name");
+            Double newPrice = Double.parseDouble(validatorEntryValue(request.getParameter("price"), "price"));
             Long id = Long.parseLong(request.getParameter("id"));
             validatorChanges(rateName, newPrice);
             rate.setId(id);
@@ -75,9 +82,10 @@ public class RateController {
         }
         return true;
     }
+
     private String validatorEntryValue(String value, String parameter) {
         if (value.equals("")) {
-            throw new RateException("entry parameter cannot be empty: "+ parameter);
+            throw new RateException("entry parameter cannot be empty: " + parameter);
         }
         return value;
     }
@@ -91,8 +99,8 @@ public class RateController {
     }
 
     public ModelAndView addRate(HttpServletRequest request, HttpServletResponse response) {
-        String rateName = validatorEntryValue(request.getParameter("name"),"name");
-        Double ratePrice = Double.parseDouble(validatorEntryValue(request.getParameter("price"),"price"));
+        String rateName = validatorEntryValue(request.getParameter("name"), "name");
+        Double ratePrice = Double.parseDouble(validatorEntryValue(request.getParameter("price"), "price"));
         validatorChanges(rateName, ratePrice);
         Rate rate = new Rate();
         rate.setName(rateName);
@@ -100,5 +108,32 @@ public class RateController {
         rate.setProductId(parseLong(request.getParameter("productId")));
         rateService.addRateForProduct(rate);
         return getAllRates(request, response);
+    }
+
+    @SneakyThrows
+    public void downloadListOfRates(HttpServletRequest request, HttpServletResponse response) {
+        String format = request.getParameter("format");
+        Long productId = parseLong(request.getParameter("productId"));
+        String productName = productService.getProductById(productId).getName();
+        List<Rate> rates = rateService.getRatesByProductId(productId);
+        response.setContentType("text/plain");
+        response.setHeader("Content-disposition", "attachment; filename=rates" + format);
+        PrintWriter writer = response.getWriter();
+        writer.write("Information about rates of product: " + productName);
+        writer.write("\n");
+        for (Rate rate : rates) {
+            writer.write("Name: ");
+            writer.write(rate.getName());
+            writer.write(" Price: ");
+            writer.write(rate.getPrice().toString());
+            writer.write("\n");
+        }
+        writer.close();
+//        ModelAndView modelAndView = new ModelAndView();
+//        modelAndView.setView("/rate/byproduct.jsp");
+//        modelAndView.addAttribute("rates", rates);
+//        modelAndView.addAttribute("productId", productId);
+//        modelAndView.addAttribute("subscriber", getSubscriberFromSession(request));
+//        return modelAndView;
     }
 }
