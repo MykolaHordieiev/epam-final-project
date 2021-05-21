@@ -1,14 +1,29 @@
 package org.test.project.product;
 
-import lombok.RequiredArgsConstructor;
+import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.infra.web.RequestMatcher;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
-@RequiredArgsConstructor
-public class ProductController {
+public class ProductController implements Controller {
+
     private final ProductService productService;
+    private List<RequestMatcher> requestMatchers;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+        requestMatchers = new ArrayList<>();
+    }
+
+    @Override
+    public List<RequestMatcher> getRequestMatcher() {
+        requestMatchers.add(new RequestMatcher("/get/all/product", "GET", this::getAllProducts));
+        return requestMatchers;
+    }
 
     public ModelAndView getAllProducts(HttpServletRequest req, HttpServletResponse resp) {
         ModelAndView modelAndView = new ModelAndView();

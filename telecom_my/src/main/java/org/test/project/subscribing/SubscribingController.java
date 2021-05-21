@@ -1,7 +1,9 @@
 package org.test.project.subscribing;
 
 import lombok.RequiredArgsConstructor;
+import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.infra.web.RequestMatcher;
 import org.test.project.product.Product;
 import org.test.project.product.ProductService;
 import org.test.project.rate.Rate;
@@ -12,14 +14,31 @@ import org.test.project.subscriber.SubscriberService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
 
-@RequiredArgsConstructor
-public class SubscribingController {
+public class SubscribingController implements Controller {
 
     private final SubscribingService subscribingService;
     private final SubscriberService subscriberService;
     private final ProductService productService;
     private final RateService rateService;
+    private List<RequestMatcher> requestMatchers;
+
+    public SubscribingController(SubscribingService subscribingService, SubscriberService subscriberService,
+                                 ProductService productService, RateService rateService) {
+        this.subscribingService = subscribingService;
+        this.subscriberService = subscriberService;
+        this.productService = productService;
+        this.rateService = rateService;
+        requestMatchers = new ArrayList<>();
+    }
+
+    @Override
+    public List<RequestMatcher> getRequestMatcher() {
+        requestMatchers.add(new RequestMatcher("/add/subscribing", "POST", this::addSubscribing));
+        return requestMatchers;
+    }
 
     public ModelAndView addSubscribing(HttpServletRequest request, HttpServletResponse response) {
         Long productId = Long.parseLong(request.getParameter("productId"));

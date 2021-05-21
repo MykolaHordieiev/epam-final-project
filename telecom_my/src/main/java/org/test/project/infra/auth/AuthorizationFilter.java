@@ -40,14 +40,6 @@ public class AuthorizationFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String pathWithoutContext = getPathWithoutContext(request);
 
-        Boolean access = false;
-
-        for (AuthorizationMatcher a : pathMatchers) {
-            if(a.pathMatch(pathWithoutContext)){
-                hasRole(a,request);
-            }
-        }
-
         Boolean hasAccess = pathMatchers.stream()
                 .filter(authorizationPathMatcher -> authorizationPathMatcher.pathMatch(pathWithoutContext))
                 .findFirst()

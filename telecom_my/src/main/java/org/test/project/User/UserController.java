@@ -1,18 +1,34 @@
 package org.test.project.User;
 
-import lombok.RequiredArgsConstructor;
+import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.infra.web.RequestMatcher;
 import org.test.project.subscriber.SubscriberService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
 
-@RequiredArgsConstructor
-public class UserController {
+public class UserController implements Controller {
 
     private final UserService userService;
     private final SubscriberService subscriberService;
+    private List<RequestMatcher> requestMatchers;
+
+    public UserController(UserService userService, SubscriberService subscriberService) {
+        this.userService = userService;
+        this.subscriberService = subscriberService;
+        requestMatchers = new ArrayList<>();
+    }
+
+    @Override
+    public List<RequestMatcher> getRequestMatcher() {
+        requestMatchers.add(new RequestMatcher("/login", "POST", this::login));
+        requestMatchers.add(new RequestMatcher("/logout", "GET", this::logout));
+        return requestMatchers;
+    }
 
     public ModelAndView login(HttpServletRequest request, HttpServletResponse respons) {
         String login = validEntryParameter(request.getParameter("login"), "login");

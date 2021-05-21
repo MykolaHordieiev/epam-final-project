@@ -7,7 +7,6 @@ import org.test.project.User.UserService;
 import org.test.project.infra.config.*;
 import org.test.project.infra.db.LiquibaseStarter;
 import org.test.project.infra.web.*;
-import org.test.project.operator.OperatorController;
 import org.test.project.operator.OperatorRepository;
 import org.test.project.operator.OperatorService;
 import org.test.project.product.ProductController;
@@ -17,12 +16,13 @@ import org.test.project.rate.RateController;
 import org.test.project.rate.RateRepository;
 import org.test.project.rate.RateService;
 import org.test.project.subscriber.*;
-import org.test.project.subscribing.Subscribing;
 import org.test.project.subscribing.SubscribingController;
 import org.test.project.subscribing.SubscribingRepository;
 import org.test.project.subscribing.SubscribingService;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Application {
 
@@ -51,11 +51,17 @@ public class Application {
         SubscribingController subscribingController = new SubscribingController(subscribingService, subscriberService,
                 productService, rateService);
 
+        List<Controller> controllers = new ArrayList<>();
+        controllers.add(subscriberController);
+        controllers.add(userController);
+        controllers.add(rateController);
+        controllers.add(productController);
+        controllers.add(subscribingController);
         //web
         ExceptionHandler exceptionHandler = new ExceptionHandlerImplMy();
-        FrontServlet frontServlet = new FrontServlet(subscriberController, userController, rateController,
-                productController, subscribingController, exceptionHandler, "front", "/service");
-        ServerStarter serverStarter = serverStarterConfig.configureServer(frontServlet);
+        FrontServlet frontServlet = new FrontServlet(controllers, exceptionHandler, "front", "/service");
+        FileDownloadServlet fileDownloadServlet = new FileDownloadServlet(controllers,exceptionHandler, "download", "/download");
+        ServerStarter serverStarter = serverStarterConfig.configureServer(frontServlet, fileDownloadServlet);
         serverStarter.startServer();
     }
 

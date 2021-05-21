@@ -1,11 +1,11 @@
 package org.test.project.rate;
 
-import com.sun.deploy.net.HttpResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.test.project.User.User;
 import org.test.project.User.UserRole;
+import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.infra.web.RequestMatcher;
 import org.test.project.product.ProductService;
 import org.test.project.subscriber.Subscriber;
 import org.test.project.subscriber.SubscriberService;
@@ -14,17 +14,35 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static java.lang.Long.parseLong;
 
-@RequiredArgsConstructor
-public class RateController {
+public class RateController implements Controller {
 
     private final RateService rateService;
     private final SubscriberService subscriberService;
     private final ProductService productService;
+    private List<RequestMatcher> requestMatchers;
+
+    public RateController(RateService rateService, SubscriberService subscriberService, ProductService productService) {
+        this.rateService = rateService;
+        this.subscriberService = subscriberService;
+        this.productService = productService;
+        requestMatchers = new ArrayList<>();
+    }
+
+    @Override
+    public List<RequestMatcher> getRequestMatcher() {
+        requestMatchers.add(new RequestMatcher("/rate/product", "GET", this::getAllRates));
+        requestMatchers.add(new RequestMatcher("/rate/info", "GET", this::getRateById));
+        requestMatchers.add(new RequestMatcher("/rate", "POST", this::changeRates));
+        requestMatchers.add(new RequestMatcher("/rate/add", "GET", this::returnViewAddRates));
+        requestMatchers.add(new RequestMatcher("/rate/add", "POST", this::addRate));
+        requestMatchers.add(new RequestMatcher("/rate","GET",this::downloadListOfRates));
+        return requestMatchers;
+    }
 
     public ModelAndView getAllRates(HttpServletRequest request, HttpServletResponse response) {
         Long productId = parseLong(request.getParameter("productId"));
@@ -110,7 +128,7 @@ public class RateController {
     }
 
     @SneakyThrows
-    public void downloadListOfRates(HttpServletRequest request, HttpServletResponse response) {
+    public HttpServletResponse downloadListOfRates(HttpServletRequest request, HttpServletResponse response) {
         String format = request.getParameter("format");
         Long productId = parseLong(request.getParameter("productId"));
         String productName = productService.getProductById(productId).getName();
@@ -128,5 +146,6 @@ public class RateController {
             writer.write("\n");
         }
         writer.close();
+        return response;
     }
 }

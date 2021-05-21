@@ -52,7 +52,7 @@
 
     </c:if>
 
-     <form method="GET" action="/telecom/service/rate/download">
+     <form method="GET" action="/telecom/download/rate">
                 <input type="hidden" name="productId" value="${productId}"/>
                 <input type="submit" value="download">
                 <select name="format">

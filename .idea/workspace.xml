@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c96d9b39-5986-4602-9f33-5c1138527439" name="Default Changelist" comment="" />
+    <list default="true" id="c96d9b39-5986-4602-9f33-5c1138527439" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/Application.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/User/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/User/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/infra/auth/AuthorizationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/infra/auth/AuthorizationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/infra/config/ServerStarterConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/infra/config/ServerStarterConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/infra/web/FrontServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/infra/web/FrontServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/product/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/product/ProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/rate/RateController.java" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/rate/RateController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/subscriber/SubscriberController.java" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/subscriber/SubscriberController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/subscribing/SubscribingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/src/main/java/org/test/project/subscribing/SubscribingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/tomcat.8080/work/Tomcat/localhost/telecom/org/apache/jsp/rate/byproduct_jsp.class" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/tomcat.8080/work/Tomcat/localhost/telecom/org/apache/jsp/rate/byproduct_jsp.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/tomcat.8080/work/Tomcat/localhost/telecom/org/apache/jsp/rate/byproduct_jsp.java" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/tomcat.8080/work/Tomcat/localhost/telecom/org/apache/jsp/rate/byproduct_jsp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telecom_my/webapp/rate/byproduct.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/telecom_my/webapp/rate/byproduct.jsp" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -12,6 +26,9 @@
   </component>
   <component name="FileEditorManager">
     <leaf />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MavenProjectNavigator">
     <treeState>
@@ -33,24 +50,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="epam-final-project" type="b2602c69:ProjectViewProjectNode" />
-              <item name="epam-final-project" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="epam-final-project" type="b2602c69:ProjectViewProjectNode" />
-              <item name="epam-final-project" type="462c0819:PsiDirectoryNode" />
-              <item name="telecom_my" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
+      <pane id="ProjectPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -72,12 +74,19 @@
     <configuration />
   </component>
   <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c96d9b39-5986-4602-9f33-5c1138527439" name="Default Changelist" comment="" />
+      <created>1621610365105</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1621610365105</updated>
+    </task>
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24962178" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25340393" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Project Explorer" order="2" />
       <window_info id="Image Layers" order="3" />

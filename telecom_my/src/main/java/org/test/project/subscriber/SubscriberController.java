@@ -3,18 +3,40 @@ package org.test.project.subscriber;
 
 import lombok.AllArgsConstructor;
 import org.test.project.User.User;
+import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.infra.web.RequestMatcher;
 import org.test.project.subscribing.SubscribingService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
-public class SubscriberController {
+public class SubscriberController implements Controller {
 
     private final SubscriberService subscriberService;
     private final SubscribingService subscribingService;
+    private List<RequestMatcher> requestMatchers;
+
+    public SubscriberController(SubscriberService subscriberService, SubscribingService subscribingService) {
+        this.subscriberService = subscriberService;
+        this.subscribingService = subscribingService;
+        requestMatchers = new ArrayList<>();
+    }
+
+    @Override
+    public List<RequestMatcher> getRequestMatcher() {
+        requestMatchers.add(new RequestMatcher("/subscriber", "GET", this::getSubscriberById));
+        requestMatchers.add(new RequestMatcher("/subscriber", "POST", this::createSubscriber));
+        requestMatchers.add(new RequestMatcher("/subscriber/all", "GET", this::getAll));
+        requestMatchers.add(new RequestMatcher("/subscriber/lock", "POST", this::lockSubscriber));
+        requestMatchers.add(new RequestMatcher("/subscriber/unlock", "POST", this::unLockSubscriber));
+        requestMatchers.add(new RequestMatcher("/subscriber/balance", "POST", this::topUpTheBalance));
+        return requestMatchers;
+    }
 
     public ModelAndView getSubscriberById(HttpServletRequest request, HttpServletResponse response) {
         String subscriberId = validEntryParameter(request.getParameter("id"), "id");
