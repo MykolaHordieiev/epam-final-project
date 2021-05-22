@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>rate by id</title>
+        <title>Rate info</title>
         <meta charset="UTF-8">
     </head>
     <body>
@@ -25,7 +25,7 @@
         <td>
             <form method="GET" action="/telecom/service/rate/info">
                 <input type="hidden" name="id" value="${rate.id}"/>
-                <input type="submit" value="rate info">
+                <input type="submit" value="Rate info">
             </form>
          </td>
     </c:if>
@@ -35,7 +35,7 @@
                 <form method="POST" action="/telecom/service/add/subscribing">
                     <input type="hidden" name="rateId" value="${rate.id}"/>
                     <input type="hidden" name="productId" value="${productId}"/>
-                    <input type="submit" value="subscribing">
+                    <input type="submit" value="Subscribing">
                 </form>
              </td>
         </c:if>
@@ -47,14 +47,14 @@
 
       <form method="GET" action="/telecom/service/rate/add">
             <input type="hidden" name="id" value="${productId}"/>
-                <input type="submit" value="add new rate">
+                <input type="submit" value="Add rate">
       </form>
 
     </c:if>
 
-     <form method="GET" action="/telecom/download/rate">
+     <form method="GET" action="/telecom/service/download/rate">
                 <input type="hidden" name="productId" value="${productId}"/>
-                <input type="submit" value="download">
+                <input type="submit" value="Download">
                 <select name="format">
                     <option value=".txt">.txt</option>
                     <option value=".pdf">.pdf</option>

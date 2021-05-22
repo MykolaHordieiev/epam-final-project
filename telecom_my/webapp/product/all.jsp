@@ -16,7 +16,7 @@
                     <td>
                         <form method="GET" action="/telecom/service/rate/product">
                             <input type="hidden" name="productId" value="${product.id}"/>
-                            <input type="submit" value="rates" />
+                            <input type="submit" value="Rates" />
                         </form>
                     </td>
                 </tr>
@@ -24,12 +24,12 @@
         </table>
         <c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">
             <form method="GET" action="/telecom/operator/home.jsp">
-                <input type="submit" value="go home">
+                <input type="submit" value="Home">
             </form>
         </c:if>
         <c:if test = "${sessionScope.user.userRole == 'SUBSCRIBER'}">
             <form method="GET" action="/telecom/subscriber/home.jsp">
-                <input type="submit" value="go home">
+                <input type="submit" value="Home">
             </form>
         </c:if>
     </body>

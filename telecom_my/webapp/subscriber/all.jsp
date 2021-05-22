@@ -25,13 +25,13 @@
         }
         </style>
         <table id="subscribers">
-        <caption>Table of Subscribers</caption>
+        <caption>Info about subscribers</caption>
              <tr>
                 <th>Id</th>
-                <th>login</th>
-                <th>balance</th>
-                <th>locked</th>
-                <th>do lock/unlock</th>
+                <th>Login</th>
+                <th>Balance</th>
+                <th>Status</th>
+                <th>Lock/Unlock</th>
              </tr>
              <c:forEach items="${subscribers}" var="subscriber">
                 <tr>
@@ -43,13 +43,13 @@
                         <c:if test = "${subscriber.lock == 'false'}">
                             <form method="POST" action="/telecom/service/subscriber/lock">
                                 <input type="hidden" name="id" value="${subscriber.id}"/>
-                                <input type="submit" value="lock">
+                                <input type="submit" value="Lock">
                             </form>
                         </c:if>
                         <c:if test = "${subscriber.lock == 'true'}">
                             <form method="POST" action="/telecom/service/subscriber/unlock">
                                 <input type="hidden" name="id" value="${subscriber.id}"/>
-                                <input type="submit" value="unlock">
+                                <input type="submit" value="Unlock">
                             </form>
                         </c:if>
                     </td>
@@ -57,7 +57,7 @@
              </c:forEach>
         </table>
         <form method="GET" action="/telecom/operator/home.jsp">
-            <input type="submit" value="go home">
+            <input type="submit" value="Home">
         </form>
     </body>
 </html>

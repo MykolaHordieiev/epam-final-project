@@ -6,7 +6,7 @@
     </head>
     <body>
         <p>
-            Please, write login and password for new Subscriber
+            Write login and password for new subscriber
         </p>
             <form method="POST" action="/telecom/service/subscriber">
               <label for="name">Login:</label><br>

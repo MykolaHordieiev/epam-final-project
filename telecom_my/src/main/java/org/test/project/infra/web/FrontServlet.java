@@ -30,16 +30,20 @@ public class FrontServlet extends HttpServlet {
         String method = req.getMethod();
         ModelAndView modelAndView;
         try {
-            modelAndView =  controllers.stream()
+            Object returnElement = controllers.stream()
                     .map(controller -> controller.getRequestMatcher())
                     .flatMap(requestMatchers -> requestMatchers.stream())
                     .filter(requestMatcher -> requestMatcher.matcherPath(controllerPath))
                     .filter(requestMatcher -> requestMatcher.matcherMethod(method))
                     .findFirst()
-                    .map(requestMatcher -> requestMatcher.getViewBiFunction())
+                    .map(requestMatcher -> requestMatcher.getBiFunction())
                     .map(view -> view.apply(req, resp))
                     .orElseThrow(() -> new SubscriberException("page not found"));
 
+            if (!(returnElement instanceof ModelAndView)) {
+                return;
+            }
+            modelAndView = (ModelAndView) returnElement;
         } catch (Exception ex) {
             modelAndView = exceptionHandler.handle(ex);
         }

@@ -40,7 +40,7 @@ public class RateController implements Controller {
         requestMatchers.add(new RequestMatcher("/rate", "POST", this::changeRates));
         requestMatchers.add(new RequestMatcher("/rate/add", "GET", this::returnViewAddRates));
         requestMatchers.add(new RequestMatcher("/rate/add", "POST", this::addRate));
-        requestMatchers.add(new RequestMatcher("/rate","GET",this::downloadListOfRates));
+        requestMatchers.add(new RequestMatcher("/download/rate","GET",this::downloadListOfRates));
         return requestMatchers;
     }
 

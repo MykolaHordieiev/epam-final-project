@@ -7,15 +7,15 @@
     </head>
     <body>
         <p>
-            Please, write info about rate.
+            Write info about rate.
         </p>
             <form method="POST" action="/telecom/service/rate/add">
-              <label for="name">name of rate:</label><br>
+              <label for="name">Name:</label><br>
               <input type="text" id="name" name="name"><br><br>
-              <label for="name">price of rate:</label><br>
+              <label for="name">Price:</label><br>
               <input type="text" id="price" name="price"><br>
               <input type="hidden" name="productId" value="${productId}"/><br>
-              <input type="submit" value="add">
+              <input type="submit" value="Add">
             </form>
     </body>
 </html>

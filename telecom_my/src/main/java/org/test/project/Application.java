@@ -60,8 +60,7 @@ public class Application {
         //web
         ExceptionHandler exceptionHandler = new ExceptionHandlerImplMy();
         FrontServlet frontServlet = new FrontServlet(controllers, exceptionHandler, "front", "/service");
-        FileDownloadServlet fileDownloadServlet = new FileDownloadServlet(controllers,exceptionHandler, "download", "/download");
-        ServerStarter serverStarter = serverStarterConfig.configureServer(frontServlet, fileDownloadServlet);
+        ServerStarter serverStarter = serverStarterConfig.configureServer(frontServlet);
         serverStarter.startServer();
     }
 
