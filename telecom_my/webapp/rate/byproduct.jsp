@@ -31,6 +31,7 @@
     </c:if>
     <c:if test = "${sessionScope.user.userRole == 'SUBSCRIBER'}">
         <c:if test = "${subscriber.lock == 'false'}">
+            <c:if test = "${rate.unusable == 'false'}">
             <td>
                 <form method="POST" action="/telecom/service/add/subscribing">
                     <input type="hidden" name="rateId" value="${rate.id}"/>
@@ -38,6 +39,7 @@
                     <input type="submit" value="Subscribing">
                 </form>
              </td>
+             </c:if>
         </c:if>
     </c:if>
   </tr>

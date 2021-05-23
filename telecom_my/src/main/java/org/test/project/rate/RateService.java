@@ -34,11 +34,10 @@ public class RateService {
     }
 
     public List<Subscriber> checkUsingRateBeforeDelete(Rate rate) {
-        List<Subscriber> listOfSubscribers = rateRepository.checkUsingRateBySubscribers(rate);
-        if (!listOfSubscribers.isEmpty()) {
-            throw new RateException("this rate " + rate.getName() +
-                    " is using by " + listOfSubscribers);
-        }
-        return listOfSubscribers;
+        return rateRepository.checkUsingRateBySubscribers(rate);
+    }
+
+    public Rate doUnusableRate(Rate rate) {
+        return rateRepository.doUnusableRateByRateId(rate);
     }
 }

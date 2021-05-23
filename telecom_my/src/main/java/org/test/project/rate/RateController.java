@@ -40,7 +40,7 @@ public class RateController implements Controller {
         requestMatchers.add(new RequestMatcher("/rate", "POST", this::changeRates));
         requestMatchers.add(new RequestMatcher("/rate/add", "GET", this::returnViewAddRates));
         requestMatchers.add(new RequestMatcher("/rate/add", "POST", this::addRate));
-        requestMatchers.add(new RequestMatcher("/download/rate","GET",this::downloadListOfRates));
+        requestMatchers.add(new RequestMatcher("/download/rate", "GET", this::downloadListOfRates));
         return requestMatchers;
     }
 
@@ -85,13 +85,30 @@ public class RateController implements Controller {
             rate.setName(rateName);
             rate.setPrice(newPrice);
             rateService.changeRateById(rate);
-        } else {
-            Long rateId = parseLong(request.getParameter("id"));
-            rate.setId(rateId);
-            rateService.checkUsingRateBeforeDelete(rate);
-            rateService.deleteRateById(rate);
+            return getAllRates(request, response);
         }
-        return getAllRates(request, response);
+        return deleteRate(request, response);
+    }
+
+    public ModelAndView deleteRate(HttpServletRequest request, HttpServletResponse response) {
+        ModelAndView modelAndView = new ModelAndView();
+        Long rateId = parseLong(request.getParameter("id"));
+        Rate rate = rateService.getRateById(rateId);
+        List<Subscriber> subscriberList = rateService.checkUsingRateBeforeDelete(rate);
+        if (subscriberList.isEmpty()) {
+            rateService.deleteRateById(rate);
+            return getAllRates(request, response);
+        } else {
+            rate = rateService.doUnusableRate(rate);
+            for (Subscriber subs : subscriberList) {
+                Subscriber subscriber = subscriberService.getSubscriberById(subs.getId());
+                subs.setLogin(subscriber.getLogin());
+            }
+            modelAndView.setView("/rate/unusable.jsp");
+            modelAndView.addAttribute("rate", rate);
+            modelAndView.addAttribute("subscribers", subscriberList);
+        }
+        return modelAndView;
     }
 
     private boolean validatorChanges(String rateName, Double newPrice) {

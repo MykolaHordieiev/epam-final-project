@@ -13,6 +13,7 @@ public class Rate {
     private String name;
     private Double price;
     private Long productId;
+    private Boolean unusable;
 
     @Override
     public String toString(){

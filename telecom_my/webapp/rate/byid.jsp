@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
     </head>
     <body>
+    <c:if test = "${rate.unusable == 'false'}">
         <form method="POST" action="/telecom/service/rate">
                       <label for="name">Name:</label>
                       <input type="text" id="name" name="name" value="${rate.name}">
@@ -21,5 +22,10 @@
                  <input type="hidden" name="productId" value="${rate.productId}">
                  <input type="submit" value="Delete">
         </form>
+        </c:if>
+        <c:if test = "${rate.unusable == 'true'}">
+        <p>Rate info:</p>
+        name ${rate.name} price: ${rate.price} unusable: ${rate.unusable}
+        </c:if>
     </body>
 </html>

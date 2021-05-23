@@ -4,9 +4,11 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 
-    <include file="liquibase/db-changelog-1.0.xml"/>
-    <include file="liquibase/db-changelog-1.1.xml"/>
-    <include file="liquibase/db-changelog-1.2.xml"/>
-    <include file="liquibase/db-changelog-1.3.xml"/>
-    <include file="liquibase/db-changelog-1.4.xml"/>
+    <changeSet id="5" author="Mykola Hordieiev">
+        <addColumn tableName="rate">
+            <column name="unusable" type="boolean" defaultValueBoolean="false"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
+

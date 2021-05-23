@@ -26,7 +26,8 @@ public class RateRepository {
                 long id = resultSet.getLong("id");
                 String name = resultSet.getString("name_rate");
                 double prise = resultSet.getDouble("price");
-                rates.add(new Rate(id, name, prise, productId));
+                boolean unusable = resultSet.getBoolean("unusable");
+                rates.add(new Rate(id, name, prise, productId,unusable));
             }
         }
         return rates;
@@ -42,7 +43,8 @@ public class RateRepository {
                 long productId = resultSet.getLong("product_id");
                 String name = resultSet.getString("name_rate");
                 double prise = resultSet.getDouble("price");
-                return Optional.of(new Rate(id, name, prise, productId));
+                boolean unusable = resultSet.getBoolean("unusable");
+                return Optional.of(new Rate(id, name, prise, productId,unusable));
             }
         }
         return Optional.empty();
@@ -63,12 +65,12 @@ public class RateRepository {
     public Optional<Rate> addRateByProductId(Rate rate) {
         String addRate = "INSERT INTO rate (name_rate, price, product_id) VALUES (?,?,?)";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(addRate,Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(addRate, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, rate.getName());
             preparedStatement.setDouble(2, rate.getPrice());
             preparedStatement.setLong(3, rate.getProductId());
             preparedStatement.execute();
-            try(ResultSet resultSet = preparedStatement.getGeneratedKeys()){
+            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 resultSet.next();
                 rate.setId(resultSet.getLong(1));
                 return Optional.of(rate);
@@ -100,5 +102,16 @@ public class RateRepository {
             }
         }
         return subscriberList;
+    }
+
+    @SneakyThrows
+    public Rate doUnusableRateByRateId(Rate rate) {
+        String query = "UPDATE rate SET unusable=true WHERE id=" + rate.getId();
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute(query);
+            rate.setUnusable(true);
+        }
+        return rate;
     }
 }
