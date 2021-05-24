@@ -1,5 +1,6 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!DOCTYPE html>
+<%@ page contentType="text/html; charset=UTF-8" isELIgnored="false" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@taglib uri="/WEB-INF/tag/language.tld" prefix="lan" %>
 <html>
     <head>
         <title>Refactor rate</title>
@@ -8,7 +9,7 @@
     <body>
         <table id="products">
             <tr>
-                <th>Name</th>
+                <th><lan:print message="product.all.jsp.table.caption"/></th>
             </tr>
             <c:forEach items="${products}" var="product">
                 <tr>
@@ -16,7 +17,7 @@
                     <td>
                         <form method="GET" action="/telecom/service/rate/product">
                             <input type="hidden" name="productId" value="${product.id}"/>
-                            <input type="submit" value="Rates" />
+                            <input type="submit" value='<lan:print message="product.all.jsp.button.rates"/>'/>
                         </form>
                     </td>
                 </tr>
@@ -24,12 +25,12 @@
         </table>
         <c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">
             <form method="GET" action="/telecom/operator/home.jsp">
-                <input type="submit" value="Home">
+                <input type="submit" value='<lan:print message="product.all.jsp.button.home"/>'>
             </form>
         </c:if>
         <c:if test = "${sessionScope.user.userRole == 'SUBSCRIBER'}">
             <form method="GET" action="/telecom/subscriber/home.jsp">
-                <input type="submit" value="Home">
+                <input type="submit" value='<lan:print message="product.all.jsp.button.home"/>'>
             </form>
         </c:if>
     </body>

@@ -4,6 +4,8 @@ import lombok.Data;
 import org.test.project.User.User;
 import org.test.project.User.UserRole;
 
+import java.util.Locale;
+
 @Data
 public class Subscriber extends User {
 
@@ -14,14 +16,14 @@ public class Subscriber extends User {
         this.setUserRole(UserRole.SUBSCRIBER);
     }
 
-    public Subscriber(Long id, String login, String password, double balance, boolean lock) {
-        super(id, login, password, UserRole.SUBSCRIBER);
+    public Subscriber(Long id, String login, String password, double balance, boolean lock, Locale locale) {
+        super(id, login, password, UserRole.SUBSCRIBER, locale);
         this.balance = balance;
         this.lock = lock;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return this.getLogin();
     }
 }

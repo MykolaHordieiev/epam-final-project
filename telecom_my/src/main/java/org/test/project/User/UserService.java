@@ -22,4 +22,12 @@ public class UserService {
         }
         return user;
     }
+
+    public User changeLocale(User user,String selectedLocale) {
+        return userRepository.changeLocaleForUser(user,selectedLocale);
+    }
+
+//    public User checkSelectedLocale(String selectedLocale,User user) {
+//        return userRepository.checkUserLocale(selectedLocale,user);
+//    }
 }

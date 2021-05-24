@@ -37,6 +37,8 @@ public class ServerStarterConfig {
         FilterMap filterMap = new FilterMap();
         filterMap.setFilterName(EncodingFilter.class.getSimpleName());
         filterMap.addURLPattern("/*");
+
+        serverStarter.addFilter(filterDef,filterMap);
     }
 
     private void configureSecurity(ServerStarter serverStarter) {

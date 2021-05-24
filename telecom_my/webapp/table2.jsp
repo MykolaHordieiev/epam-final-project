@@ -104,3 +104,16 @@ td {
                  <option value="${entity.key}">${entity.value}</option>
              </c:forEach>
          </select>
+
+
+
+          <form action="test" method="GET">
+                         <select name="Locale">
+                             <c:forEach var="Locale" items="${sessionScope.LOCALE}">
+                                 <option value="${Locale}">
+                                     ${Locale.toUpperCase()}
+                                 </option>
+                             </c:forEach>
+                         </select>
+                         <input type="submit" value="go">
+                     </form>

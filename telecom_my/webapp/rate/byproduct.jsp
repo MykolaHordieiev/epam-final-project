@@ -1,5 +1,6 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!DOCTYPE html>
+<%@ page contentType="text/html; charset=UTF-8" isELIgnored="false" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@taglib uri="/WEB-INF/tag/language.tld" prefix="lan" %>
 <html>
     <head>
         <title>Rate info</title>
@@ -7,15 +8,15 @@
     </head>
     <body>
 
-<p><button onclick="sortName(false)">Sort name</button></p>
-<p><button onclick="sortName(true)">Sort name inverse</button></p>
-<p><button onclick="sortPrice(false)">Sort prise</button></p>
-<p><button onclick="sortPrice(true)">Sort prise inverse</button></p>
+<p><button onclick="sortName(false)"><lan:print message="rate.byproduct.jsp.button.sort_name"/></button></p>
+<p><button onclick="sortName(true)"><lan:print message="rate.byproduct.jsp.button.sort_name_inverse"/></button></p>
+<p><button onclick="sortPrice(false)"><lan:print message="rate.byproduct.jsp.button.sort_prise"/></button></p>
+<p><button onclick="sortPrice(true)"><lan:print message="rate.byproduct.jsp.button.sort_prise_inverse"/></button></p>
 
 <table id="rates">
   <tr>
-    <th>Name</th>
-    <th>Prise</th>
+    <th><lan:print message="rate.buproduct.jsp.table.name"/></th>
+    <th><lan:print message="rate.buproduct.jsp.table.price"/></th>
   </tr>
   <c:forEach items="${rates}" var="rate">
   <tr>
@@ -25,7 +26,7 @@
         <td>
             <form method="GET" action="/telecom/service/rate/info">
                 <input type="hidden" name="id" value="${rate.id}"/>
-                <input type="submit" value="Rate info">
+                <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.rate_info"/>'>
             </form>
          </td>
     </c:if>
@@ -36,7 +37,7 @@
                 <form method="POST" action="/telecom/service/add/subscribing">
                     <input type="hidden" name="rateId" value="${rate.id}"/>
                     <input type="hidden" name="productId" value="${productId}"/>
-                    <input type="submit" value="Subscribing">
+                    <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.subscribing"/>'>
                 </form>
              </td>
              </c:if>
@@ -49,14 +50,14 @@
 
       <form method="GET" action="/telecom/service/rate/add">
             <input type="hidden" name="id" value="${productId}"/>
-                <input type="submit" value="Add rate">
+                <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.add_rate"/>'>
       </form>
 
     </c:if>
 
      <form method="GET" action="/telecom/service/download/rate">
                 <input type="hidden" name="productId" value="${productId}"/>
-                <input type="submit" value="Download">
+                <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.download"/>'>
                 <select name="format">
                     <option value=".txt">.txt</option>
                     <option value=".pdf">.pdf</option>

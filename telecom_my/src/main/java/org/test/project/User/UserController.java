@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class UserController implements Controller {
 
@@ -27,7 +28,24 @@ public class UserController implements Controller {
     public List<RequestMatcher> getRequestMatcher() {
         requestMatchers.add(new RequestMatcher("/login", "POST", this::login));
         requestMatchers.add(new RequestMatcher("/logout", "GET", this::logout));
+        requestMatchers.add(new RequestMatcher("/change/locale", "GET", this::changeLocale));
         return requestMatchers;
+    }
+
+    public ModelAndView changeLocale(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        User user = (User) session.getAttribute("user");
+        String selectedLocale = request.getParameter("Locale");
+        User returnedUser = userService.changeLocale(user, selectedLocale);
+        ModelAndView modelAndView;
+        if (returnedUser.getUserRole().equals(UserRole.OPERATOR)) {
+            modelAndView = ModelAndView.withView("/operator/home.jsp");
+        } else {
+            modelAndView = ModelAndView.withView("/subscriber/home.jsp");
+        }
+        session.setAttribute("Locale", returnedUser.getLocale());
+        modelAndView.setRedirect(true);
+        return modelAndView;
     }
 
     public ModelAndView login(HttpServletRequest request, HttpServletResponse respons) {
@@ -43,6 +61,7 @@ public class UserController implements Controller {
         }
         HttpSession session = request.getSession();
         session.setAttribute("user", user);
+        session.setAttribute("Locale", user.getLocale());
         modelAndView.setRedirect(true);
         return modelAndView;
     }
@@ -57,6 +76,7 @@ public class UserController implements Controller {
         modelAndView.setRedirect(true);
         return modelAndView;
     }
+
 
     private String validEntryParameter(String value, String parameter) {
         if (value.equals("")) {

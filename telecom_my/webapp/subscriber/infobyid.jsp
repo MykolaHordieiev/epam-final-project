@@ -1,4 +1,6 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html; charset=UTF-8" isELIgnored="false" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@taglib uri="/WEB-INF/tag/language.tld" prefix="lan" %>
 <html>
     <head>
         <title>subscriber info</title>
@@ -24,12 +26,12 @@
     }
     </style>
     <table id="subscriberInfo">
-        <caption>Info about subscriber</caption>
+        <caption><lan:print message="subscriber.infobyid.jsp.table.caption"/></caption>
         <tr>
-            <th>Id</th>
-            <th>Login</th>
-            <th>Balance</th>
-            <th>Status</th>
+            <th><lan:print message="subscriber.infobyid.jsp.table.id"/></th>
+            <th><lan:print message="subscriber.infobyid.jsp.table.login"/></th>
+            <th><lan:print message="subscriber.infobyid.jsp.table.balance"/></th>
+            <th><lan:print message="subscriber.infobyid.jsp.table.Status"/></th>
         </tr>
         <tr>
             <td>${subscriber.id}</td>
@@ -38,11 +40,11 @@
             <td>${subscriber.lock}</td>
         </tr>
         <tr>
-            <td colspan="4">Subscribing</td>
+            <td colspan="4"><lan:print message="subscriber.infobyid.jsp.table.subscribing"/></td>
         </tr>
         <tr>
-            <td colspan="2">Product name</td>
-            <td colspan="2">Rate name</td>
+            <td colspan="2"><lan:print message="subscriber.infobyid.jsp.table.product_name"/></td>
+            <td colspan="2"><lan:print message="subscriber.infobyid.jsp.table.rate_name"/></td>
         </tr>
         <tr>
         <c:forEach items="${subscriptions}" var="subscription">
@@ -56,22 +58,22 @@
             <c:if test = "${subscriber.lock == 'false'}">
             <form method="POST" action="/telecom/service/subscriber/lock">
                 <input type="hidden" name="id" value="${subscriber.id}"/>
-                <input type="submit" value="Lock">
+                <input type="submit" value='<lan:print message="subscriber.infobyid.jsp.button.lock"/>'>
             </form>
             </c:if>
             <c:if test = "${subscriber.lock == 'true'}">
             <form method="POST" action="/telecom/service/subscriber/unlock">
                 <input type="hidden" name="id" value="${subscriber.id}"/>
-                <input type="submit" value="Unlock">
+                <input type="submit" value='<lan:print message="subscriber.infobyid.jsp.button.unlock"/>'>
             </form>
             </c:if>
             <form method="GET" action="/telecom/operator/home.jsp">
-                <input type="submit" value="Home">
+                <input type="submit" value='<lan:print message="subscriber.infobyid.jsp.button.home"/>'>
             </form>
         </c:if>
         <c:if test = "${sessionScope.user.userRole == 'SUBSCRIBER'}">
             <form method="GET" action="/telecom/subscriber/home.jsp">
-                <input type="submit" value="Home">
+                <input type="submit" value='<lan:print message="subscriber.infobyid.jsp.button.home"/>'>
             </form>
         </c:if>
     </body>

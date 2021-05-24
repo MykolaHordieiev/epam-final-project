@@ -1,5 +1,6 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!DOCTYPE html>
+<%@ page contentType="text/html; charset=UTF-8" isELIgnored="false" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@taglib uri="/WEB-INF/tag/language.tld" prefix="lan" %>
 <html>
     <head>
         <title>get all subscribers</title>
@@ -25,13 +26,13 @@
         }
         </style>
         <table id="subscribers">
-        <caption>Info about subscribers</caption>
+        <caption><lan:print message="subscriber.all.jsp.table.caption"/></caption>
              <tr>
-                <th>Id</th>
-                <th>Login</th>
-                <th>Balance</th>
-                <th>Status</th>
-                <th>Lock/Unlock</th>
+                <th><lan:print message="subscriber.all.jsp.table.id"/></th>
+                <th><lan:print message="subscriber.all.jsp.table.login"/></th>
+                <th><lan:print message="subscriber.all.jsp.table.balance"/></th>
+                <th><lan:print message="subscriber.all.jsp.table.status"/></th>
+                <th><lan:print message="subscriber.all.jsp.table.lock"/></th>
              </tr>
              <c:forEach items="${subscribers}" var="subscriber">
                 <tr>
@@ -43,13 +44,13 @@
                         <c:if test = "${subscriber.lock == 'false'}">
                             <form method="POST" action="/telecom/service/subscriber/lock">
                                 <input type="hidden" name="id" value="${subscriber.id}"/>
-                                <input type="submit" value="Lock">
+                                <input type="submit" value='<lan:print message="subscriber.all.jsp.button.lock"/>'>
                             </form>
                         </c:if>
                         <c:if test = "${subscriber.lock == 'true'}">
                             <form method="POST" action="/telecom/service/subscriber/unlock">
                                 <input type="hidden" name="id" value="${subscriber.id}"/>
-                                <input type="submit" value="Unlock">
+                                <input type="submit" value="'<lan:print message="subscriber.all.jsp.button.unlock"/>'">
                             </form>
                         </c:if>
                     </td>
@@ -57,7 +58,7 @@
              </c:forEach>
         </table>
         <form method="GET" action="/telecom/operator/home.jsp">
-            <input type="submit" value="Home">
+            <input type="submit" value='<lan:print message="subscriber.all.jsp.button.home"/>'>
         </form>
     </body>
 </html>
