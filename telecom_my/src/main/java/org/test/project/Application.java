@@ -1,9 +1,9 @@
 package org.test.project;
 
 
-import org.test.project.User.UserController;
-import org.test.project.User.UserRepository;
-import org.test.project.User.UserService;
+import org.test.project.user.UserController;
+import org.test.project.user.UserRepository;
+import org.test.project.user.UserService;
 import org.test.project.infra.config.*;
 import org.test.project.infra.db.LiquibaseStarter;
 import org.test.project.infra.web.*;
@@ -71,7 +71,7 @@ public class Application {
     }
 
     private static UserService getUserService(DataSource dataSource) {
-        //User config
+        //user config
         UserRepository userRepository = new UserRepository(dataSource);
         return new UserService(userRepository);
     }

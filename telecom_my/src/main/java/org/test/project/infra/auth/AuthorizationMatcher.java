@@ -1,8 +1,8 @@
 package org.test.project.infra.auth;
 
 import lombok.Value;
-import org.test.project.User.User;
-import org.test.project.User.UserRole;
+import org.test.project.user.User;
+import org.test.project.user.UserRole;
 
 import java.util.Arrays;
 import java.util.List;

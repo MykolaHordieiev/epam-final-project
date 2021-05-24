@@ -1,8 +1,8 @@
 package org.test.project.infra.auth;
 
 
-import org.test.project.User.User;
-import org.test.project.User.UserRole;
+import org.test.project.user.User;
+import org.test.project.user.UserRole;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

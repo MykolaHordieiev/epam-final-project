@@ -1,4 +1,4 @@
-package org.test.project.User;
+package org.test.project.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,5 +15,4 @@ public abstract class User {
     private String login;
     private String password;
     private UserRole userRole;
-    private Locale locale;
 }

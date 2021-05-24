@@ -1,8 +1,8 @@
 package org.test.project.subscriber;
 
 import lombok.Data;
-import org.test.project.User.User;
-import org.test.project.User.UserRole;
+import org.test.project.user.User;
+import org.test.project.user.UserRole;
 
 import java.util.Locale;
 
@@ -16,8 +16,8 @@ public class Subscriber extends User {
         this.setUserRole(UserRole.SUBSCRIBER);
     }
 
-    public Subscriber(Long id, String login, String password, double balance, boolean lock, Locale locale) {
-        super(id, login, password, UserRole.SUBSCRIBER, locale);
+    public Subscriber(Long id, String login, String password, double balance, boolean lock) {
+        super(id, login, password, UserRole.SUBSCRIBER);
         this.balance = balance;
         this.lock = lock;
     }

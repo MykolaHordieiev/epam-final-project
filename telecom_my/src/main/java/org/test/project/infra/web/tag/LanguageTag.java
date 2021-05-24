@@ -17,7 +17,6 @@ public class LanguageTag extends TagSupport {
 
     private String message;
     private Utf8Control utf8Control = new Utf8Control();
-    private List<Locale> locales = new ArrayList<>();
 
     public void setMessage(String message) {
         this.message = message;
@@ -26,15 +25,7 @@ public class LanguageTag extends TagSupport {
     @Override
     public int doStartTag() {
         HttpSession session = pageContext.getSession();
-        if (session.getAttribute("Locale") == null) {
-            Locale en = new Locale("en");
-            Locale ru = new Locale("ru");
-            locales.add(ru);
-            locales.add(en);
-            session.setAttribute("Locale", en);
-            session.setAttribute("locales", locales);
-        }
-        Locale locale = (Locale) session.getAttribute("Locale");
+        Locale locale = (Locale) session.getAttribute("selectedLocale");
         if (message != null && !message.isEmpty()) {
             ResourceBundle messages = ResourceBundle.getBundle("i18n.resources", locale, utf8Control);
             String locMessage = messages.getString(message);

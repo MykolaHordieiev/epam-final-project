@@ -1,4 +1,4 @@
-package org.test.project.User;
+package org.test.project.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -38,34 +38,9 @@ public class UserRepository {
                 user.setId(id);
                 user.setLogin(login);
                 user.setPassword(password);
-                user.setLocale(new Locale(resultSet.getString("locale")));
                 return Optional.of(user);
             }
         }
         return Optional.empty();
     }
-
-    @SneakyThrows
-    public User changeLocaleForUser(User user, String selectedLocale) {
-        String query = "UPDATE user SET locale='" + selectedLocale + "' WHERE id=" + user.getId();
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.execute(query);
-            user.setLocale(new Locale(selectedLocale));
-        }
-        return user;
-    }
-
-//    public User checkUserLocale(String selectedLocale, User user) {
-//        String query = "SELECT locale FROM user WHERE id=" + user.getId();
-//        try (Connection connection = dataSource.getConnection();
-//             Statement statement = connection.createStatement();
-//             ResultSet resultSet = statement.executeQuery(query)) {
-//            if (resultSet.next()) {
-//                user.setLocale(new Locale(selectedLocale));
-//            }
-//
-//        }
-//
-//    }
 }

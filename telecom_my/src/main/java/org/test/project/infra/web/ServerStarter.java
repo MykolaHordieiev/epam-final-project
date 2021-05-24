@@ -7,7 +7,9 @@ import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 
 import javax.servlet.Servlet;
+import javax.servlet.http.HttpSessionListener;
 import java.io.File;
+import java.util.List;
 
 public class ServerStarter {
 
@@ -31,6 +33,10 @@ public class ServerStarter {
     public void addFilter(FilterDef filterDef, FilterMap filterMap) {
         context.addFilterDef(filterDef);
         context.addFilterMap(filterMap);
+    }
+
+    public void addSessionListeners(List<HttpSessionListener> sessionListeners) {
+        context.setApplicationLifecycleListeners(sessionListeners.toArray());
     }
 
     @SneakyThrows

@@ -1,10 +1,8 @@
-package org.test.project.User;
+package org.test.project.user;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.test.project.subscriber.Subscriber;
 
 
 @RequiredArgsConstructor
@@ -22,12 +20,4 @@ public class UserService {
         }
         return user;
     }
-
-    public User changeLocale(User user,String selectedLocale) {
-        return userRepository.changeLocaleForUser(user,selectedLocale);
-    }
-
-//    public User checkSelectedLocale(String selectedLocale,User user) {
-//        return userRepository.checkUserLocale(selectedLocale,user);
-//    }
 }

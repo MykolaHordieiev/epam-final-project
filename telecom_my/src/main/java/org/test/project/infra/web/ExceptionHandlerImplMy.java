@@ -1,6 +1,6 @@
 package org.test.project.infra.web;
 
-import org.test.project.User.UserLoginException;
+import org.test.project.user.UserLoginException;
 import org.test.project.product.ProductException;
 import org.test.project.rate.RateException;
 import org.test.project.subscriber.FiledTransactionException;

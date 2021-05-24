@@ -1,4 +1,4 @@
-package org.test.project.User;
+package org.test.project.user;
 
 public class UserLoginException extends RuntimeException {
 

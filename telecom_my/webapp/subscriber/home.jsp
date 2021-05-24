@@ -31,9 +31,9 @@
         <form method="GET" action="/telecom/service/get/all/product">
             <input type="submit" value='<lan:print message="subscriber.home.jsp.button.select"/>'><br><br>
         </form>
-        </form>
-        <form action="/telecom/service/change/locale" method="GET">
-            <select name="Locale">
+        <form action="/telecom/service/change/locale" method="POST">
+                    <input type="hidden" name="view" value="/subscriber/home.jsp"/>
+                                             <select name="selectedLocale">
             <c:forEach var="locale" items="${sessionScope.locales}">
                 <option value="${locale}">
                     ${locale}

@@ -7,11 +7,16 @@ import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.test.project.infra.auth.AuthorizationFilter;
 import org.test.project.infra.auth.EncodingFilter;
 import org.test.project.infra.web.FrontServlet;
+import org.test.project.infra.web.LocaleSessionListener;
 import org.test.project.infra.web.ServerStarter;
 
 import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 @RequiredArgsConstructor
 public class ServerStarterConfig {
@@ -26,7 +31,16 @@ public class ServerStarterConfig {
 
         configureSecurity(serverStarter);
         configureEncodingFilter(serverStarter);
+        configureSessionListener(serverStarter);
         return serverStarter;
+    }
+
+    private void configureSessionListener(ServerStarter serverStarter) {
+        List<Locale> locales = new ArrayList<>();
+        Locale selectedLocale = new Locale("en");
+        locales.add(new Locale("en"));
+        locales.add(new Locale("ru"));
+        serverStarter.addSessionListeners(Arrays.asList(new LocaleSessionListener(locales,selectedLocale)));
     }
 
     private void configureEncodingFilter(ServerStarter serverStarter) throws IllegalAccessException, ServletException, InstantiationException, NoSuchMethodException, NamingException, InvocationTargetException, ClassNotFoundException {

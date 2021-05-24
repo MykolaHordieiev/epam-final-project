@@ -35,11 +35,12 @@
             <form method="GET" action="/telecom/service/get/all/product">
                 <input type="submit" value='<lan:print message="operator.home.jsp.button.Get_info"/>'><br><br>
             </form>
-            <form method="GET" action="/telecom/service/logout">
+            <form method="POST" action="/telecom/service/logout">
                 <input type="submit" value='<lan:print message="operator.home.jsp.button.Logout"/>'><br><br>
             </form>
-            <form action="/telecom/service/change/locale" method="GET">
-                                     <select name="Locale">
+            <form action="/telecom/service/change/locale" method="POST">
+            <input type="hidden" name="view" value="/operator/home.jsp"/>
+                                     <select name="selectedLocale">
                                          <c:forEach var="locale" items="${sessionScope.locales}">
                                              <option value="${locale}">
                                                  ${locale}

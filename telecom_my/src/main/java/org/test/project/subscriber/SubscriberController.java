@@ -2,7 +2,7 @@ package org.test.project.subscriber;
 
 
 import lombok.AllArgsConstructor;
-import org.test.project.User.User;
+import org.test.project.user.User;
 import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
 import org.test.project.infra.web.RequestMatcher;

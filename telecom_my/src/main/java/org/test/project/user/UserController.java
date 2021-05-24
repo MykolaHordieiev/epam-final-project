@@ -1,4 +1,4 @@
-package org.test.project.User;
+package org.test.project.user;
 
 import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
@@ -27,23 +27,19 @@ public class UserController implements Controller {
     @Override
     public List<RequestMatcher> getRequestMatcher() {
         requestMatchers.add(new RequestMatcher("/login", "POST", this::login));
-        requestMatchers.add(new RequestMatcher("/logout", "GET", this::logout));
-        requestMatchers.add(new RequestMatcher("/change/locale", "GET", this::changeLocale));
+        requestMatchers.add(new RequestMatcher("/logout", "POST", this::logout));
+        requestMatchers.add(new RequestMatcher("/change/locale", "POST", this::changeLocale));
         return requestMatchers;
     }
 
     public ModelAndView changeLocale(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
-        User user = (User) session.getAttribute("user");
-        String selectedLocale = request.getParameter("Locale");
-        User returnedUser = userService.changeLocale(user, selectedLocale);
-        ModelAndView modelAndView;
-        if (returnedUser.getUserRole().equals(UserRole.OPERATOR)) {
-            modelAndView = ModelAndView.withView("/operator/home.jsp");
-        } else {
-            modelAndView = ModelAndView.withView("/subscriber/home.jsp");
-        }
-        session.setAttribute("Locale", returnedUser.getLocale());
+        String selectedLocale = request.getParameter("selectedLocale");
+        String view = request.getParameter("view");
+        Locale locale = new Locale(selectedLocale);
+        session.setAttribute("selectedLocale", locale);
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setView(view);
         modelAndView.setRedirect(true);
         return modelAndView;
     }
@@ -61,7 +57,6 @@ public class UserController implements Controller {
         }
         HttpSession session = request.getSession();
         session.setAttribute("user", user);
-        session.setAttribute("Locale", user.getLocale());
         modelAndView.setRedirect(true);
         return modelAndView;
     }
