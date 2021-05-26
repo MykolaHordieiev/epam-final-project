@@ -10,9 +10,6 @@ import org.test.project.infra.web.FrontServlet;
 import org.test.project.infra.web.LocaleSessionListener;
 import org.test.project.infra.web.ServerStarter;
 
-import javax.naming.NamingException;
-import javax.servlet.ServletException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +40,7 @@ public class ServerStarterConfig {
         serverStarter.addSessionListeners(Arrays.asList(new LocaleSessionListener(locales,selectedLocale)));
     }
 
-    private void configureEncodingFilter(ServerStarter serverStarter) throws IllegalAccessException, ServletException, InstantiationException, NoSuchMethodException, NamingException, InvocationTargetException, ClassNotFoundException {
+    private void configureEncodingFilter(ServerStarter serverStarter) {
         FilterDef filterDef = new FilterDef();
         filterDef.setFilterName(EncodingFilter.class.getSimpleName());
         filterDef.setFilterClass(EncodingFilter.class.getName());

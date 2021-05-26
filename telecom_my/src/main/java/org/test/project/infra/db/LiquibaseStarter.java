@@ -20,12 +20,13 @@ public class LiquibaseStarter {
 
     private final DataSource dataSource;
 
+    private final static String CHANGE_LOG_FILE = "/liquibase/db-changelog-master.xml";
 
     @SneakyThrows
     public void updateDatabase() {
         try (Connection connection = dataSource.getConnection()) {
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
-            Liquibase liquibase = new liquibase.Liquibase("/liquibase/db-changelog-master.xml", new ClassLoaderResourceAccessor(), database);
+            Liquibase liquibase = new liquibase.Liquibase(CHANGE_LOG_FILE, new ClassLoaderResourceAccessor(), database);
             liquibase.update(new Contexts(), new LabelExpression());
         }
     }

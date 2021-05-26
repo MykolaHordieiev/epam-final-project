@@ -16,7 +16,7 @@ public class SubscribingService {
     public Subscriber addSubscribing(Subscriber subscriber, Product product, Rate rate) {
         Subscribing subscribing = new Subscribing(subscriber, product, rate);
         if (!rate.getProductId().equals(product.getId())) {
-            throw new SubscriberException("incorrect rate id: " + rate.getId() + " for chose product");
+            throw new SubscribingException("incorrect rate id: " + rate.getId() + " for chose product");
         }
         double balance = getNewBalance(subscriber, rate);
         subscribing.getSubscriber().setBalance(balance);

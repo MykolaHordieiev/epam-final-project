@@ -4,6 +4,7 @@ import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
 import org.test.project.infra.web.RequestMatcher;
 import org.test.project.subscriber.SubscriberService;
+import org.test.project.validator.ValidatorEntryParameter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,11 +17,13 @@ public class UserController implements Controller {
 
     private final UserService userService;
     private final SubscriberService subscriberService;
+    private final ValidatorEntryParameter validator;
     private List<RequestMatcher> requestMatchers;
 
-    public UserController(UserService userService, SubscriberService subscriberService) {
+    public UserController(UserService userService, SubscriberService subscriberService,ValidatorEntryParameter validator) {
         this.userService = userService;
         this.subscriberService = subscriberService;
+        this.validator = validator;
         requestMatchers = new ArrayList<>();
     }
 
@@ -33,10 +36,10 @@ public class UserController implements Controller {
     }
 
     public ModelAndView changeLocale(HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession(false);
         String selectedLocale = request.getParameter("selectedLocale");
         String view = request.getParameter("view");
         Locale locale = new Locale(selectedLocale);
+        HttpSession session = request.getSession(false);
         session.setAttribute("selectedLocale", locale);
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView(view);
@@ -45,8 +48,8 @@ public class UserController implements Controller {
     }
 
     public ModelAndView login(HttpServletRequest request, HttpServletResponse respons) {
-        String login = validEntryParameter(request.getParameter("login"), "login");
-        String password = validEntryParameter(request.getParameter("password"), "password");
+        String login = validator.checkEmptyEntryParameter(request.getParameter("login"), "login");
+        String password = validator.checkEmptyEntryParameter(request.getParameter("password"), "password");
         User user = userService.loginUser(login, password);
         ModelAndView modelAndView;
         if (user.getUserRole().equals(UserRole.OPERATOR)) {
@@ -70,13 +73,5 @@ public class UserController implements Controller {
         modelAndView.setView("/index.jsp");
         modelAndView.setRedirect(true);
         return modelAndView;
-    }
-
-
-    private String validEntryParameter(String value, String parameter) {
-        if (value.equals("")) {
-            throw new UserLoginException("entry value cannot be empty: " + parameter);
-        }
-        return value;
     }
 }

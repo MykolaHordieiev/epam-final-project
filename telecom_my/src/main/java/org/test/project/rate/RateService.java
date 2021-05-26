@@ -20,7 +20,6 @@ public class RateService {
     }
 
     public Rate changeRateById(Rate rate) {
-        rate.setProductId(getRateById(rate.getId()).getProductId());
         return rateRepository.changeRateById(rate);
     }
 
@@ -29,7 +28,6 @@ public class RateService {
     }
 
     public Rate deleteRateById(Rate rate) {
-        rate.setProductId(getRateById(rate.getId()).getProductId());
         return rateRepository.deleteRateById(rate);
     }
 

@@ -7,6 +7,8 @@ import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
 import org.test.project.infra.web.RequestMatcher;
 import org.test.project.subscribing.SubscribingService;
+import org.test.project.validator.ValidatorEntryParameter;
+import org.test.project.validator.ValidatorException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,11 +21,14 @@ public class SubscriberController implements Controller {
 
     private final SubscriberService subscriberService;
     private final SubscribingService subscribingService;
+    private final ValidatorEntryParameter validator;
     private List<RequestMatcher> requestMatchers;
 
-    public SubscriberController(SubscriberService subscriberService, SubscribingService subscribingService) {
+    public SubscriberController(SubscriberService subscriberService, SubscribingService subscribingService,
+                                ValidatorEntryParameter validator) {
         this.subscriberService = subscriberService;
         this.subscribingService = subscribingService;
+        this.validator = validator;
         requestMatchers = new ArrayList<>();
     }
 
@@ -39,7 +44,7 @@ public class SubscriberController implements Controller {
     }
 
     public ModelAndView getSubscriberById(HttpServletRequest request, HttpServletResponse response) {
-        String subscriberId = validEntryParameter(request.getParameter("id"), "id");
+        String subscriberId = validator.checkEmptyEntryParameter(request.getParameter("id"), "id");
         Long id = Long.parseLong(subscriberId);
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/subscriber/infobyid.jsp");
@@ -49,8 +54,10 @@ public class SubscriberController implements Controller {
     }
 
     public ModelAndView createSubscriber(HttpServletRequest request, HttpServletResponse response) {
-        String login = validEntryParameter(request.getParameter("login"), "login");
-        String password = validEntryParameter(request.getParameter("password"), "password");
+        String login = validator.checkEmptyEntryParameter(request.getParameter("login"), "login");
+        String password = validator.checkEmptyEntryParameter(request.getParameter("password"), "password");
+        validator.validateLogin(login);
+        validator.validatePassword(password);
         Subscriber subscriber = new Subscriber();
         subscriber.setLogin(login);
         subscriber.setPassword(password);
@@ -80,21 +87,15 @@ public class SubscriberController implements Controller {
     }
 
     public ModelAndView topUpTheBalance(HttpServletRequest request, HttpServletResponse response) {
-        String amount = validEntryParameter(request.getParameter("amount"), "amount");
+        Double amount = Double.parseDouble(validator.checkEmptyEntryParameter(request.getParameter("amount"), "amount"));
+        validator.checkEntryNumber(amount);
         User subscriber = getUserOfSession(request);
-        Subscriber returnedSubscriber = subscriberService.topUpBalance(subscriber.getId(), Double.parseDouble(amount));
+        Subscriber returnedSubscriber = subscriberService.topUpBalance(subscriber.getId(), amount);
         ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + returnedSubscriber.getId());
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession();
         session.setAttribute("user", returnedSubscriber);
         modelAndView.setRedirect(true);
         return modelAndView;
-    }
-
-    private String validEntryParameter(String entryParameter, String parameter) {
-        if (entryParameter.equals("")) {
-            throw new SubscriberException("entry parameter cannot be empty: " + parameter);
-        }
-        return entryParameter;
     }
 
     private Subscriber getUserOfSession(HttpServletRequest request) {

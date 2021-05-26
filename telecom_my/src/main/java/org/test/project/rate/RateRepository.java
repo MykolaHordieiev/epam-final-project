@@ -27,7 +27,7 @@ public class RateRepository {
                 String name = resultSet.getString("name_rate");
                 double prise = resultSet.getDouble("price");
                 boolean unusable = resultSet.getBoolean("unusable");
-                rates.add(new Rate(id, name, prise, productId,unusable));
+                rates.add(new Rate(id, name, prise, productId, unusable));
             }
         }
         return rates;
@@ -44,7 +44,7 @@ public class RateRepository {
                 String name = resultSet.getString("name_rate");
                 double prise = resultSet.getDouble("price");
                 boolean unusable = resultSet.getBoolean("unusable");
-                return Optional.of(new Rate(id, name, prise, productId,unusable));
+                return Optional.of(new Rate(id, name, prise, productId, unusable));
             }
         }
         return Optional.empty();
@@ -57,8 +57,8 @@ public class RateRepository {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.execute();
-            return rate;
         }
+        return rate;
     }
 
     @SneakyThrows

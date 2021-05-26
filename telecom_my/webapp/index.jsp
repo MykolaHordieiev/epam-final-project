@@ -12,22 +12,22 @@
            ${sessionScope.Locale}
         </p>
             <form accept-charset="UTF-8" method="POST" action="/telecom/service/login">
-                          <label for="name"><lan:print message="index.jsp.label.login"/></label><br>
+                          <label for="name"><lan:print message="index.jsp.label.login"/>:</label><br>
                           <input type="text" id="login" name="login"><br><br>
-                          <label for="pass"><lan:print message="index.jsp.label.password"/></label><br>
+                          <label for="pass"><lan:print message="index.jsp.label.password"/>:</label><br>
                           <input type="password" id="password" name="password"><br><br>
                           <input type="submit" value='<lan:print message="index.jsp.button.login"/>'>
             </form>
             <form action="/telecom/service/change/locale" method="POST">
             <input type="hidden" name="view" value="/index.jsp"/>
-                         <select name="selectedLocale">
-                             <c:forEach var="locale" items="${sessionScope.locales}">
-                                 <option value="${locale}">
-                                     ${locale}
-                                 </option>
-                             </c:forEach>
-                         </select>
-                         <input type="submit" value="Update">
+                <select name="selectedLocale">
+                    <c:forEach var="locale" items="${sessionScope.locales}">
+                        <option value="${locale}">
+                            ${locale}
+                        </option>
+                    </c:forEach>
+                </select>
+            <input type="submit" value='<lan:print message="index.jsp.button.update"/>'>
             </form>
    </body>
 </html>

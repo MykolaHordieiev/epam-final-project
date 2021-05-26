@@ -1,8 +1,10 @@
 package org.test.project.user;
 
-public class UserLoginException extends RuntimeException {
+import org.test.project.infra.web.MyException;
 
-    public UserLoginException(String message){
+public class UserLoginException extends RuntimeException implements MyException {
+
+    UserLoginException(String message){
         super(message);
     }
 }

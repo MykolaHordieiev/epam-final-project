@@ -65,7 +65,7 @@ public class SubscriberRepository {
             if (connection != null) {
                 connection.rollback();
             }
-            throw new FiledTransactionException("transaction failed with create Subscriber");
+            throw new SubscriberException("transaction failed with create Subscriber");
         } finally {
             close(preparedStatement);
             close(connection);

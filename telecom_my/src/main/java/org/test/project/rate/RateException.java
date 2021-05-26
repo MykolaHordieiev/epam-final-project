@@ -1,8 +1,10 @@
 package org.test.project.rate;
 
-public class RateException extends RuntimeException {
+import org.test.project.infra.web.MyException;
 
-    public RateException(String message) {
+public class RateException extends RuntimeException implements MyException {
+
+    RateException(String message) {
         super(message);
     }
 }

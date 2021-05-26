@@ -9,7 +9,6 @@
     <body>
         <p>
             <lan:print message="operator.home.jsp.welcome_home_page"/>, ${sessionScope.user.login}
-            ${sessionScope.user.locale}
         </p>
              <form method="POST" action="/telecom/operator/create.jsp">
                 <label><lan:print message="operator.home.jsp.create_subscriber"/></label><br>

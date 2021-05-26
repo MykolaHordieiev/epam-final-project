@@ -1,8 +1,10 @@
 package org.test.project.subscriber;
 
-public class SubscriberException extends  RuntimeException {
+import org.test.project.infra.web.MyException;
 
-    public SubscriberException(String message){
+public class SubscriberException extends RuntimeException implements MyException {
+
+    SubscriberException(String message) {
         super(message);
     }
 }

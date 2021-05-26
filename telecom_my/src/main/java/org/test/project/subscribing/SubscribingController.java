@@ -1,6 +1,5 @@
 package org.test.project.subscribing;
 
-import lombok.RequiredArgsConstructor;
 import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
 import org.test.project.infra.web.RequestMatcher;
@@ -47,16 +46,10 @@ public class SubscribingController implements Controller {
         Product product = productService.getProductById(productId);
         Rate rate = rateService.getRateById(rateId);
         Subscriber returnedSubscriber = subscribingService.addSubscribing(subscriber, product, rate);
-        double balanceAfterAddSubscribing = returnedSubscriber.getBalance();
         ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + returnedSubscriber.getId());
-        if (balanceAfterAddSubscribing < 0) {
+        if (returnedSubscriber.getBalance() < 0) {
             subscriberService.lockSubscriberById(returnedSubscriber.getId());
-            String message = "subscribing was add, but " +
-                    "you are locked, until you replenish your balance. " +
-                    "Your balance = " + balanceAfterAddSubscribing +
-                    " Please, top up your balance on: " + Math.abs(balanceAfterAddSubscribing);
             modelAndView.setView("/subscriber/lock.jsp");
-            modelAndView.addAttribute("message", message);
             HttpSession session = request.getSession();
             session.setAttribute("user", returnedSubscriber);
         }

@@ -5,7 +5,6 @@ import lombok.SneakyThrows;
 
 import org.test.project.product.Product;
 import org.test.project.rate.Rate;
-import org.test.project.subscriber.FiledTransactionException;
 import org.test.project.subscriber.Subscriber;
 
 import javax.sql.DataSource;
@@ -44,7 +43,7 @@ public class SubscribingRepository {
             if (connection != null) {
                 connection.rollback();
             }
-            throw new FiledTransactionException("filed transaction in addSubscribing");
+            throw new SubscribingException("filed transaction in addSubscribing");
         } finally {
             close(preparedStatement);
             close(connection);

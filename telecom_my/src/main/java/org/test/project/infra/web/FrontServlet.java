@@ -37,8 +37,8 @@ public class FrontServlet extends HttpServlet {
                     .filter(requestMatcher -> requestMatcher.matcherMethod(method))
                     .findFirst()
                     .map(requestMatcher -> requestMatcher.getBiFunction())
-                    .map(view -> view.apply(req, resp))
-                    .orElseThrow(() -> new SubscriberException("page not found"));
+                    .map(biFunction -> biFunction.apply(req, resp))
+                    .orElseThrow(() -> new WebException("page not found"));
 
             if (!(returnElement instanceof ModelAndView)) {
                 return;
