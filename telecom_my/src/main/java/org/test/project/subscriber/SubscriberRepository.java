@@ -100,16 +100,18 @@ public class SubscriberRepository {
              Statement statement = connection.createStatement()) {
             statement.execute(query);
         }
+        subscriber.setLock(true);
         return subscriber;
     }
 
     @SneakyThrows
-    public Subscriber unLockSubById(Subscriber subscriber) {
+    public Subscriber unlockSubById(Subscriber subscriber) {
         String query = "UPDATE subscriber SET locked=false WHERE id=" + subscriber.getId();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
             statement.execute(query);
         }
+        subscriber.setLock(false);
         return subscriber;
     }
 
@@ -123,6 +125,7 @@ public class SubscriberRepository {
         } catch (SQLException ex) {
             throw new SubscriberException("filed top up balance");
         }
+        subscriber.setBalance(newBalance);
         return subscriber;
     }
 

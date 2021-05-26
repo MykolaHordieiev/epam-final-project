@@ -8,7 +8,6 @@ import org.test.project.infra.web.ModelAndView;
 import org.test.project.infra.web.RequestMatcher;
 import org.test.project.subscribing.SubscribingService;
 import org.test.project.validator.ValidatorEntryParameter;
-import org.test.project.validator.ValidatorException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,7 +37,7 @@ public class SubscriberController implements Controller {
         requestMatchers.add(new RequestMatcher("/subscriber", "POST", this::createSubscriber));
         requestMatchers.add(new RequestMatcher("/subscriber/all", "GET", this::getAll));
         requestMatchers.add(new RequestMatcher("/subscriber/lock", "POST", this::lockSubscriber));
-        requestMatchers.add(new RequestMatcher("/subscriber/unlock", "POST", this::unLockSubscriber));
+        requestMatchers.add(new RequestMatcher("/subscriber/unlock", "POST", this::unlockSubscriber));
         requestMatchers.add(new RequestMatcher("/subscriber/balance", "POST", this::topUpTheBalance));
         return requestMatchers;
     }
@@ -80,9 +79,9 @@ public class SubscriberController implements Controller {
         return getSubscriberById(request, response);
     }
 
-    public ModelAndView unLockSubscriber(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView unlockSubscriber(HttpServletRequest request, HttpServletResponse response) {
         String id = request.getParameter("id");
-        subscriberService.unLockSubscriberById(Long.parseLong(id));
+        subscriberService.unlockSubscriberById(Long.parseLong(id));
         return getSubscriberById(request, response);
     }
 

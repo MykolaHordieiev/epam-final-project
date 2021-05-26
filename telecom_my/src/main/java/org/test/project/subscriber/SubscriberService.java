@@ -24,16 +24,12 @@ public class SubscriberService {
 
     public Subscriber lockSubscriberById(Long id) {
         Subscriber subscriber = getSubscriberById(id);
-        Subscriber returnedSubs = subscriberRepository.lockSubById(subscriber);
-        returnedSubs.setLock(true);
-        return returnedSubs;
+        return subscriberRepository.lockSubById(subscriber);
     }
 
-    public Subscriber unLockSubscriberById(Long id) {
+    public Subscriber unlockSubscriberById(Long id) {
         Subscriber subscriber = getSubscriberById(id);
-        Subscriber returnedSubs = subscriberRepository.unLockSubById(subscriber);
-        returnedSubs.setLock(false);
-        return returnedSubs;
+        return subscriberRepository.unlockSubById(subscriber);
     }
 
     public Subscriber topUpBalance(Long id, Double amount) {
@@ -41,10 +37,8 @@ public class SubscriberService {
         double balanceBefore = subscriber.getBalance();
         double newBalance = subscriber.getBalance() + amount;
         Subscriber returnedSubscriber = subscriberRepository.topUpBalanceById(subscriber, newBalance);
-        returnedSubscriber.setBalance(newBalance);
         if (balanceBefore < 0 && newBalance > 0) {
-            unLockSubscriberById(returnedSubscriber.getId());
-            returnedSubscriber.setLock(false);
+            returnedSubscriber = subscriberRepository.unlockSubById(returnedSubscriber);
         }
         return returnedSubscriber;
     }

@@ -110,8 +110,8 @@ public class RateRepository {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
             statement.execute(query);
-            rate.setUnusable(true);
         }
+        rate.setUnusable(true);
         return rate;
     }
 }

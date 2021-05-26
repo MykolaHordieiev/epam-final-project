@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.test.project.operator.Operator;
 import org.test.project.subscriber.Subscriber;
@@ -25,56 +24,52 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    private static final String LOGIN = "login";
+    private static final String PASSWORD = "password";
+
     @Test
     public void loginUserReturnSubscriber() {
-        String login = "a";
-        String password = "a";
         User subscriber = new Subscriber();
-        subscriber.setLogin(login);
-        subscriber.setPassword(password);
+        subscriber.setLogin(LOGIN);
+        subscriber.setPassword(PASSWORD);
 
-        when(userRepository.getUserByLogin(login)).thenReturn(
+        when(userRepository.getUserByLogin(LOGIN)).thenReturn(
                 Optional.of(subscriber));
 
-        User resultUser = userService.loginUser(login, password);
+        User resultUser = userService.loginUser(LOGIN, PASSWORD);
         Assert.assertEquals(subscriber, resultUser);
 
-        verify(userRepository).getUserByLogin(login);
+        verify(userRepository).getUserByLogin(LOGIN);
     }
 
     @Test
     public void loginUserReturnOperator() {
-        String login = "admin";
-        String password = "admin";
         User operator = new Operator();
-        operator.setPassword(password);
-        operator.setLogin(login);
+        operator.setPassword(PASSWORD);
+        operator.setLogin(LOGIN);
 
-        when(userRepository.getUserByLogin(login)).thenReturn(Optional.of(operator));
+        when(userRepository.getUserByLogin(LOGIN)).thenReturn(Optional.of(operator));
 
-        User resultUser = userService.loginUser(login, password);
+        User resultUser = userService.loginUser(LOGIN, PASSWORD);
         Assert.assertEquals(operator, resultUser);
 
-        verify(userRepository).getUserByLogin(login);
+        verify(userRepository).getUserByLogin(LOGIN);
     }
 
     @Test(expected = UserLoginException.class)
     public void loginUserThrowExceptionWhenNotFindUser() {
-        String login = "a";
         when(userRepository.getUserByLogin(anyString())).thenReturn(Optional.empty());
-        userService.loginUser(login, "a");
-        verify(userRepository).getUserByLogin(login);
+        userService.loginUser(LOGIN, PASSWORD);
+        verify(userRepository).getUserByLogin(LOGIN);
     }
 
     @Test(expected = UserLoginException.class)
     public void loginUserThrowExceptionWhenPasswordNotEquals() {
-        String login = "a";
-        String password = "aa";
         User user = new Subscriber();
-        user.setLogin(login);
+        user.setLogin(LOGIN);
         user.setPassword("aaa");
         when(userRepository.getUserByLogin(anyString())).thenReturn(Optional.of(user));
-        userService.loginUser(login, password);
-        verify(userRepository).getUserByLogin(login);
+        userService.loginUser(LOGIN, PASSWORD);
+        verify(userRepository).getUserByLogin(LOGIN);
     }
 }
