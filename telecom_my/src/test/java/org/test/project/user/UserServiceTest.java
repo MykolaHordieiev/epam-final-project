@@ -2,8 +2,11 @@ package org.test.project.user;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.test.project.operator.Operator;
 import org.test.project.subscriber.Subscriber;
 
@@ -13,16 +16,14 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    private UserService userService;
 
-    public UserServiceTest() {
-        MockitoAnnotations.initMocks(this);
-        this.userService = new UserService(userRepository);
-    }
+    @InjectMocks
+    private UserService userService;
 
     @Test
     public void loginUserReturnSubscriber() {
