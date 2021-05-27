@@ -52,15 +52,17 @@ public class SubscribingRepository {
     }
 
     @SneakyThrows
-    public List<Subscribing> getSubscribingBySubscriberId(Long id) {
-        String getSubscribing = "SELECT * FROM subscribing WHERE subscriber_id=" + id;
+    public List<Subscribing> getSubscribingBySubscriberId(Subscriber subscriber) {
+        String getSubscribing = "SELECT * FROM subscribing WHERE subscriber_id=" + subscriber.getId();
         List<Subscribing> listOfSubscribing = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(getSubscribing)) {
             while (resultSet.next()) {
-                Product product = getProduct(resultSet.getLong("product_id"));
-                Rate rate = getRateBy(resultSet.getLong("rate_id"));
+                Product product = new Product();
+                Rate rate = new Rate();
+                product.setId(resultSet.getLong("product_id"));
+                rate.setId(resultSet.getLong("rate_id"));
                 Subscribing subscribing = new Subscribing();
                 subscribing.setProduct(product);
                 subscribing.setRate(rate);
@@ -71,14 +73,12 @@ public class SubscribingRepository {
     }
 
     @SneakyThrows
-    private Product getProduct(Long productId) {
-        String query = "SELECT * FROM product WHERE id=" + productId;
-        Product product = new Product();
+    public Product getProduct(Product product) {
+        String query = "SELECT * FROM product WHERE id=" + product.getId();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
             if (resultSet.next()) {
-                product.setId(resultSet.getLong("id"));
                 product.setName(resultSet.getString("name_product"));
             }
         }
@@ -86,9 +86,8 @@ public class SubscribingRepository {
     }
 
     @SneakyThrows
-    private Rate getRateBy(Long rateId) {
-        String query = "SELECT * FROM rate WHERE id=" + rateId;
-        Rate rate = new Rate();
+   public  Rate getRateBy(Rate rate) {
+        String query = "SELECT * FROM rate WHERE id=" + rate.getId();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
@@ -96,6 +95,7 @@ public class SubscribingRepository {
                 rate.setProductId(resultSet.getLong("product_id"));
                 rate.setName(resultSet.getString("name_rate"));
                 rate.setPrice(resultSet.getDouble("price"));
+                rate.setUnusable(resultSet.getBoolean("unusable"));
             }
         }
         return rate;

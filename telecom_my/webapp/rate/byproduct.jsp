@@ -64,8 +64,16 @@
                     <option value=".docx">.docx</option>
                 </select>
           </form>
-
-
+          <c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">
+          <form method="GET" action="/telecom/operator/home.jsp">
+                      <input type="submit" value='<lan:print message="rate.unusable.jsp.button.home"/>'>
+                  </form>
+                  </c:if>
+<c:if test = "${sessionScope.user.userRole == 'SUBSCRIBER'}">
+<form method="GET" action="/telecom/subscriber/home.jsp">
+        <input type="submit" value='<lan:print message="subscriber.lock.jsp.button.home"/>'>
+    </form>
+</c:if>
 
 <script>
 function sortName(inverse) {

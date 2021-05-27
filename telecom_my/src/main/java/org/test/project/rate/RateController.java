@@ -9,7 +9,6 @@ import org.test.project.infra.web.RequestMatcher;
 import org.test.project.product.ProductService;
 import org.test.project.subscriber.Subscriber;
 import org.test.project.subscriber.SubscriberService;
-import org.test.project.validator.ValidatorEntryParameter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,8 +16,6 @@ import javax.servlet.http.HttpSession;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.lang.Long.parseLong;
 
@@ -27,11 +24,11 @@ public class RateController implements Controller {
     private final RateService rateService;
     private final SubscriberService subscriberService;
     private final ProductService productService;
-    private final ValidatorEntryParameter validator;
+    private final RateValidator validator;
     private List<RequestMatcher> requestMatchers;
 
     public RateController(RateService rateService, SubscriberService subscriberService, ProductService productService,
-                          ValidatorEntryParameter validator) {
+                          RateValidator validator) {
         this.rateService = rateService;
         this.subscriberService = subscriberService;
         this.productService = productService;
@@ -65,7 +62,8 @@ public class RateController implements Controller {
         HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute("user");
         if (user.getUserRole().equals(UserRole.SUBSCRIBER)) {
-            return subscriberService.getSubscriberById(user.getId());
+            Subscriber subscriber = (Subscriber) user;
+            return subscriberService.getSubscriberById(subscriber);
         }
         return new Subscriber();
     }
@@ -80,16 +78,13 @@ public class RateController implements Controller {
     }
 
     public ModelAndView changeRates(HttpServletRequest request, HttpServletResponse response) {
-        Rate rate = new Rate();
         String method = request.getParameter("method");
         if (method.equals("PUT")) {
-            String rateName = validator.checkEmptyEntryParameter(request.getParameter("name"), "name");
-            Double newPrice = Double.parseDouble(validator.checkEmptyEntryParameter(request.getParameter("price"), "price"));
+            String rateName = request.getParameter("name");
+            String newPrice = request.getParameter("price");
             Long id = Long.parseLong(request.getParameter("id"));
-            validator.checkEntryNumber(newPrice);
+            Rate rate = validator.checkEmptyEntryParameter(rateName, newPrice);
             rate.setId(id);
-            rate.setName(rateName);
-            rate.setPrice(newPrice);
             rateService.changeRateById(rate);
             return getAllRates(request, response);
         }
@@ -105,7 +100,7 @@ public class RateController implements Controller {
             return getAllRates(request, response);
         }
         subscriberList
-                .forEach(subscriber -> subscriber.setLogin(subscriberService.getSubscriberById(subscriber.getId()).getLogin()));
+                .forEach(subscriber -> subscriber.setLogin(subscriberService.getSubscriberById(subscriber).getLogin()));
         rate = rateService.doUnusableRate(rate);
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/rate/unusable.jsp");
@@ -123,12 +118,9 @@ public class RateController implements Controller {
     }
 
     public ModelAndView addRate(HttpServletRequest request, HttpServletResponse response) {
-        String rateName = validator.checkEmptyEntryParameter(request.getParameter("name"), "name");
-        Double ratePrice = Double.parseDouble(validator.checkEmptyEntryParameter(request.getParameter("price"), "price"));
-        validator.checkEntryNumber(ratePrice);
-        Rate rate = new Rate();
-        rate.setName(rateName);
-        rate.setPrice(ratePrice);
+        String rateName = request.getParameter("name");
+        String ratePrice = request.getParameter("price");
+        Rate rate = validator.checkEmptyEntryParameter(rateName, ratePrice);
         rate.setProductId(parseLong(request.getParameter("productId")));
         rateService.addRateForProduct(rate);
         return getAllRates(request, response);

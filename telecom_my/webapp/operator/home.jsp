@@ -17,9 +17,9 @@
         <p>
             <lan:print message="operator.home.jsp.get_subscriber"/>.
         </p>
-               <form method="GET" action="/telecom/service/subscriber">
-                    <label for="id"><lan:print message="operator.home.jsp.label.get_by_id"/></label><br>
-                    <input type="text" id="id" name="id"><br>
+               <form method="GET" action="/telecom/service/subscriber/bylogin">
+                    <label for="login"><lan:print message="operator.home.jsp.label.get_by_login"/>:</label><br>
+                    <input type="text" name="login"><br>
                     <input type="submit" value='<lan:print message="operator.home.jsp.button.Get_info"/>'>
                </form>
         <p>

@@ -1,12 +1,14 @@
 package org.test.project.subscriber;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.test.project.user.User;
 import org.test.project.user.UserRole;
 
 import java.util.Locale;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class Subscriber extends User {
 
     private double balance;
@@ -22,8 +24,4 @@ public class Subscriber extends User {
         this.lock = lock;
     }
 
-    @Override
-    public String toString() {
-        return this.getLogin();
-    }
 }

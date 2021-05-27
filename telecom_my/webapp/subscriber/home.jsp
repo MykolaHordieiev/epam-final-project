@@ -22,7 +22,7 @@
             <lan:print message="subscriber.home.jsp.enter_amount"/>.
         </p>
             <form method="POST" action="/telecom/service/subscriber/balance">
-                <input type="text" id="amount" name="amount"><br><br>
+                <input type="number" step="0.01" name="amount"><br><br>
                 <input type="submit" value='<lan:print message="subscriber.home.jsp.button.top_up"/>'><br><br>
             </form>
         <p>

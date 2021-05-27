@@ -3,8 +3,6 @@ package org.test.project.user;
 import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
 import org.test.project.infra.web.RequestMatcher;
-import org.test.project.subscriber.SubscriberService;
-import org.test.project.validator.ValidatorEntryParameter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,18 +10,19 @@ import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class UserController implements Controller {
 
     private final UserService userService;
-    private final SubscriberService subscriberService;
-    private final ValidatorEntryParameter validator;
+    private final UserValidator validator;
+    private final Map<UserRole, String> viewMap;
     private List<RequestMatcher> requestMatchers;
 
-    public UserController(UserService userService, SubscriberService subscriberService,ValidatorEntryParameter validator) {
+    public UserController(UserService userService,  Map<UserRole, String> viewMap, UserValidator validator) {
         this.userService = userService;
-        this.subscriberService = subscriberService;
         this.validator = validator;
+        this.viewMap = viewMap;
         requestMatchers = new ArrayList<>();
     }
 
@@ -48,16 +47,11 @@ public class UserController implements Controller {
     }
 
     public ModelAndView login(HttpServletRequest request, HttpServletResponse respons) {
-        String login = validator.checkEmptyEntryParameter(request.getParameter("login"), "login");
-        String password = validator.checkEmptyEntryParameter(request.getParameter("password"), "password");
+        String login = validator.checkEmptyLogin(request.getParameter("login"));
+        String password = validator.checkEmptyEntryPassword(request.getParameter("password"));
         User user = userService.loginUser(login, password);
-        ModelAndView modelAndView;
-        if (user.getUserRole().equals(UserRole.OPERATOR)) {
-            modelAndView = ModelAndView.withView("/operator/home.jsp");
-        } else {
-            user = subscriberService.getSubscriberById(user.getId());
-            modelAndView = ModelAndView.withView("/subscriber/home.jsp");
-        }
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setView(viewMap.get(user.getUserRole()));
         HttpSession session = request.getSession();
         session.setAttribute("user", user);
         modelAndView.setRedirect(true);

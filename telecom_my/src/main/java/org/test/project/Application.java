@@ -1,9 +1,8 @@
 package org.test.project;
 
 
-import org.test.project.user.UserController;
-import org.test.project.user.UserRepository;
-import org.test.project.user.UserService;
+import org.test.project.rate.RateValidator;
+import org.test.project.user.*;
 import org.test.project.infra.config.*;
 import org.test.project.infra.db.LiquibaseStarter;
 import org.test.project.infra.web.*;
@@ -17,11 +16,12 @@ import org.test.project.subscriber.*;
 import org.test.project.subscribing.SubscribingController;
 import org.test.project.subscribing.SubscribingRepository;
 import org.test.project.subscribing.SubscribingService;
-import org.test.project.validator.ValidatorEntryParameter;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Application {
 
@@ -37,7 +37,6 @@ public class Application {
         liquibaseStarter.updateDatabase();
 
         //application
-        ValidatorEntryParameter validator = new ValidatorEntryParameter();
 
         UserService userService = getUserService(dataSource);
         SubscriberService subscriberService = getSubscriberService(dataSource);
@@ -45,7 +44,7 @@ public class Application {
         RateService rateService = getRateService(dataSource);
         SubscribingService subscribingService = getSubscribingService(dataSource);
 
-        List<Controller> controllers = getControllersList(validator, userService, subscriberService, productService, rateService,
+        List<Controller> controllers = getControllersList(userService, subscriberService, productService, rateService,
                 subscribingService);
 
         //web
@@ -55,13 +54,18 @@ public class Application {
         serverStarter.startServer();
     }
 
-    private static List<Controller> getControllersList(ValidatorEntryParameter validator, UserService userService,
+    private static List<Controller> getControllersList( UserService userService,
                                                        SubscriberService subscriberService, ProductService productService,
                                                        RateService rateService, SubscribingService subscribingService) {
-
-        SubscriberController subscriberController = new SubscriberController(subscriberService, subscribingService, validator);
-        UserController userController = new UserController(userService, subscriberService, validator);
-        RateController rateController = new RateController(rateService, subscriberService, productService, validator);
+        Map<UserRole, String> viewMap = new HashMap<>();
+        viewMap.put(UserRole.OPERATOR, "/operator/home.jsp");
+        viewMap.put(UserRole.SUBSCRIBER, "/subscriber/home.jsp");
+        UserValidator userValidator = new UserValidator();
+        SubscriberValidator subscriberValidator = new SubscriberValidator();
+        RateValidator rateValidator = new RateValidator();
+        SubscriberController subscriberController = new SubscriberController(subscriberService, subscribingService, subscriberValidator);
+        UserController userController = new UserController(userService, viewMap, userValidator);
+        RateController rateController = new RateController(rateService, subscriberService, productService, rateValidator);
         ProductController productController = new ProductController(productService);
         SubscribingController subscribingController = new SubscribingController(subscribingService, subscriberService,
                 productService, rateService);

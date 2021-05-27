@@ -31,13 +31,16 @@
             <th><lan:print message="subscriber.infobyid.jsp.table.id"/></th>
             <th><lan:print message="subscriber.infobyid.jsp.table.login"/></th>
             <th><lan:print message="subscriber.infobyid.jsp.table.balance"/></th>
-            <th><lan:print message="subscriber.infobyid.jsp.table.Status"/></th>
+            <th><lan:print message="subscriber.infobyid.jsp.table.status"/></th>
         </tr>
         <tr>
             <td>${subscriber.id}</td>
             <td>${subscriber.login}</td>
             <td>${subscriber.balance}</td>
-            <td>${subscriber.lock}</td>
+            <td>
+                <c:if test = "${subscriber.lock == 'true'}"><lan:print message="subscriber.infobyid.jsp.table.status.lock"/></c:if>
+                <c:if test = "${subscriber.lock == 'false'}"><lan:print message="subscriber.infobyid.jsp.table.status.unlock"/></c:if>
+            </td>
         </tr>
         <tr>
             <td colspan="4"><lan:print message="subscriber.infobyid.jsp.table.subscribing"/></td>
@@ -48,8 +51,8 @@
         </tr>
         <tr>
         <c:forEach items="${subscriptions}" var="subscription">
-            <td colspan="2">${subscription.product}</td>
-            <td colspan="2">${subscription.rate}</td>
+            <td colspan="2">${subscription.product.name}</td>
+            <td colspan="2">${subscription.rate.name}</td>
         </tr>
         </c:forEach>
     </table>

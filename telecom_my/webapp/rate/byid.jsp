@@ -12,7 +12,7 @@
                       <label for="name"><lan:print message="rate.byid.jsp.label.name"/>:</label>
                       <input type="text" id="name" name="name" value="${rate.name}">
                       <label for="price"><lan:print message="rate.byid.jsp.label.price"/>:</label>
-                      <input type="text" id="price" name="price" value="${rate.price}">
+                      <input type="number" step="0.01" name="price" value="${rate.price}">
                       <input type="hidden" name="method" value="PUT">
                       <input type="hidden" name="id" value="${rate.id}">
                       <input type="hidden" name="productId" value="${rate.productId}">
@@ -32,5 +32,8 @@
             <lan:print message="rate.byid.jsp.unusable"/>: ${rate.unusable}
             </p>
         </c:if>
+        <form method="GET" action="/telecom/operator/home.jsp">
+                    <input type="submit" value='<lan:print message="rate.unusable.jsp.button.home"/>'>
+                </form>
     </body>
 </html>

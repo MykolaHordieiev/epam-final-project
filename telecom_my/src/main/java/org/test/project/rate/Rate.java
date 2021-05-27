@@ -15,8 +15,4 @@ public class Rate {
     private Long productId;
     private Boolean unusable;
 
-    @Override
-    public String toString(){
-        return name;
-    }
 }

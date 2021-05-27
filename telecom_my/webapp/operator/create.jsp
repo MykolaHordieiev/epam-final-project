@@ -16,5 +16,9 @@
               <input type="password" id="password" name="password"><br><br>
               <input type="submit" value='<lan:print message="operator.create.jsp.button.create"/>'>
             </form>
+            <form method="GET" action="/telecom/operator/home.jsp">
+                                  <input type="submit" value='<lan:print message="rate.unusable.jsp.button.home"/>'>
+                              </form>
+
     </body>
 </html>

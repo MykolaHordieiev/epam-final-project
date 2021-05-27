@@ -48,10 +48,10 @@ public class SubscribingController implements Controller {
         Subscriber returnedSubscriber = subscribingService.addSubscribing(subscriber, product, rate);
         ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + returnedSubscriber.getId());
         if (returnedSubscriber.getBalance() < 0) {
-            subscriberService.lockSubscriberById(returnedSubscriber.getId());
+            Subscriber lockSubscriber = subscriberService.lockSubscriberById(returnedSubscriber);
             modelAndView.setView("/subscriber/lock.jsp");
             HttpSession session = request.getSession();
-            session.setAttribute("user", returnedSubscriber);
+            session.setAttribute("user", lockSubscriber);
         }
         modelAndView.setRedirect(true);
         return modelAndView;
