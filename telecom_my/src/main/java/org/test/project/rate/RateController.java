@@ -128,12 +128,11 @@ public class RateController implements Controller {
 
     @SneakyThrows
     public HttpServletResponse downloadListOfRates(HttpServletRequest request, HttpServletResponse response) {
-        String format = request.getParameter("format");
         Long productId = parseLong(request.getParameter("productId"));
         String productName = productService.getProductById(productId).getName();
         List<Rate> rates = rateService.getRatesByProductId(productId);
         response.setContentType("text/plain");
-        response.setHeader("Content-disposition", "attachment; filename=rates" + format);
+        response.setHeader("Content-disposition", "attachment; filename=rates.txt" );
         PrintWriter writer = response.getWriter();
         writer.write("Information about rates of product: " + productName);
         writer.write("\n");

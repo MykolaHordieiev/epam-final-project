@@ -58,12 +58,7 @@
      <form method="GET" action="/telecom/service/download/rate">
                 <input type="hidden" name="productId" value="${productId}"/>
                 <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.download"/>'>
-                <select name="format">
-                    <option value=".txt">.txt</option>
-                    <option value=".pdf">.pdf</option>
-                    <option value=".docx">.docx</option>
-                </select>
-          </form>
+     </form>
           <c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">
           <form method="GET" action="/telecom/operator/home.jsp">
                       <input type="submit" value='<lan:print message="rate.unusable.jsp.button.home"/>'>

@@ -38,7 +38,6 @@ public class SubscribingControllerTest {
     @Mock
     private HttpServletRequest request;
 
-
     private HttpServletResponse response;
 
     @Mock
