@@ -30,9 +30,9 @@ public class SubscribingRepository {
             connection = dataSource.getConnection();
             connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(addSubscribing);
-            preparedStatement.setDouble(1, subscribing.getSubscriber().getId());
-            preparedStatement.setDouble(2, subscribing.getProduct().getId());
-            preparedStatement.setDouble(3, subscribing.getRate().getId());
+            preparedStatement.setLong(1, subscribing.getSubscriber().getId());
+            preparedStatement.setLong(2, subscribing.getProduct().getId());
+            preparedStatement.setLong(3, subscribing.getRate().getId());
             preparedStatement.execute();
             try (PreparedStatement preparedStatement1 = connection.prepareStatement(withdrawn)) {
                 preparedStatement1.setDouble(1, subscribing.getSubscriber().getBalance());
@@ -64,6 +64,7 @@ public class SubscribingRepository {
                 product.setId(resultSet.getLong("product_id"));
                 rate.setId(resultSet.getLong("rate_id"));
                 Subscribing subscribing = new Subscribing();
+                subscribing.setSubscriber(subscriber);
                 subscribing.setProduct(product);
                 subscribing.setRate(rate);
                 listOfSubscribing.add(subscribing);
@@ -86,7 +87,7 @@ public class SubscribingRepository {
     }
 
     @SneakyThrows
-   public  Rate getRateBy(Rate rate) {
+    public Rate getRateBy(Rate rate) {
         String query = "SELECT * FROM rate WHERE id=" + rate.getId();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
