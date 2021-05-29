@@ -30,6 +30,7 @@ public class Application {
         //config
         DataSourceConfig dataSourceConfig = new DataSourceConfig();
         ServerStarterConfig serverStarterConfig = new ServerStarterConfig();
+        ExceptionHandlerConfig exceptionHandlerConfig = new ExceptionHandlerConfig();
 
         //database
         DataSource dataSource = dataSourceConfig.configureDataSource();
@@ -48,24 +49,18 @@ public class Application {
                 subscribingService);
 
         //web
-        ExceptionHandler exceptionHandler = new ExceptionHandlerImplMy();
+        ExceptionHandler exceptionHandler = exceptionHandlerConfig.configureExceptionHandler();
         FrontServlet frontServlet = new FrontServlet(controllers, exceptionHandler, "front", "/service");
         ServerStarter serverStarter = serverStarterConfig.configureServer(frontServlet);
         serverStarter.startServer();
     }
 
-    private static List<Controller> getControllersList( UserService userService,
+    private static List<Controller> getControllersList(UserService userService,
                                                        SubscriberService subscriberService, ProductService productService,
                                                        RateService rateService, SubscribingService subscribingService) {
-        Map<UserRole, String> viewMap = new HashMap<>();
-        viewMap.put(UserRole.OPERATOR, "/operator/home.jsp");
-        viewMap.put(UserRole.SUBSCRIBER, "/subscriber/home.jsp");
-        UserValidator userValidator = new UserValidator();
-        SubscriberValidator subscriberValidator = new SubscriberValidator();
-        RateValidator rateValidator = new RateValidator();
-        SubscriberController subscriberController = new SubscriberController(subscriberService, subscribingService, subscriberValidator);
-        UserController userController = new UserController(userService, viewMap, userValidator);
-        RateController rateController = new RateController(rateService, subscriberService, productService, rateValidator);
+        SubscriberController subscriberController = getSubscriberController(subscriberService, subscribingService);
+        UserController userController = getUserController(userService);
+        RateController rateController = getRateController(rateService, subscriberService, productService);
         ProductController productController = new ProductController(productService);
         SubscribingController subscribingController = new SubscribingController(subscribingService, subscriberService,
                 productService, rateService);
@@ -77,6 +72,25 @@ public class Application {
         controllers.add(productController);
         controllers.add(subscribingController);
         return controllers;
+    }
+
+    private static RateController getRateController(RateService rateService, SubscriberService subscriberService, ProductService productService) {
+        RateValidator rateValidator = new RateValidator();
+        return new RateController(rateService, subscriberService, productService, rateValidator);
+    }
+
+    private static UserController getUserController(UserService userService) {
+        Map<UserRole, String> viewMap = new HashMap<>();
+        viewMap.put(UserRole.OPERATOR, "/operator/home.jsp");
+        viewMap.put(UserRole.SUBSCRIBER, "/subscriber/home.jsp");
+        UserValidator userValidator = new UserValidator();
+        return new UserController(userService, viewMap, userValidator);
+
+    }
+
+    private static SubscriberController getSubscriberController(SubscriberService subscriberService, SubscribingService subscribingService) {
+        SubscriberValidator subscriberValidator = new SubscriberValidator();
+        return new SubscriberController(subscriberService, subscribingService, subscriberValidator);
     }
 
     private static SubscriberService getSubscriberService(DataSource dataSource) {

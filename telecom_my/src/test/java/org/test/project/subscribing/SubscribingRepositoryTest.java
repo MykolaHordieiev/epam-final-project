@@ -128,6 +128,9 @@ public class SubscribingRepositoryTest {
         assertNotNull(resultList);
         assertEquals(subscribingList, resultList);
 
+        verify(resultSet).next();
+        verify(resultSet).getLong("product_id");
+        verify(resultSet).getLong("rate_id");
     }
 
     @SneakyThrows
@@ -143,6 +146,11 @@ public class SubscribingRepositoryTest {
         List<Subscribing> resultList = repository.getSubscribingBySubscriberId(subscriber);
         assertNotNull(resultList);
         assertEquals(subscribingList, resultList);
+
+        verify(dataSource).getConnection();
+        verify(connection).createStatement();
+        verify(statement).executeQuery(GET_SUBSCRIBING);
+        verify(resultSet).next();
     }
 
     @SneakyThrows
@@ -159,6 +167,8 @@ public class SubscribingRepositoryTest {
         assertNotNull(resultProduct);
         assertEquals(expectedProduct, resultProduct);
 
+        verify(resultSet).next();
+        verify(resultSet).getString("name_product");
     }
 
     @SneakyThrows
@@ -173,6 +183,11 @@ public class SubscribingRepositoryTest {
         Product resultProduct = repository.getProduct(product);
         assertNotNull(resultProduct);
         assertEquals(product, resultProduct);
+
+        verify(dataSource).getConnection();
+        verify(connection).createStatement();
+        verify(statement).executeQuery(GET_PRODUCT);
+        verify(resultSet).next();
     }
 
     @SneakyThrows
@@ -193,7 +208,10 @@ public class SubscribingRepositoryTest {
         assertNotNull(resultRate);
         assertEquals(expectedRate, resultRate);
 
-
+        verify(resultSet).getLong("product_id");
+        verify(resultSet).getString("name_rate");
+        verify(resultSet).getDouble("price");
+        verify(resultSet).getBoolean("unusable");
     }
 
     @SneakyThrows
@@ -209,6 +227,9 @@ public class SubscribingRepositoryTest {
         assertNotNull(resultRate);
         assertEquals(rate, resultRate);
 
-
+        verify(dataSource).getConnection();
+        verify(connection).createStatement();
+        verify(statement).executeQuery(GET_RATE);
+        verify(resultSet).next();
     }
 }

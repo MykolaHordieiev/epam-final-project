@@ -1,8 +1,8 @@
 package org.test.project.infra.web;
 
-public class WebException extends RuntimeException implements MyException {
+public class WebException extends RuntimeException {
 
-    WebException(String message) {
+    public WebException(String message) {
         super(message);
     }
 }

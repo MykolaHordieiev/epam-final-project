@@ -1,8 +1,7 @@
 package org.test.project.product;
 
-import org.test.project.infra.web.MyException;
 
-public class ProductException extends RuntimeException implements MyException {
+public class ProductException extends RuntimeException {
     ProductException(String message) {
         super(message);
     }
