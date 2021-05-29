@@ -52,10 +52,12 @@ public class RateRepository {
 
     @SneakyThrows
     public Rate changeRateById(Rate rate) {
-        String query = "UPDATE rate SET name_rate='" + rate.getName() + "',price=" + rate.getPrice()
-                + " WHERE id=" + rate.getId();
+        String query = "UPDATE rate SET name_rate=?, price=? WHERE id=?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, rate.getName());
+            preparedStatement.setDouble(2, rate.getPrice());
+            preparedStatement.setLong(3, rate.getId());
             preparedStatement.execute();
         }
         return rate;
@@ -73,9 +75,9 @@ public class RateRepository {
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 resultSet.next();
                 rate.setId(resultSet.getLong(1));
-                return Optional.of(rate);
             }
         }
+        return Optional.of(rate);
     }
 
     @SneakyThrows
