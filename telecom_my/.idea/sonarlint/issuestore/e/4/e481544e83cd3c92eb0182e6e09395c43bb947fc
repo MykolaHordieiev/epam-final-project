@@ -1,9 +1,0 @@
-
-W
-java:S1481"5Remove this unused "dataSourceConfig" local variable.(Ø¨’–ÿÿÿÿÿ8ü×è¼•/
-Y
-java:S1481"7Remove this unused "queryValueResolver" local variable.(Ï«Ž…þÿÿÿÿ8ü×è¼•/
-h
-java:S1854"FRemove this useless assignment to local variable "queryValueResolver".(Ï«Ž…þÿÿÿÿ8ü×è¼•/
-f
-java:S1854"DRemove this useless assignment to local variable "dataSourceConfig".(Ø¨’–ÿÿÿÿÿ8ü×è¼•/
