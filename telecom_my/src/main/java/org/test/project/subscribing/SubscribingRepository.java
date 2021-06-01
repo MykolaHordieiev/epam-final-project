@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import org.test.project.product.Product;
 import org.test.project.rate.Rate;
 import org.test.project.subscriber.Subscriber;
+import org.test.project.subscriber.dto.SubscriberAddSubscribingDTO;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -21,21 +22,21 @@ public class SubscribingRepository {
     private final DataSource dataSource;
 
     @SneakyThrows
-    public Subscriber addSubscribing(Subscribing subscribing) {
+    public SubscriberAddSubscribingDTO addSubscribing(SubscriberAddSubscribingDTO subscriberDTO, Long productId, Long rateId) {
         String addSubscribing = "INSERT INTO subscribing VALUES(?,?,?)";
-        String withdrawn = "UPDATE subscriber SET balance=? WHERE id=" + subscribing.getSubscriber().getId();
+        String withdrawn = "UPDATE subscriber SET balance=? WHERE id=" + subscriberDTO.getId();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
             connection = dataSource.getConnection();
             connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(addSubscribing);
-            preparedStatement.setLong(1, subscribing.getSubscriber().getId());
-            preparedStatement.setLong(2, subscribing.getProduct().getId());
-            preparedStatement.setLong(3, subscribing.getRate().getId());
+            preparedStatement.setLong(1, subscriberDTO.getId());
+            preparedStatement.setLong(2, productId);
+            preparedStatement.setLong(3, rateId);
             preparedStatement.execute();
             try (PreparedStatement preparedStatement1 = connection.prepareStatement(withdrawn)) {
-                preparedStatement1.setDouble(1, subscribing.getSubscriber().getBalance());
+                preparedStatement1.setDouble(1, subscriberDTO.getBalance());
                 preparedStatement1.execute();
                 connection.commit();
             }
@@ -48,21 +49,41 @@ public class SubscribingRepository {
             close(preparedStatement);
             close(connection);
         }
-        return subscribing.getSubscriber();
+        return subscriberDTO;
     }
 
     @SneakyThrows
-    public List<Subscribing> getSubscribingBySubscriberId(Subscriber subscriber) {
-        String getSubscribing = "SELECT * FROM subscribing WHERE subscriber_id=" + subscriber.getId();
+    public List<Subscribing> getSubscribingBySubscriberId(Long id) {
+        String getSubscribing = "SELECT user.login, subscriber.balance, subscriber.locked, " +
+                "subscribing.product_id, name_product, " +
+                "rate_id, name_rate, rate.price, rate.unusable FROM subscribing " +
+                "INNER JOIN user ON user.id = subscribing.subscriber_id " +
+                "INNER JOIN subscriber ON subscriber.id = subscribing.subscriber_id " +
+                "INNER JOIN rate ON rate.id = subscribing.rate_id " +
+                "INNER JOIN product on product.id=subscribing.product_id WHERE subscriber_id=" + id;
         List<Subscribing> listOfSubscribing = new ArrayList<>();
+        Subscriber subscriber = new Subscriber();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(getSubscribing)) {
             while (resultSet.next()) {
+
+                subscriber.setId(id);
+                subscriber.setLogin(resultSet.getString("login"));
+                subscriber.setBalance(resultSet.getDouble("balance"));
+                subscriber.setLock(resultSet.getBoolean("locked"));
+
                 Product product = new Product();
-                Rate rate = new Rate();
                 product.setId(resultSet.getLong("product_id"));
+                product.setName(resultSet.getString("name_product"));
+
+                Rate rate = new Rate();
                 rate.setId(resultSet.getLong("rate_id"));
+                rate.setName(resultSet.getString("name_rate"));
+                rate.setPrice(resultSet.getDouble("price"));
+                rate.setProductId(resultSet.getLong("product_id"));
+                rate.setUnusable(resultSet.getBoolean("unusable"));
+
                 Subscribing subscribing = new Subscribing();
                 subscribing.setSubscriber(subscriber);
                 subscribing.setProduct(product);
@@ -72,36 +93,6 @@ public class SubscribingRepository {
         }
         return listOfSubscribing;
     }
-
-    @SneakyThrows
-    public Product getProduct(Product product) {
-        String query = "SELECT * FROM product WHERE id=" + product.getId();
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-            if (resultSet.next()) {
-                product.setName(resultSet.getString("name_product"));
-            }
-        }
-        return product;
-    }
-
-    @SneakyThrows
-    public Rate getRateBy(Rate rate) {
-        String query = "SELECT * FROM rate WHERE id=" + rate.getId();
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-            if (resultSet.next()) {
-                rate.setProductId(resultSet.getLong("product_id"));
-                rate.setName(resultSet.getString("name_rate"));
-                rate.setPrice(resultSet.getDouble("price"));
-                rate.setUnusable(resultSet.getBoolean("unusable"));
-            }
-        }
-        return rate;
-    }
-
 
     @SneakyThrows
     private void close(AutoCloseable autoCloseable) {

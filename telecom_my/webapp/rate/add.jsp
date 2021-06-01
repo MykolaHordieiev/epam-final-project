@@ -12,14 +12,14 @@
         </p>
             <form method="POST" action="/telecom/service/rate/add">
               <label for="name"><lan:print message="rate.add.jsp.label.name"/>:</label><br>
-              <input type="text" name="name"><br><br>
+              <input type="text" name="rateName"><br><br>
               <label for="name"><lan:print message="rate.add.jsp.label.price"/>:</label><br>
               <input type="number" step="0.01" name="price"><br>
               <input type="hidden" name="productId" value="${productId}"/><br>
               <input type="submit" value='<lan:print message="rate.add.jsp.button.add"/>'>
             </form>
             <form method="GET" action="/telecom/operator/home.jsp">
-                        <input type="submit" value='<lan:print message="rate.unusable.jsp.button.home"/>'>
-                    </form>
+               <input type="submit" value='<lan:print message="rate.unusable.jsp.button.home"/>'>
+            </form>
     </body>
 </html>

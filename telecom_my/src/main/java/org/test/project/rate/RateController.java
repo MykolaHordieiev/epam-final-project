@@ -1,6 +1,9 @@
 package org.test.project.rate;
 
 import lombok.SneakyThrows;
+import org.test.project.infra.web.QueryValueResolver;
+import org.test.project.rate.dto.RateAddRequestDTO;
+import org.test.project.rate.dto.RateChangeRequestDTO;
 import org.test.project.user.User;
 import org.test.project.user.UserRole;
 import org.test.project.infra.web.Controller;
@@ -14,8 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
 
 import static java.lang.Long.parseLong;
 
@@ -25,14 +28,16 @@ public class RateController implements Controller {
     private final SubscriberService subscriberService;
     private final ProductService productService;
     private final RateValidator validator;
+    private final QueryValueResolver queryValueResolver;
     private List<RequestMatcher> requestMatchers;
 
     public RateController(RateService rateService, SubscriberService subscriberService, ProductService productService,
-                          RateValidator validator) {
+                          RateValidator validator, QueryValueResolver queryValueResolver) {
         this.rateService = rateService;
         this.subscriberService = subscriberService;
         this.productService = productService;
         this.validator = validator;
+        this.queryValueResolver = queryValueResolver;
         requestMatchers = new ArrayList<>();
     }
 
@@ -48,14 +53,27 @@ public class RateController implements Controller {
     }
 
     public ModelAndView getAllRates(HttpServletRequest request, HttpServletResponse response) {
+        Subscriber subscriberFromSession = getSubscriberFromSession(request);
         Long productId = parseLong(request.getParameter("productId"));
-        List<Rate> rates = rateService.getRatesByProductId(productId);
+        List<Rate> ratesByProductId = rateService.getRatesByProductId(productId);
+        List<Rate> usingRatesBySubscriber = rateService.getRAtesBySubscriberId(subscriberFromSession.getId());
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/rate/byproduct.jsp");
-        modelAndView.addAttribute("rates", rates);
+        modelAndView.addAttribute("rates", ratesByProductId);
         modelAndView.addAttribute("productId", productId);
-        modelAndView.addAttribute("subscriber", getSubscriberFromSession(request));
+        modelAndView.addAttribute("subscriber", subscriberFromSession);
+        modelAndView.addAttribute("ratesMap", getMapWithRates(ratesByProductId, usingRatesBySubscriber));
         return modelAndView;
+    }
+
+    private Map<Rate, Boolean> getMapWithRates(List<Rate> ratesByProductId, List<Rate> ratesUsingBySubscriber) {
+        Map<Rate, Boolean> ratesMap = new HashMap<>();
+        for (Rate rate : ratesByProductId) {
+            Boolean check = ratesUsingBySubscriber.stream()
+                    .anyMatch(rate1 -> rate.equals(rate1));
+            ratesMap.put(rate, check);
+        }
+        return ratesMap;
     }
 
     private Subscriber getSubscriberFromSession(HttpServletRequest request) {
@@ -63,13 +81,13 @@ public class RateController implements Controller {
         User user = (User) session.getAttribute("user");
         if (user.getUserRole().equals(UserRole.SUBSCRIBER)) {
             Subscriber subscriber = (Subscriber) user;
-            return subscriberService.getSubscriberById(subscriber);
+            return subscriberService.getSubscriberById(subscriber.getId());
         }
         return new Subscriber();
     }
 
     public ModelAndView getRateById(HttpServletRequest request, HttpServletResponse response) {
-        long id = parseLong(request.getParameter("id"));
+        long id = parseLong(request.getParameter("rateId"));
         Rate rate = rateService.getRateById(id);
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/rate/byid.jsp");
@@ -80,49 +98,41 @@ public class RateController implements Controller {
     public ModelAndView changeRates(HttpServletRequest request, HttpServletResponse response) {
         String method = request.getParameter("method");
         if (method.equals("PUT")) {
-            String rateName = request.getParameter("name");
-            String newPrice = request.getParameter("price");
-            Long id = Long.parseLong(request.getParameter("id"));
-            Rate rate = validator.checkEmptyEntryParameter(rateName, newPrice);
-            rate.setId(id);
-            rateService.changeRateById(rate);
+            RateChangeRequestDTO rateDTO = queryValueResolver.getObject(request, RateChangeRequestDTO.class);
+            validator.checkEmptyEntryChangeParameter(rateDTO);
+            rateService.changeRateById(rateDTO);
             return getAllRates(request, response);
         }
         return deleteRate(request, response);
     }
 
     public ModelAndView deleteRate(HttpServletRequest request, HttpServletResponse response) {
-        long rateId = parseLong(request.getParameter("id"));
+        long rateId = parseLong(request.getParameter("rateId"));
         Rate rate = rateService.getRateById(rateId);
-        List<Subscriber> subscriberList = rateService.checkUsingRateBeforeDelete(rate);
+        List<Subscriber> subscriberList = rateService.checkUsingRateBeforeDelete(rateId);
         if (subscriberList.isEmpty()) {
-            rateService.deleteRateById(rate);
+            rateService.deleteRateById(rateId);
             return getAllRates(request, response);
         }
-        subscriberList
-                .forEach(subscriber -> subscriber.setLogin(subscriberService.getSubscriberById(subscriber).getLogin()));
         rate = rateService.doUnusableRate(rate);
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/rate/unusable.jsp");
         modelAndView.addAttribute("rate", rate);
         modelAndView.addAttribute("subscribers", subscriberList);
-
         return modelAndView;
     }
 
     public ModelAndView returnViewAddRates(HttpServletRequest req, HttpServletResponse resp) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/rate/add.jsp");
-        modelAndView.addAttribute("productId", req.getParameter("id"));
+        modelAndView.addAttribute("productId", req.getParameter("productId"));
         return modelAndView;
     }
 
     public ModelAndView addRate(HttpServletRequest request, HttpServletResponse response) {
-        String rateName = request.getParameter("name");
-        String ratePrice = request.getParameter("price");
-        Rate rate = validator.checkEmptyEntryParameter(rateName, ratePrice);
-        rate.setProductId(parseLong(request.getParameter("productId")));
-        rateService.addRateForProduct(rate);
+        RateAddRequestDTO rateDTO = queryValueResolver.getObject(request, RateAddRequestDTO.class);
+        validator.checkEmptyEntryAddParameter(rateDTO);
+        rateService.addRateForProduct(rateDTO);
         return getAllRates(request, response);
     }
 
@@ -132,7 +142,7 @@ public class RateController implements Controller {
         String productName = productService.getProductById(productId).getName();
         List<Rate> rates = rateService.getRatesByProductId(productId);
         response.setContentType("text/plain");
-        response.setHeader("Content-disposition", "attachment; filename=rates.txt" );
+        response.setHeader("Content-disposition", "attachment; filename=rates.txt");
         PrintWriter writer = response.getWriter();
         writer.write("Information about rates of product: " + productName);
         writer.write("\n");

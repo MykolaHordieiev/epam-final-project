@@ -1,7 +1,10 @@
 package org.test.project.product;
 
 
-public class ProductException extends RuntimeException {
+import org.test.project.infra.exception.TelecomException;
+
+public class ProductException extends TelecomException {
+
     ProductException(String message) {
         super(message);
     }

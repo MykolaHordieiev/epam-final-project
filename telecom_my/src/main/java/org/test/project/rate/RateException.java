@@ -1,6 +1,8 @@
 package org.test.project.rate;
 
-public class RateException extends RuntimeException {
+import org.test.project.infra.exception.TelecomException;
+
+public class RateException extends TelecomException {
 
     RateException(String message) {
         super(message);

@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.test.project.rate.dto.RateAddRequestDTO;
+import org.test.project.rate.dto.RateChangeRequestDTO;
 import org.test.project.subscriber.Subscriber;
 
 import java.util.Arrays;
@@ -28,12 +30,11 @@ public class RateServiceTest {
     @Test
     public void getRatesByProductId() {
         List<Rate> expectedRateList = Arrays.asList(new Rate(), new Rate());
+
         when(rateRepository.getRatesByProduct(ID)).thenReturn(expectedRateList);
 
         List<Rate> resultRateList = rateService.getRatesByProductId(ID);
         Assert.assertEquals(expectedRateList, resultRateList);
-
-        verify(rateRepository, atLeastOnce()).getRatesByProduct(ID);
     }
 
     @Test
@@ -41,90 +42,67 @@ public class RateServiceTest {
         Rate rate = new Rate(ID, "Last", 10d, 2L, false);
 
         when(rateRepository.getRateById(ID)).thenReturn(Optional.of(rate));
+
         Rate resultRate = rateService.getRateById(ID);
         Assert.assertEquals(rate, resultRate);
-
-        verify(rateRepository, atLeastOnce()).getRateById(ID);
     }
 
     @Test(expected = RateException.class)
     public void getRateByIdWhenRepositoryReturnEmptyOptional() {
         when(rateRepository.getRateById(ID)).thenReturn(Optional.empty());
         rateService.getRateById(ID);
-        verify(rateRepository, atLeastOnce()).getRateById(ID);
     }
 
     @Test
     public void changeRateById() {
-        Rate rate = new Rate(ID, "Last", 10d, 2L, false);
-        when(rateRepository.changeRateById(rate)).thenReturn(rate);
+        RateChangeRequestDTO rateDTO = new RateChangeRequestDTO(ID, "super", 10d);
 
-        Rate resultRate = rateService.changeRateById(rate);
-        Assert.assertEquals(rate, resultRate);
+        when(rateRepository.changeRateById(rateDTO)).thenReturn(rateDTO);
 
-        verify(rateRepository, atLeastOnce()).changeRateById(rate);
+        RateChangeRequestDTO resultRateDTO = rateService.changeRateById(rateDTO);
+        Assert.assertEquals(rateDTO, resultRateDTO);
     }
 
     @Test
     public void addRateForProductWhenRepositoryReturnRate() {
-        Rate rate = new Rate();
-        rate.setName("100+chanel");
-        rate.setPrice(15d);
-        rate.setProductId(ID);
-        Rate returnedRate = new Rate();
-        returnedRate.setId(ID);
-        when(rateRepository.addRateByProductId(rate)).thenReturn(Optional.of(rate));
+        RateAddRequestDTO rateDTO = new RateAddRequestDTO();
+        rateDTO.setRateName("100+chanel");
+        rateDTO.setPrice(15d);
+        RateAddRequestDTO expectedRateDTO = new RateAddRequestDTO(ID, "100+chanel", 15d, ID);
 
-        Rate resultRate = rateService.addRateForProduct(rate);
-        Assert.assertEquals(rate, resultRate);
+        when(rateRepository.addRateByProductId(rateDTO)).thenReturn(expectedRateDTO);
 
-        verify(rateRepository, atLeastOnce()).addRateByProductId(rate);
-    }
-
-    @Test(expected = RateException.class)
-    public void addRateForProductWhenRepositoryReturnEmptyOptional() {
-        Rate rate = new Rate();
-        rate.setName("100+chanel");
-        rate.setPrice(15d);
-        rate.setProductId(ID);
-        when(rateRepository.addRateByProductId(rate)).thenReturn(Optional.empty());
-        rateService.addRateForProduct(rate);
-
-        verify(rateRepository, atLeastOnce()).addRateByProductId(rate);
+        RateAddRequestDTO resultRateDTO = rateService.addRateForProduct(rateDTO);
+        Assert.assertEquals(expectedRateDTO, resultRateDTO);
     }
 
     @Test
     public void deleteRateById() {
-        Rate rate = new Rate(ID, "Last", 10d, 2L, false);
-        when(rateRepository.deleteRateById(rate)).thenReturn(rate);
+        when(rateRepository.deleteRateById(ID)).thenReturn(ID);
 
-        Rate resultRate = rateService.deleteRateById(rate);
-        Assert.assertEquals(rate, resultRate);
-
-        verify(rateRepository, atLeastOnce()).deleteRateById(rate);
+        Long result = rateService.deleteRateById(ID);
+        Assert.assertEquals(ID, result);
     }
 
     @Test
     public void checkUsingRateBeforeDelete() {
         Rate rate = new Rate(ID, "Last", 10d, 2L, false);
         List<Subscriber> expectedSubscriberList = Arrays.asList(new Subscriber(), new Subscriber());
-        when(rateRepository.checkUsingRateBySubscribers(rate)).thenReturn(expectedSubscriberList);
 
-        List<Subscriber> resultSubscriberList = rateService.checkUsingRateBeforeDelete(rate);
+        when(rateRepository.checkUsingRateBySubscribers(ID)).thenReturn(expectedSubscriberList);
+
+        List<Subscriber> resultSubscriberList = rateService.checkUsingRateBeforeDelete(ID);
         Assert.assertEquals(expectedSubscriberList, resultSubscriberList);
-
-        verify(rateRepository, atLeastOnce()).checkUsingRateBySubscribers(rate);
     }
 
     @Test
     public void doUnusableRate() {
         Rate rate = new Rate(ID, "Last", 10d, 2L, false);
         Rate returnedRate = new Rate(ID, "Last", 10d, 2L, true);
+
         when(rateRepository.doUnusableRateByRateId(rate)).thenReturn(returnedRate);
 
         Rate resultRate = rateService.doUnusableRate(rate);
         Assert.assertEquals(returnedRate, resultRate);
-
-        verify(rateRepository, atLeastOnce()).doUnusableRateByRateId(rate);
     }
 }

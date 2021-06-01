@@ -23,5 +23,4 @@ public class Subscriber extends User {
         this.balance = balance;
         this.lock = lock;
     }
-
 }

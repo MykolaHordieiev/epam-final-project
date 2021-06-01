@@ -8,9 +8,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.infra.web.QueryValueResolver;
 import org.test.project.infra.web.RequestMatcher;
 import org.test.project.operator.Operator;
 import org.test.project.subscriber.Subscriber;
+import org.test.project.user.dto.UserLoginDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,20 +29,18 @@ public class UserControllerTest {
 
     @Mock
     private UserService userService;
-
     @Mock
     private UserValidator validator;
-
     @Mock
     private Map<UserRole, String> viewMap;
-
     @Mock
     private HttpServletRequest request;
-
     @Mock
     private HttpSession session;
-
+    @Mock
     private HttpServletResponse response;
+    @Mock
+    QueryValueResolver queryValueResolver;
 
     @InjectMocks
     private UserController userController;
@@ -50,15 +50,14 @@ public class UserControllerTest {
     private static final String SELECTED_LOCALE = "selectedLocale";
     private static final String VIEW = "/index.jsp";
     private static final Long ID = 1L;
+    private static UserLoginDTO userLoginDTO = new UserLoginDTO(LOGIN,PASSWORD);
 
     @Before
     public void initRequest() {
-        when(request.getParameter("selectedLocale")).thenReturn(SELECTED_LOCALE);
-        when(request.getParameter("view")).thenReturn(VIEW);
-        when(request.getParameter("login")).thenReturn(LOGIN);
-        when(request.getParameter("password")).thenReturn(PASSWORD);
-        when(request.getSession(false)).thenReturn(session);
+        when(queryValueResolver.getObject(request, UserLoginDTO.class)).thenReturn(userLoginDTO);
+        when(validator.checkUser(userLoginDTO)).thenReturn(userLoginDTO);
         when(request.getSession()).thenReturn(session);
+        when(request.getSession(false)).thenReturn(session);
     }
 
     @Test
@@ -71,12 +70,15 @@ public class UserControllerTest {
 
     @Test
     public void changeLocale() {
+        when(request.getParameter("selectedLocale")).thenReturn(SELECTED_LOCALE);
+        when(request.getParameter("view")).thenReturn(VIEW);
+
         ModelAndView modelAndView = userController.changeLocale(request, response);
         assertNotNull(modelAndView);
         assertEquals(VIEW, modelAndView.getView());
         assertTrue(modelAndView.isRedirect());
 
-        verify(request, times(2)).getParameter(anyString());
+
         verify(session).setAttribute("selectedLocale", new Locale(SELECTED_LOCALE));
         verify(request).getSession(false);
     }
@@ -84,14 +86,11 @@ public class UserControllerTest {
     @Test
     public void loginWhenServiceReturnSubscriber() {
         User user = new Subscriber();
+        user.setId(ID);
         user.setLogin(LOGIN);
         user.setPassword(PASSWORD);
-        user.setUserRole(UserRole.SUBSCRIBER);
-        user.setId(ID);
 
-        when(validator.checkEmptyLogin(LOGIN)).thenReturn(LOGIN);
-        when(validator.checkEmptyEntryPassword(PASSWORD)).thenReturn(PASSWORD);
-        when(userService.loginUser(LOGIN, PASSWORD)).thenReturn(user);
+        when(userService.loginUser(userLoginDTO)).thenReturn(user);
         when(viewMap.get(user.getUserRole())).thenReturn("/subscriber/home.jsp");
 
         ModelAndView modelAndView = userController.login(request, response);
@@ -99,10 +98,6 @@ public class UserControllerTest {
         Assert.assertEquals("/subscriber/home.jsp", modelAndView.getView());
         Assert.assertTrue(modelAndView.isRedirect());
 
-        verify(request, times(2)).getParameter(anyString());
-        verify(validator).checkEmptyLogin(LOGIN);
-        verify(validator).checkEmptyEntryPassword(PASSWORD);
-        verify(userService).loginUser(LOGIN, PASSWORD);
         verify(request).getSession();
         verify(session).setAttribute("user", user);
     }
@@ -114,9 +109,7 @@ public class UserControllerTest {
         user.setPassword(PASSWORD);
         user.setUserRole(UserRole.OPERATOR);
 
-        when(validator.checkEmptyLogin(LOGIN)).thenReturn(LOGIN);
-        when(validator.checkEmptyEntryPassword(PASSWORD)).thenReturn(PASSWORD);
-        when(userService.loginUser(LOGIN, PASSWORD)).thenReturn(user);
+        when(userService.loginUser(userLoginDTO)).thenReturn(user);
         when(viewMap.get(user.getUserRole())).thenReturn("/operator/home.jsp");
 
         ModelAndView modelAndView = userController.login(request, response);
@@ -124,10 +117,6 @@ public class UserControllerTest {
         assertEquals("/operator/home.jsp", modelAndView.getView());
         assertTrue(modelAndView.isRedirect());
 
-        verify(request, times(2)).getParameter(anyString());
-        verify(validator).checkEmptyLogin(LOGIN);
-        verify(validator).checkEmptyEntryPassword(PASSWORD);
-        verify(userService).loginUser(LOGIN, PASSWORD);
         verify(request).getSession();
         verify(session).setAttribute("user", user);
     }
@@ -135,11 +124,8 @@ public class UserControllerTest {
     @Test
     public void logout() {
         ModelAndView modelAndView = userController.logout(request, response);
-
         assertNotNull(modelAndView);
         assertEquals("/index.jsp", modelAndView.getView());
         assertTrue(modelAndView.isRedirect());
-
-        verify(request, atLeastOnce()).getSession(false);
     }
 }

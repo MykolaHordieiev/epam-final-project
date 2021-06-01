@@ -2,7 +2,9 @@ package org.test.project.user;
 
 import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.infra.web.QueryValueResolver;
 import org.test.project.infra.web.RequestMatcher;
+import org.test.project.user.dto.UserLoginDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,12 +19,14 @@ public class UserController implements Controller {
     private final UserService userService;
     private final UserValidator validator;
     private final Map<UserRole, String> viewMap;
+    private final QueryValueResolver queryValueResolver;
     private List<RequestMatcher> requestMatchers;
 
-    public UserController(UserService userService,  Map<UserRole, String> viewMap, UserValidator validator) {
+    public UserController(UserService userService, Map<UserRole, String> viewMap, UserValidator validator, QueryValueResolver queryValueResolver) {
         this.userService = userService;
         this.validator = validator;
         this.viewMap = viewMap;
+        this.queryValueResolver = queryValueResolver;
         requestMatchers = new ArrayList<>();
     }
 
@@ -47,13 +51,13 @@ public class UserController implements Controller {
     }
 
     public ModelAndView login(HttpServletRequest request, HttpServletResponse respons) {
-        String login = validator.checkEmptyLogin(request.getParameter("login"));
-        String password = validator.checkEmptyEntryPassword(request.getParameter("password"));
-        User user = userService.loginUser(login, password);
+        UserLoginDTO userLoginDTO = queryValueResolver.getObject(request, UserLoginDTO.class);
+        validator.checkUser(userLoginDTO);
+        User returnedUser = userService.loginUser(userLoginDTO);
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setView(viewMap.get(user.getUserRole()));
+        modelAndView.setView(viewMap.get(returnedUser.getUserRole()));
         HttpSession session = request.getSession();
-        session.setAttribute("user", user);
+        session.setAttribute("user", returnedUser);
         modelAndView.setRedirect(true);
         return modelAndView;
     }

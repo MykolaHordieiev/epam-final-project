@@ -28,12 +28,11 @@ public class ProductServiceTest {
     @Test
     public void getProductByIdWhenRepositoryReturnProduct() {
         Product product = new Product();
+        product.setId(ID);
         when(productRepository.getProductById(ID)).thenReturn(Optional.of(product));
 
         Product resultProduct = productService.getProductById(ID);
         Assert.assertEquals(product, resultProduct);
-
-        verify(productRepository, atLeastOnce()).getProductById(ID);
     }
 
     @Test(expected = ProductException.class)
@@ -41,8 +40,6 @@ public class ProductServiceTest {
         when(productRepository.getProductById(ID)).thenReturn(Optional.empty());
 
         productService.getProductById(ID);
-
-        verify(productRepository, atLeastOnce()).getProductById(ID);
     }
 
     @Test
@@ -52,7 +49,5 @@ public class ProductServiceTest {
 
         List<Product> resultProductList = productService.getAllProduct();
         Assert.assertEquals(expectedProductList, resultProductList);
-
-        verify(productRepository, atLeastOnce()).getAllProducts();
     }
 }

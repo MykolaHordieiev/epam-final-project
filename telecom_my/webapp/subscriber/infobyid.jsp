@@ -28,13 +28,11 @@
     <table id="subscriberInfo">
         <caption><lan:print message="subscriber.infobyid.jsp.table.caption"/></caption>
         <tr>
-            <th><lan:print message="subscriber.infobyid.jsp.table.id"/></th>
             <th><lan:print message="subscriber.infobyid.jsp.table.login"/></th>
             <th><lan:print message="subscriber.infobyid.jsp.table.balance"/></th>
             <th><lan:print message="subscriber.infobyid.jsp.table.status"/></th>
         </tr>
         <tr>
-            <td>${subscriber.id}</td>
             <td>${subscriber.login}</td>
             <td>${subscriber.balance}</td>
             <td>
@@ -42,19 +40,28 @@
                 <c:if test = "${subscriber.lock == 'false'}"><lan:print message="subscriber.infobyid.jsp.table.status.unlock"/></c:if>
             </td>
         </tr>
+
+        <c:if test = "${subscriptions.isEmpty()}">
+            <tr>
+                <td colspan="3"><lan:print message="subscriber.infobyid.jsp.table.no_subscriptions"/></td>
+            </tr>
+        </c:if>
+        <c:if test = "${!subscriptions.isEmpty()}">
         <tr>
-            <td colspan="4"><lan:print message="subscriber.infobyid.jsp.table.subscribing"/></td>
+            <td colspan="3"><lan:print message="subscriber.infobyid.jsp.table.subscribing"/></td>
         </tr>
         <tr>
-            <td colspan="2"><lan:print message="subscriber.infobyid.jsp.table.product_name"/></td>
+            <td ><lan:print message="subscriber.infobyid.jsp.table.product_name"/></td>
             <td colspan="2"><lan:print message="subscriber.infobyid.jsp.table.rate_name"/></td>
         </tr>
+
         <tr>
         <c:forEach items="${subscriptions}" var="subscription">
-            <td colspan="2">${subscription.product.name}</td>
+            <td >${subscription.product.name}</td>
             <td colspan="2">${subscription.rate.name}</td>
         </tr>
         </c:forEach>
+        </c:if>
     </table>
 
         <c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">

@@ -1,12 +1,8 @@
 package org.test.project.subscribing;
 
 import lombok.RequiredArgsConstructor;
-import org.test.project.product.Product;
-import org.test.project.product.ProductRepository;
-import org.test.project.rate.Rate;
-import org.test.project.rate.RateRepository;
-import org.test.project.subscriber.Subscriber;
-import org.test.project.subscriber.SubscriberException;
+import org.test.project.rate.dto.RateAddSubscribingDTO;
+import org.test.project.subscriber.dto.SubscriberAddSubscribingDTO;
 
 import java.util.List;
 
@@ -15,25 +11,19 @@ public class SubscribingService {
 
     private final SubscribingRepository subscribingRepository;
 
-    public Subscriber addSubscribing(Subscriber subscriber, Product product, Rate rate) {
-        Subscribing subscribing = new Subscribing(subscriber, product, rate);
-        double balance = getNewBalance(subscriber, rate);
-        subscribing.getSubscriber().setBalance(balance);
-        return subscribingRepository.addSubscribing(subscribing);
+    public SubscriberAddSubscribingDTO addSubscribing(SubscriberAddSubscribingDTO subscriberDTO, Long productId, RateAddSubscribingDTO rateDTO) {
+        double newBalance = getNewBalance(subscriberDTO, rateDTO);
+        subscriberDTO.setBalance(newBalance);
+        return subscribingRepository.addSubscribing(subscriberDTO, productId, rateDTO.getRateId());
     }
 
-    public List<Subscribing> getSubscribing(Subscriber subscriber) {
-        List<Subscribing> subscribingList = subscribingRepository.getSubscribingBySubscriberId(subscriber);
-        for (Subscribing subs : subscribingList) {
-            subs.setProduct(subscribingRepository.getProduct(subs.getProduct()));
-            subs.setRate(subscribingRepository.getRateBy(subs.getRate()));
-        }
-        return subscribingList;
+    public List<Subscribing> getSubscribing(Long id) {
+        return subscribingRepository.getSubscribingBySubscriberId(id);
     }
 
-    public Double getNewBalance(Subscriber subscriber, Rate rate) {
-        Double balance = subscriber.getBalance();
-        Double cost = rate.getPrice();
+    public Double getNewBalance(SubscriberAddSubscribingDTO subscriberDTO, RateAddSubscribingDTO rateDTO) {
+        Double balance = subscriberDTO.getBalance();
+        Double cost = rateDTO.getPrice();
         return balance - cost;
     }
 }

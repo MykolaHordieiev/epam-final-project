@@ -5,7 +5,7 @@ import lombok.SneakyThrows;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.test.project.infra.auth.AuthorizationFilter;
-import org.test.project.infra.auth.EncodingFilter;
+import org.test.project.infra.encoding.EncodingFilter;
 import org.test.project.infra.web.FrontServlet;
 import org.test.project.infra.web.LocaleSessionListener;
 import org.test.project.infra.web.ServerStarter;

@@ -1,4 +1,4 @@
-package org.test.project.infra.auth;
+package org.test.project.infra.encoding;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

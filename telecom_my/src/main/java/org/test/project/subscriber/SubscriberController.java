@@ -4,7 +4,10 @@ package org.test.project.subscriber;
 import lombok.AllArgsConstructor;
 import org.test.project.infra.web.Controller;
 import org.test.project.infra.web.ModelAndView;
+import org.test.project.infra.web.QueryValueResolver;
 import org.test.project.infra.web.RequestMatcher;
+import org.test.project.subscriber.dto.SubscriberCreateDTO;
+import org.test.project.subscriber.dto.SubscriberReplenishDTO;
 import org.test.project.subscribing.SubscribingService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,13 +22,16 @@ public class SubscriberController implements Controller {
     private final SubscriberService subscriberService;
     private final SubscribingService subscribingService;
     private final SubscriberValidator validator;
+
+    private final QueryValueResolver queryValueResolver;
     private List<RequestMatcher> requestMatchers;
 
     public SubscriberController(SubscriberService subscriberService, SubscribingService subscribingService,
-                                SubscriberValidator validator) {
+                                SubscriberValidator validator, QueryValueResolver queryValueResolver) {
         this.subscriberService = subscriberService;
         this.subscribingService = subscribingService;
         this.validator = validator;
+        this.queryValueResolver = queryValueResolver;
         requestMatchers = new ArrayList<>();
     }
 
@@ -37,38 +43,33 @@ public class SubscriberController implements Controller {
         requestMatchers.add(new RequestMatcher("/subscriber/all", "GET", this::getAll));
         requestMatchers.add(new RequestMatcher("/subscriber/lock", "POST", this::lockSubscriber));
         requestMatchers.add(new RequestMatcher("/subscriber/unlock", "POST", this::unlockSubscriber));
-        requestMatchers.add(new RequestMatcher("/subscriber/balance", "POST", this::topUpTheBalance));
+        requestMatchers.add(new RequestMatcher("/subscriber/balance", "POST", this::replenishBalance));
         return requestMatchers;
     }
 
     public ModelAndView getSubscriberById(HttpServletRequest request, HttpServletResponse response) {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(Long.parseLong(request.getParameter("id")));
+        long id = Long.parseLong(request.getParameter("id"));
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/subscriber/infobyid.jsp");
-        modelAndView.addAttribute("subscriber", subscriberService.getSubscriberById(subscriber));
-        modelAndView.addAttribute("subscriptions", subscribingService.getSubscribing(subscriber));
+        modelAndView.addAttribute("subscriber", subscriberService.getSubscriberById(id));
+        modelAndView.addAttribute("subscriptions", subscribingService.getSubscribing(id));
         return modelAndView;
     }
 
     public ModelAndView getSubscriberByLogin(HttpServletRequest request, HttpServletResponse response) {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setLogin(request.getParameter("login"));
-        validator.checkEmptyLogin(subscriber);
-        Subscriber foundSubscriber = subscriberService.getSubscriberByLogin(subscriber);
+        String login = validator.checkEmptyLogin(request.getParameter("login"));
+        Subscriber foundSubscriber = subscriberService.getSubscriberByLogin(login);
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/subscriber/infobyid.jsp");
         modelAndView.addAttribute("subscriber", foundSubscriber);
-        modelAndView.addAttribute("subscriptions", subscribingService.getSubscribing(foundSubscriber));
+        modelAndView.addAttribute("subscriptions", subscribingService.getSubscribing(foundSubscriber.getId()));
         return modelAndView;
     }
 
     public ModelAndView createSubscriber(HttpServletRequest request, HttpServletResponse response) {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setLogin(request.getParameter("login"));
-        subscriber.setPassword(request.getParameter("password"));
-        validator.checkValidLoginPassword(subscriber);
-        Subscriber createdSubscriber = subscriberService.create(subscriber);
+        SubscriberCreateDTO dto = queryValueResolver.getObject(request, SubscriberCreateDTO.class);
+        validator.checkValidLoginPassword(dto);
+        Subscriber createdSubscriber = subscriberService.create(dto);
         ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + createdSubscriber.getId());
         modelAndView.setRedirect(true);
         return modelAndView;
@@ -82,24 +83,22 @@ public class SubscriberController implements Controller {
     }
 
     public ModelAndView lockSubscriber(HttpServletRequest request, HttpServletResponse response) {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(Long.parseLong(request.getParameter("id")));
-        subscriberService.lockSubscriberById(subscriber);
+        long id = Long.parseLong(request.getParameter("id"));
+        subscriberService.lockSubscriberById(id);
         return getSubscriberById(request, response);
     }
 
     public ModelAndView unlockSubscriber(HttpServletRequest request, HttpServletResponse response) {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(Long.parseLong(request.getParameter("id")));
-        subscriberService.unlockSubscriberById(subscriber);
+        long id = Long.parseLong(request.getParameter("id"));
+        subscriberService.unlockSubscriberById(id);
         return getSubscriberById(request, response);
     }
 
-    public ModelAndView topUpTheBalance(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView replenishBalance(HttpServletRequest request, HttpServletResponse response) {
         String stringAmount = request.getParameter("amount");
         Double amount = validator.checkEntryNumber(stringAmount);
-        Subscriber subscriber = getUserOfSession(request);
-        Subscriber returnedSubscriber = subscriberService.topUpBalance(subscriber, amount);
+        SubscriberReplenishDTO replenishDTO = getSubscriberDTO(request);
+        Subscriber returnedSubscriber = subscriberService.replenishBalance(replenishDTO, amount);
         ModelAndView modelAndView = ModelAndView.withView("/service/subscriber?id=" + returnedSubscriber.getId());
         HttpSession session = request.getSession();
         session.setAttribute("user", returnedSubscriber);
@@ -107,8 +106,12 @@ public class SubscriberController implements Controller {
         return modelAndView;
     }
 
-    private Subscriber getUserOfSession(HttpServletRequest request) {
+    private SubscriberReplenishDTO getSubscriberDTO(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        return (Subscriber) session.getAttribute("user");
+        Subscriber subscriberFromSession = (Subscriber) session.getAttribute("user");
+        SubscriberReplenishDTO subscriberReplenishDTO = new SubscriberReplenishDTO();
+        subscriberReplenishDTO.setId(subscriberFromSession.getId());
+        return subscriberReplenishDTO;
+
     }
 }

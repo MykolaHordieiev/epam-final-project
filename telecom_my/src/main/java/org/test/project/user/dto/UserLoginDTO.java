@@ -1,17 +1,14 @@
-package org.test.project.user;
+package org.test.project.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public abstract class User {
+@AllArgsConstructor
+public class UserLoginDTO {
 
-    private Long id;
     private String login;
     private String password;
-    private UserRole userRole;
 }

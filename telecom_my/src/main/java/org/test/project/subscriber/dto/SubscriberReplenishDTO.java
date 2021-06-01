@@ -1,4 +1,4 @@
-package org.test.project.product;
+package org.test.project.subscriber.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
+public class SubscriberReplenishDTO {
 
     private Long id;
-    private String name;
+    private Double balance;
 }

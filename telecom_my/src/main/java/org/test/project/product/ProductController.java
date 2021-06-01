@@ -1,8 +1,6 @@
 package org.test.project.product;
 
-import org.test.project.infra.web.Controller;
-import org.test.project.infra.web.ModelAndView;
-import org.test.project.infra.web.RequestMatcher;
+import org.test.project.infra.web.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

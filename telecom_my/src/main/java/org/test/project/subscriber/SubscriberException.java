@@ -1,7 +1,9 @@
 package org.test.project.subscriber;
 
 
-public class SubscriberException extends RuntimeException {
+import org.test.project.infra.exception.TelecomException;
+
+public class SubscriberException extends TelecomException {
 
     SubscriberException(String message) {
         super(message);

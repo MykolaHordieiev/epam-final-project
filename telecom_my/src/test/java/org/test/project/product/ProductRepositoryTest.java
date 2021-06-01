@@ -1,6 +1,5 @@
 package org.test.project.product;
 
-import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +11,7 @@ import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,17 +41,14 @@ public class ProductRepositoryTest {
     private static final Long ID = 1L;
     private static final String NAME = "internet";
 
-
-    @SneakyThrows
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.createStatement()).thenReturn(statement);
     }
 
-    @SneakyThrows
     @Test
-    public void getAllProductsWhenProductFound() {
+    public void getAllProductsWhenProductFound() throws SQLException {
         Product product1 = new Product(ID, NAME);
         Product product2 = new Product(2L, "mobile");
         List<Product> expectedList = Arrays.asList(product1, product2);
@@ -63,12 +60,10 @@ public class ProductRepositoryTest {
 
         List<Product> resultList = productRepository.getAllProducts();
         assertEquals(expectedList, resultList);
-
     }
 
-    @SneakyThrows
     @Test
-    public void getAllProductsWhenProductNotFound() {
+    public void getAllProductsWhenProductNotFound() throws SQLException {
         List<Product> expectedList = Collections.emptyList();
 
         when(statement.executeQuery(GET_ALL_PRODUCTS)).thenReturn(resultSet);
@@ -78,9 +73,8 @@ public class ProductRepositoryTest {
         assertEquals(expectedList, resultList);
     }
 
-    @SneakyThrows
     @Test
-    public void getProductByIdWhenFoundProduct() {
+    public void getProductByIdWhenFoundProduct() throws SQLException {
         Product product = new Product(ID, NAME);
 
         when(statement.executeQuery(GET_PRODUCT)).thenReturn(resultSet);
@@ -93,9 +87,8 @@ public class ProductRepositoryTest {
         assertEquals(product, result.get());
     }
 
-    @SneakyThrows
     @Test
-    public void getProductByIdWhenNotFoundProduct() {
+    public void getProductByIdWhenNotFoundProduct() throws SQLException {
         when(statement.executeQuery(GET_PRODUCT)).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
 

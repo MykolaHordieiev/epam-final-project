@@ -3,9 +3,8 @@ package org.test.project.subscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.test.project.product.Product;
-import org.test.project.rate.Rate;
-import org.test.project.subscribing.Subscribing;
+import org.test.project.subscriber.dto.SubscriberCreateDTO;
+import org.test.project.subscriber.dto.SubscriberReplenishDTO;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -20,13 +19,34 @@ public class SubscriberRepository {
     private final DataSource dataSource;
 
     @SneakyThrows
-    public Optional<Subscriber> getById(Subscriber subscriber) {
-        String query = "SELECT * FROM user JOIN subscriber ON user.id=subscriber.id WHERE user.id=" + subscriber.getId();
+    public Optional<Subscriber> getById(Long id) {
+        String query = "SELECT * FROM user JOIN subscriber ON user.id=subscriber.id WHERE user.id=" + id;
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
             if (resultSet.next()) {
+                Subscriber subscriber = new Subscriber();
                 subscriber.setLogin(resultSet.getString("login"));
+                subscriber.setBalance(resultSet.getDouble("balance"));
+                subscriber.setLock(resultSet.getBoolean("locked"));
+                subscriber.setId(id);
+                return Optional.of(subscriber);
+            }
+            return Optional.empty();
+        }
+    }
+
+    @SneakyThrows
+    public Optional<Subscriber> getByLogin(String login) {
+        String query = "SELECT user.id, balance, locked FROM user JOIN subscriber ON user.id=subscriber.id " +
+                "WHERE user.login='" + login + "'";
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+            if (resultSet.next()) {
+                Subscriber subscriber = new Subscriber();
+                subscriber.setId(resultSet.getLong("id"));
+                subscriber.setLogin(login);
                 subscriber.setBalance(resultSet.getDouble("balance"));
                 subscriber.setLock(resultSet.getBoolean("locked"));
                 return Optional.of(subscriber);
@@ -36,21 +56,7 @@ public class SubscriberRepository {
     }
 
     @SneakyThrows
-    public Optional<Subscriber> getByLogin(Subscriber subscriber) {
-        String query = "SELECT id FROM user WHERE user.login='" + subscriber.getLogin() + "'";
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-            if (resultSet.next()) {
-                subscriber.setId(resultSet.getLong("id"));
-                return Optional.of(subscriber);
-            }
-            return Optional.empty();
-        }
-    }
-
-    @SneakyThrows
-    public Subscriber insertSubscriber(Subscriber subscriber) {
+    public SubscriberCreateDTO insertSubscriber(SubscriberCreateDTO subscriberCreateDTO) {
         String insertIntoUser = "INSERT INTO user (login,password,role) VALUES (?,?,?);";
         String insertIntoSubscriber = "INSERT INTO subscriber (id) VALUES (?)";
         Connection connection = null;
@@ -59,14 +65,14 @@ public class SubscriberRepository {
             connection = dataSource.getConnection();
             connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(insertIntoUser, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, subscriber.getLogin());
-            preparedStatement.setString(2, subscriber.getPassword());
-            preparedStatement.setString(3, subscriber.getUserRole().toString());
+            preparedStatement.setString(1, subscriberCreateDTO.getLogin());
+            preparedStatement.setString(2, subscriberCreateDTO.getPassword());
+            preparedStatement.setString(3, subscriberCreateDTO.getUserRole().toString());
             preparedStatement.execute();
             try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                 generatedKeys.next();
                 long id = generatedKeys.getLong(1);
-                subscriber.setId(id);
+                subscriberCreateDTO.setId(id);
                 try (PreparedStatement preparedStatement1 = connection.prepareStatement(insertIntoSubscriber)) {
                     preparedStatement1.setLong(1, id);
                     preparedStatement1.execute();
@@ -82,7 +88,7 @@ public class SubscriberRepository {
             close(preparedStatement);
             close(connection);
         }
-        return subscriber;
+        return subscriberCreateDTO;
     }
 
 
@@ -106,39 +112,42 @@ public class SubscriberRepository {
     }
 
     @SneakyThrows
-    public Subscriber lockSubById(Subscriber subscriber) {
-        String query = "UPDATE subscriber SET locked=true WHERE id=" + subscriber.getId();
+    public Subscriber lockSubById(Long id) {
+        String query = "UPDATE subscriber SET locked=true WHERE id=" + id;
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
             statement.execute(query);
         }
+        Subscriber subscriber = new Subscriber();
+        subscriber.setId(id);
         subscriber.setLock(true);
         return subscriber;
     }
 
     @SneakyThrows
-    public Subscriber unlockSubById(Subscriber subscriber) {
-        String query = "UPDATE subscriber SET locked=false WHERE id=" + subscriber.getId();
+    public Subscriber unlockSubById(Long id) {
+        String query = "UPDATE subscriber SET locked=false WHERE id=" + id;
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
             statement.execute(query);
         }
+        Subscriber subscriber = new Subscriber();
+        subscriber.setId(id);
         subscriber.setLock(false);
         return subscriber;
     }
 
     @SneakyThrows
-    public Subscriber topUpBalanceById(Subscriber subscriber, Double newBalance) {
-        String query = "UPDATE subscriber SET balance=? WHERE id=" + subscriber.getId();
+    public SubscriberReplenishDTO replenishBalanceById(SubscriberReplenishDTO replenishDTO) {
+        String query = "UPDATE subscriber SET balance=? WHERE id=" + replenishDTO.getId();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setDouble(1, newBalance);
+            preparedStatement.setDouble(1, replenishDTO.getBalance());
             preparedStatement.execute();
         } catch (SQLException ex) {
             throw new SubscriberException("filed top up balance");
         }
-        subscriber.setBalance(newBalance);
-        return subscriber;
+        return replenishDTO;
     }
 
     @SneakyThrows

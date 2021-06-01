@@ -10,7 +10,7 @@
 
     <properties>
         <jdk.version>8</jdk.version>
-        <mariaDB.version>2.6.2</mariaDB.version>
+        <mysql.version>8.0.24</mysql.version>
         <hikariCP.version>3.4.5</hikariCP.version>
         <lombok.version>1.18.12</lombok.version>
         <servlet.version>3.1.0</servlet.version>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.24</version>
+            <version>${mysql.version}</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

@@ -1,6 +1,7 @@
 package org.test.project;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.test.project.rate.RateValidator;
 import org.test.project.user.*;
 import org.test.project.infra.config.*;
@@ -38,7 +39,7 @@ public class Application {
         liquibaseStarter.updateDatabase();
 
         //application
-
+        QueryValueResolver queryValueResolver = new QueryValueResolver(new ObjectMapper());
         UserService userService = getUserService(dataSource);
         SubscriberService subscriberService = getSubscriberService(dataSource);
         ProductService productService = getProductService(dataSource);
@@ -46,7 +47,7 @@ public class Application {
         SubscribingService subscribingService = getSubscribingService(dataSource);
 
         List<Controller> controllers = getControllersList(userService, subscriberService, productService, rateService,
-                subscribingService);
+                subscribingService, queryValueResolver);
 
         //web
         ExceptionHandler exceptionHandler = exceptionHandlerConfig.configureExceptionHandler();
@@ -57,13 +58,14 @@ public class Application {
 
     private static List<Controller> getControllersList(UserService userService,
                                                        SubscriberService subscriberService, ProductService productService,
-                                                       RateService rateService, SubscribingService subscribingService) {
-        SubscriberController subscriberController = getSubscriberController(subscriberService, subscribingService);
-        UserController userController = getUserController(userService);
-        RateController rateController = getRateController(rateService, subscriberService, productService);
+                                                       RateService rateService, SubscribingService subscribingService,
+                                                       QueryValueResolver queryValueResolver) {
+        SubscriberController subscriberController = getSubscriberController(subscriberService, subscribingService, queryValueResolver);
+        UserController userController = getUserController(userService, queryValueResolver);
+        RateController rateController = getRateController(rateService, subscriberService, productService, queryValueResolver);
         ProductController productController = new ProductController(productService);
         SubscribingController subscribingController = new SubscribingController(subscribingService, subscriberService,
-                productService, rateService);
+                rateService);
 
         List<Controller> controllers = new ArrayList<>();
         controllers.add(subscriberController);
@@ -74,51 +76,50 @@ public class Application {
         return controllers;
     }
 
-    private static RateController getRateController(RateService rateService, SubscriberService subscriberService, ProductService productService) {
+    private static RateController getRateController(RateService rateService,
+                                                    SubscriberService subscriberService,
+                                                    ProductService productService, QueryValueResolver queryValueResolver) {
         RateValidator rateValidator = new RateValidator();
-        return new RateController(rateService, subscriberService, productService, rateValidator);
+        return new RateController(rateService, subscriberService, productService, rateValidator, queryValueResolver);
     }
 
-    private static UserController getUserController(UserService userService) {
+    private static UserController getUserController(UserService userService, QueryValueResolver queryValueResolver) {
         Map<UserRole, String> viewMap = new HashMap<>();
         viewMap.put(UserRole.OPERATOR, "/operator/home.jsp");
         viewMap.put(UserRole.SUBSCRIBER, "/subscriber/home.jsp");
         UserValidator userValidator = new UserValidator();
-        return new UserController(userService, viewMap, userValidator);
-
+        return new UserController(userService, viewMap, userValidator, queryValueResolver);
     }
 
-    private static SubscriberController getSubscriberController(SubscriberService subscriberService, SubscribingService subscribingService) {
+    private static SubscriberController getSubscriberController(SubscriberService subscriberService,
+                                                                SubscribingService subscribingService,
+                                                                QueryValueResolver queryValueResolver) {
         SubscriberValidator subscriberValidator = new SubscriberValidator();
-        return new SubscriberController(subscriberService, subscribingService, subscriberValidator);
+        return new SubscriberController(subscriberService, subscribingService, subscriberValidator, queryValueResolver);
     }
 
     private static SubscriberService getSubscriberService(DataSource dataSource) {
-        //Subscriber config
         SubscriberRepository subscriberRepository = new SubscriberRepository(dataSource);
-        return new SubscriberService(subscriberRepository);
+        SubscriberMapper subscriberMapper = new SubscriberMapper();
+        return new SubscriberService(subscriberRepository, subscriberMapper);
     }
 
     private static UserService getUserService(DataSource dataSource) {
-        //user config
         UserRepository userRepository = new UserRepository(dataSource);
         return new UserService(userRepository);
     }
 
     private static RateService getRateService(DataSource dataSource) {
-        //Operator config
         RateRepository rateRepository = new RateRepository(dataSource);
         return new RateService(rateRepository);
     }
 
     private static ProductService getProductService(DataSource dataSource) {
-        //Operator config
         ProductRepository productRepository = new ProductRepository(dataSource);
         return new ProductService(productRepository);
     }
 
     private static SubscribingService getSubscribingService(DataSource dataSource) {
-        //Subscriber config
         SubscribingRepository subscribingRepository = new SubscribingRepository(dataSource);
         return new SubscribingService(subscribingRepository);
     }

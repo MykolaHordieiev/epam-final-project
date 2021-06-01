@@ -1,6 +1,8 @@
 package org.test.project.subscriber;
 
 import lombok.RequiredArgsConstructor;
+import org.test.project.subscriber.dto.SubscriberCreateDTO;
+import org.test.project.subscriber.dto.SubscriberReplenishDTO;
 
 import java.util.List;
 
@@ -8,44 +10,47 @@ import java.util.List;
 public class SubscriberService {
 
     private final SubscriberRepository subscriberRepository;
+    private final SubscriberMapper subscriberMapper;
 
-    public Subscriber create(Subscriber subscriber) {
-        return subscriberRepository.insertSubscriber(subscriber);
+    public Subscriber create(SubscriberCreateDTO subscriberCreateDTO) {
+        SubscriberCreateDTO dto = subscriberRepository.insertSubscriber(subscriberCreateDTO);
+        return subscriberMapper.getSubscriberFromCreateDTO(dto);
     }
 
-    public Subscriber getSubscriberById(Subscriber subscriber) {
-        return subscriberRepository.getById(subscriber).orElseThrow(() -> new SubscriberException("subscriber with id: "
-                + subscriber.getId() + " doesn't exist"));
+    public Subscriber getSubscriberById(Long id) {
+        return subscriberRepository.getById(id).orElseThrow(() -> new SubscriberException("subscriber with id: "
+                + id + " doesn't exist"));
     }
 
     public List<Subscriber> getAll() {
         return subscriberRepository.getAll();
     }
 
-    public Subscriber lockSubscriberById(Subscriber subscriber) {
-        Subscriber returnedSubscriber = getSubscriberById(subscriber);
-        return subscriberRepository.lockSubById(returnedSubscriber);
+    public Subscriber lockSubscriberById(Long id) {
+        return subscriberRepository.lockSubById(id);
     }
 
-    public Subscriber unlockSubscriberById(Subscriber subscriber) {
-        Subscriber returnedSubscriber = getSubscriberById(subscriber);
-        return subscriberRepository.unlockSubById(returnedSubscriber);
+    public Subscriber unlockSubscriberById(Long id) {
+        return subscriberRepository.unlockSubById(id);
     }
 
-    public Subscriber topUpBalance(Subscriber subscriber, Double amount) {
-        Subscriber subscriberBeforeReplenish = getSubscriberById(subscriber);
+    public Subscriber replenishBalance(SubscriberReplenishDTO replenishDTO, Double amount) {
+        Subscriber subscriberBeforeReplenish = getSubscriberById(replenishDTO.getId());
         double balanceBefore = subscriberBeforeReplenish.getBalance();
-        double newBalance = subscriberBeforeReplenish.getBalance() + amount;
-        Subscriber subscriberAfterReplenish = subscriberRepository.topUpBalanceById(subscriberBeforeReplenish, newBalance);
-        if (balanceBefore < 0 && newBalance > 0) {
-            subscriberAfterReplenish = subscriberRepository.unlockSubById(subscriberAfterReplenish);
+        replenishDTO.setBalance(balanceBefore + amount);
+        subscriberRepository.replenishBalanceById(replenishDTO);
+        Subscriber subscriberAfterReplenish = subscriberMapper.getSubscriberFromReplenishDTO(replenishDTO);
+        if (balanceBefore < 0 && replenishDTO.getBalance() > 0) {
+            Subscriber unlockSubById = subscriberRepository.unlockSubById(subscriberAfterReplenish.getId());
+            subscriberAfterReplenish.setLock(unlockSubById.isLock());
+            subscriberAfterReplenish.setLogin(subscriberBeforeReplenish.getLogin());
         }
         return subscriberAfterReplenish;
     }
 
-    public Subscriber getSubscriberByLogin(Subscriber subscriber) {
-        Subscriber foundSubscriber = subscriberRepository.getByLogin(subscriber).orElseThrow(
-                () -> new SubscriberException("Subscriber with login " + subscriber.getLogin() + " not found"));
-        return getSubscriberById(foundSubscriber);
+    public Subscriber getSubscriberByLogin(String login) {
+        return subscriberRepository.getByLogin(login).orElseThrow(
+                () -> new SubscriberException("Subscriber with login " + login + " not found"));
+
     }
 }

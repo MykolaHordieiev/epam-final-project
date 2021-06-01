@@ -7,7 +7,7 @@
         <meta charset="UTF-8">
     </head>
     <body>
-        <p> <lan:print message="rate.unusable.jsp.rate"/>: ${rate} <lan:print message="rate.unusable.jsp.used"/>:
+        <p> <lan:print message="rate.unusable.jsp.rate"/>: ${rate.name} <lan:print message="rate.unusable.jsp.used"/>:
         <c:forEach items="${subscribers}" var="subscriber">
             ${subscriber.login},
         </c:forEach>

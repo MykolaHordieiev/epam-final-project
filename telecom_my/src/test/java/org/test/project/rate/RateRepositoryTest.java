@@ -1,20 +1,18 @@
 package org.test.project.rate;
 
-import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.test.project.rate.dto.RateAddRequestDTO;
+import org.test.project.rate.dto.RateChangeRequestDTO;
 import org.test.project.subscriber.Subscriber;
 
 import javax.sql.DataSource;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -46,23 +44,20 @@ public class RateRepositoryTest {
     private static final String CHANGE_RATE = "UPDATE rate SET name_rate=?, price=? WHERE id=?";
     private static final String INSERT_RATE = "INSERT INTO rate (name_rate, price, product_id) VALUES (?,?,?)";
     private static final String DELETE_RATE = "DELETE FROM rate WHERE id=1";
-    private static final String GET_SUBSCRIBER = "SELECT subscriber_id FROM subscribing WHERE rate_id=1";
+    private static final String GET_SUBSCRIBER = "SELECT id, login FROM subscribing JOIN user ON subscribing.subscriber_id=user.id  WHERE rate_id=1";
     private static final String DO_UNUSABLE_RATE = "UPDATE rate SET unusable=true WHERE id=1";
     private static final Long ID = 1L;
     private static final String NAME = "super";
     private static final Double PRICE = 40d;
-//    private static final Long ID = 1L;
 
-    @SneakyThrows
     @Before
-    public void setDataSource() {
+    public void setDataSource() throws SQLException {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.createStatement()).thenReturn(statement);
     }
 
-    @SneakyThrows
     @Test
-    public void getRatesByProductWhenRateFound() {
+    public void getRatesByProductWhenRateFound() throws SQLException {
         Rate rate1 = new Rate(ID, NAME, PRICE, ID, false);
         Rate rate2 = new Rate(2L, "low", 20d, ID, true);
         List<Rate> expectedList = Arrays.asList(rate1, rate2);
@@ -75,13 +70,11 @@ public class RateRepositoryTest {
         when(resultSet.getBoolean("unusable")).thenReturn(false).thenReturn(true);
 
         List<Rate> resultList = repository.getRatesByProduct(ID);
-        assertNotNull(resultList);
         assertEquals(expectedList, resultList);
     }
 
-    @SneakyThrows
     @Test
-    public void getRatesByProductWhenRateNotFound() {
+    public void getRatesByProductWhenRateNotFound() throws SQLException {
         List<Rate> expectedList = Collections.emptyList();
 
         when(statement.executeQuery(GET_ALL_RATES)).thenReturn(resultSet);
@@ -92,9 +85,8 @@ public class RateRepositoryTest {
         assertEquals(expectedList, resultList);
     }
 
-    @SneakyThrows
     @Test
-    public void getRateByIdWhenRateFound() {
+    public void getRateByIdWhenRateFound() throws SQLException {
         Rate rate = new Rate(ID, NAME, PRICE, ID, false);
 
         when(statement.executeQuery(GET_RATE_BY_ID)).thenReturn(resultSet);
@@ -105,14 +97,12 @@ public class RateRepositoryTest {
         when(resultSet.getBoolean("unusable")).thenReturn(false);
 
         Optional<Rate> resultRate = repository.getRateById(ID);
-        assertNotNull(resultRate);
         assertTrue(resultRate.isPresent());
         assertEquals(rate, resultRate.get());
     }
 
-    @SneakyThrows
     @Test
-    public void getRateByIdWhenRateNotFound() {
+    public void getRateByIdWhenRateNotFound() throws SQLException {
         when(statement.executeQuery(GET_RATE_BY_ID)).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
 
@@ -120,15 +110,14 @@ public class RateRepositoryTest {
         assertFalse(resultRate.isPresent());
     }
 
-    @SneakyThrows
     @Test
-    public void changeRateById() {
-        Rate rate = new Rate(ID, NAME, PRICE, ID, false);
+    public void changeRateById() throws SQLException {
+        RateChangeRequestDTO rateDTO = new RateChangeRequestDTO(ID, NAME, PRICE);
+
         when(connection.prepareStatement(CHANGE_RATE)).thenReturn(preparedStatement);
 
-        Rate resultRate = repository.changeRateById(rate);
-        assertNotNull(resultRate);
-        assertEquals(rate, resultRate);
+        RateChangeRequestDTO resultRateDTO = repository.changeRateById(rateDTO);
+        assertEquals(rateDTO, resultRateDTO);
 
         verify(preparedStatement).setString(1, NAME);
         verify(preparedStatement).setDouble(2, PRICE);
@@ -136,16 +125,20 @@ public class RateRepositoryTest {
         verify(preparedStatement).execute();
     }
 
-    @SneakyThrows
     @Test
-    public void addRateByProductId() {
-        Rate rate = new Rate(ID, NAME, PRICE, ID, false);
+    public void addRateByProductId() throws SQLException {
+        RateAddRequestDTO rateDTO = new RateAddRequestDTO();
+        rateDTO.setRateName(NAME);
+        rateDTO.setPrice(PRICE);
+        rateDTO.setProductId(ID);
+        RateAddRequestDTO expectedRateDTO = new RateAddRequestDTO(ID, NAME, PRICE, ID);
+
         when(connection.prepareStatement(INSERT_RATE, Statement.RETURN_GENERATED_KEYS)).thenReturn(preparedStatement);
         when(preparedStatement.getGeneratedKeys()).thenReturn(resultSet);
+        when(resultSet.getLong(1)).thenReturn(ID);
 
-        Optional<Rate> resultRate = repository.addRateByProductId(rate);
-        assertTrue(resultRate.isPresent());
-        assertEquals(rate, resultRate.get());
+        RateAddRequestDTO resultRateDTO = repository.addRateByProductId(rateDTO);
+        assertEquals(expectedRateDTO, resultRateDTO);
 
         verify(preparedStatement).setString(1, NAME);
         verify(preparedStatement).setDouble(2, PRICE);
@@ -154,50 +147,66 @@ public class RateRepositoryTest {
         verify(resultSet).next();
     }
 
-    @SneakyThrows
-    @Test
-    public void deleteRateById() {
-        Rate rate = new Rate(ID, NAME, PRICE, ID, false);
+    @Test(expected = RateException.class)
+    public void addRateByProductIdWhenThrowRateException() throws SQLException {
+        RateAddRequestDTO rateDTO = new RateAddRequestDTO();
+        rateDTO.setRateName(NAME);
+        rateDTO.setPrice(PRICE);
+        rateDTO.setProductId(ID);
 
-        Rate resultRate = repository.deleteRateById(rate);
-        assertEquals(rate, resultRate);
+        when(connection.prepareStatement(INSERT_RATE, Statement.RETURN_GENERATED_KEYS)).thenReturn(preparedStatement);
+        when(preparedStatement.execute()).thenThrow(SQLException.class);
+
+        repository.addRateByProductId(rateDTO);
+
+        verify(preparedStatement).setString(1, NAME);
+        verify(preparedStatement).setDouble(2, PRICE);
+        verify(preparedStatement).setLong(3, ID);
+    }
+
+    @Test
+    public void deleteRateById() throws SQLException {
+        Long result = repository.deleteRateById(ID);
+        assertEquals(ID, result);
 
         verify(statement).execute(DELETE_RATE);
     }
 
-    @SneakyThrows
     @Test
-    public void checkUsingRateBySubscribersWhenFound() {
-        Rate rate = new Rate(ID, NAME, PRICE, ID, false);
+    public void checkUsingRateBySubscribersWhenFound() throws SQLException {
+        String login1 = "login1";
+        String login2 = "login2";
         Subscriber subscriber1 = new Subscriber();
         subscriber1.setId(ID);
+        subscriber1.setLogin(login1);
         Subscriber subscriber2 = new Subscriber();
         subscriber2.setId(2L);
+        subscriber2.setLogin(login2);
         List<Subscriber> expected = Arrays.asList(subscriber1, subscriber2);
 
         when(statement.executeQuery(GET_SUBSCRIBER)).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
-        when(resultSet.getLong("subscriber_id")).thenReturn(ID).thenReturn(2L);
+        when(resultSet.getLong("id")).thenReturn(ID).thenReturn(2L);
+        when(resultSet.getString("login")).thenReturn(login1).thenReturn(login2);
 
-        List<Subscriber> resultList = repository.checkUsingRateBySubscribers(rate);
+        List<Subscriber> resultList = repository.checkUsingRateBySubscribers(ID);
         assertEquals(expected, resultList);
     }
 
-    @SneakyThrows
     @Test
-    public void checkUsingRateBySubscribersWhenNotFound() {
-        Rate rate = new Rate(ID, NAME, PRICE, ID, false);
+    public void checkUsingRateBySubscribersWhenNotFound() throws SQLException {
         List<Subscriber> expected = Collections.emptyList();
+
         when(statement.executeQuery(GET_SUBSCRIBER)).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
-        List<Subscriber> resultList = repository.checkUsingRateBySubscribers(rate);
+
+        List<Subscriber> resultList = repository.checkUsingRateBySubscribers(ID);
         assertEquals(expected, resultList);
         assertTrue(resultList.isEmpty());
     }
 
-    @SneakyThrows
     @Test
-    public void doUnusableRateByRateId() {
+    public void doUnusableRateByRateId() throws SQLException {
         Rate rate = new Rate(ID, NAME, PRICE, ID, false);
 
         Rate resultRate = repository.doUnusableRateByRateId(rate);

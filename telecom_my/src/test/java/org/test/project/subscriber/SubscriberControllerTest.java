@@ -6,9 +6,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.test.project.infra.web.ModelAndView;
-import org.test.project.infra.web.RequestMatcher;
+import org.test.project.infra.web.QueryValueResolver;
 import org.test.project.product.Product;
 import org.test.project.rate.Rate;
+import org.test.project.subscriber.dto.SubscriberCreateDTO;
+import org.test.project.subscriber.dto.SubscriberReplenishDTO;
 import org.test.project.subscribing.Subscribing;
 import org.test.project.subscribing.SubscribingService;
 
@@ -31,11 +33,13 @@ public class SubscriberControllerTest {
     @Mock
     private SubscriberValidator validator;
     @Mock
-    HttpServletRequest request;
+    private HttpServletRequest request;
     @Mock
     private HttpServletResponse response;
     @Mock
-    HttpSession session;
+    private HttpSession session;
+    @Mock
+    private QueryValueResolver queryValueResolver;
     @InjectMocks
     private SubscriberController subscriberController;
 
@@ -54,24 +58,18 @@ public class SubscriberControllerTest {
         List<Subscribing> subscribingList = Arrays.asList(subscribing1, subscribing2);
 
         when(request.getParameter("id")).thenReturn("1");
-        when(subscriberService.getSubscriberById(subscriber)).thenReturn(expectedSubscriber);
-        when(subscribingService.getSubscribing(subscriber)).thenReturn(subscribingList);
+        when(subscriberService.getSubscriberById(ID)).thenReturn(expectedSubscriber);
+        when(subscribingService.getSubscribing(ID)).thenReturn(subscribingList);
 
         ModelAndView modelAndView = subscriberController.getSubscriberById(request, response);
         assertNotNull(modelAndView);
         assertEquals("/subscriber/infobyid.jsp", modelAndView.getView());
         assertEquals(expectedSubscriber, modelAndView.getAttributes().get("subscriber"));
         assertEquals(subscribingList, modelAndView.getAttributes().get("subscriptions"));
-
-        verify(request).getParameter("id");
-        verify(subscriberService).getSubscriberById(subscriber);
-        verify(subscribingService).getSubscribing(subscriber);
     }
 
     @Test
     public void getSubscriberByLogin() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setLogin(LOGIN);
         Subscriber foundSubscriber = new Subscriber(ID, LOGIN, PASSWORD, 0, false);
         Subscribing subscribing1 = new Subscribing(foundSubscriber, new Product(ID, "product"), new Rate());
         Subscribing subscribing2 = new Subscribing(foundSubscriber, new Product(2L, "BBC"),
@@ -79,44 +77,31 @@ public class SubscriberControllerTest {
         List<Subscribing> subscribingList = Arrays.asList(subscribing1, subscribing2);
 
         when(request.getParameter("login")).thenReturn(LOGIN);
-        when(validator.checkEmptyLogin(subscriber)).thenReturn(subscriber);
-        when(subscriberService.getSubscriberByLogin(subscriber)).thenReturn(foundSubscriber);
-        when(subscribingService.getSubscribing(foundSubscriber)).thenReturn(subscribingList);
+        when(validator.checkEmptyLogin(LOGIN)).thenReturn(LOGIN);
+        when(subscriberService.getSubscriberByLogin(LOGIN)).thenReturn(foundSubscriber);
+        when(subscribingService.getSubscribing(ID)).thenReturn(subscribingList);
 
         ModelAndView modelAndView = subscriberController.getSubscriberByLogin(request, response);
         assertNotNull(modelAndView);
         assertEquals("/subscriber/infobyid.jsp", modelAndView.getView());
         assertEquals(foundSubscriber, modelAndView.getAttributes().get("subscriber"));
         assertEquals(subscribingList, modelAndView.getAttributes().get("subscriptions"));
-
-        verify(request).getParameter("login");
-        verify(validator).checkEmptyLogin(subscriber);
-        verify(subscriberService).getSubscriberByLogin(subscriber);
-        verify(subscribingService).getSubscribing(foundSubscriber);
     }
 
     @Test
     public void createSubscriber() {
-        Subscriber beforeCreateSubscriber = new Subscriber();
-        beforeCreateSubscriber.setLogin(LOGIN);
-        beforeCreateSubscriber.setPassword(PASSWORD);
+        SubscriberCreateDTO dto = new SubscriberCreateDTO(ID, LOGIN, PASSWORD);
         Subscriber afterCreateSubscriber = new Subscriber();
         afterCreateSubscriber.setId(ID);
 
-        when(request.getParameter("login")).thenReturn(LOGIN);
-        when(request.getParameter("password")).thenReturn(PASSWORD);
-        when(validator.checkValidLoginPassword(beforeCreateSubscriber)).thenReturn(beforeCreateSubscriber);
-        when(subscriberService.create(beforeCreateSubscriber)).thenReturn(afterCreateSubscriber);
+        when(queryValueResolver.getObject(request, SubscriberCreateDTO.class)).thenReturn(dto);
+        when(validator.checkValidLoginPassword(dto)).thenReturn(dto);
+        when(subscriberService.create(dto)).thenReturn(afterCreateSubscriber);
 
         ModelAndView modelAndView = subscriberController.createSubscriber(request, response);
         assertNotNull(modelAndView);
         assertEquals("/service/subscriber?id=1", modelAndView.getView());
         assertTrue(modelAndView.isRedirect());
-
-        verify(request).getParameter("login");
-        verify(request).getParameter("password");
-        verify(validator).checkValidLoginPassword(beforeCreateSubscriber);
-        verify(subscriberService).create(beforeCreateSubscriber);
     }
 
     @Test
@@ -136,14 +121,12 @@ public class SubscriberControllerTest {
 
     @Test
     public void lockSubscriber() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(ID);
         Subscriber lockSubscriber = new Subscriber();
         lockSubscriber.setId(ID);
         lockSubscriber.setLock(true);
 
         when(request.getParameter("id")).thenReturn("1");
-        when(subscriberService.lockSubscriberById(subscriber)).thenReturn(lockSubscriber);
+        when(subscriberService.lockSubscriberById(ID)).thenReturn(lockSubscriber);
 
         ModelAndView modelAndView = subscriberController.lockSubscriber(request, response);
         assertNotNull(modelAndView);
@@ -151,21 +134,19 @@ public class SubscriberControllerTest {
         assertFalse(modelAndView.isRedirect());
 
         verify(request, times(2)).getParameter("id");
-        verify(subscriberService).lockSubscriberById(subscriber);
-        verify(subscriberService).getSubscriberById(any(Subscriber.class));
-        verify(subscribingService).getSubscribing(any(Subscriber.class));
+        verify(subscriberService).lockSubscriberById(ID);
+        verify(subscriberService).getSubscriberById(anyLong());
+        verify(subscribingService).getSubscribing(anyLong());
     }
 
     @Test
     public void unlockSubscriber() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(ID);
         Subscriber unlockSubscriber = new Subscriber();
         unlockSubscriber.setId(ID);
         unlockSubscriber.setLock(false);
 
         when(request.getParameter("id")).thenReturn("1");
-        when(subscriberService.unlockSubscriberById(subscriber)).thenReturn(unlockSubscriber);
+        when(subscriberService.unlockSubscriberById(ID)).thenReturn(unlockSubscriber);
 
         ModelAndView modelAndView = subscriberController.unlockSubscriber(request, response);
         assertNotNull(modelAndView);
@@ -173,37 +154,33 @@ public class SubscriberControllerTest {
         assertFalse(modelAndView.isRedirect());
 
         verify(request, times(2)).getParameter("id");
-        verify(subscriberService).unlockSubscriberById(subscriber);
-        verify(subscriberService).getSubscriberById(any(Subscriber.class));
-        verify(subscribingService).getSubscribing(any(Subscriber.class));
+        verify(subscriberService).unlockSubscriberById(ID);
+        verify(subscriberService).getSubscriberById(anyLong());
+        verify(subscribingService).getSubscribing(anyLong());
     }
 
     @Test
-    public void topUpTheBalance() {
-        Subscriber subscriber = new Subscriber(ID, LOGIN, PASSWORD, 0, false);
+    public void replenishBalance() {
+        double balance = 20d;
+        Subscriber subscriber = new Subscriber(ID, LOGIN, PASSWORD, balance, false);
         String amountStr = "10";
         double amount = 10d;
-        Subscriber returnedSubscriber = new Subscriber(ID, LOGIN, PASSWORD, 10d, false);
+        SubscriberReplenishDTO subscriberDTO = new SubscriberReplenishDTO();
+        subscriberDTO.setId(ID);
+        Subscriber returnedSubscriber = new Subscriber(ID, LOGIN, PASSWORD, 30d, false);
 
         when(request.getParameter("amount")).thenReturn(amountStr);
         when(validator.checkEntryNumber(amountStr)).thenReturn(amount);
         when(request.getSession(false)).thenReturn(session);
         when(session.getAttribute("user")).thenReturn(subscriber);
-        when(subscriberService.topUpBalance(subscriber, amount)).thenReturn(returnedSubscriber);
+        when(subscriberService.replenishBalance(subscriberDTO, amount)).thenReturn(returnedSubscriber);
         when(request.getSession()).thenReturn(session);
 
-
-        ModelAndView modelAndView = subscriberController.topUpTheBalance(request, response);
+        ModelAndView modelAndView = subscriberController.replenishBalance(request, response);
         assertNotNull(modelAndView);
         assertEquals("/service/subscriber?id=1", modelAndView.getView());
         assertTrue(modelAndView.isRedirect());
 
-        verify(request).getParameter("amount");
-        verify(request).getSession(false);
-        verify(request).getSession();
-        verify(validator).checkEntryNumber("10");
         verify(session).setAttribute("user", returnedSubscriber);
-        verify(session).getAttribute("user");
-        verify(subscriberService).topUpBalance(subscriber, amount);
     }
 }

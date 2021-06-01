@@ -25,22 +25,27 @@
     <c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">
         <td>
             <form method="GET" action="/telecom/service/rate/info">
-                <input type="hidden" name="id" value="${rate.id}"/>
+                <input type="hidden" name="rateId" value="${rate.id}"/>
                 <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.rate_info"/>'>
             </form>
          </td>
     </c:if>
     <c:if test = "${sessionScope.user.userRole == 'SUBSCRIBER'}">
-        <c:if test = "${subscriber.lock == 'false'}">
-            <c:if test = "${rate.unusable == 'false'}">
-            <td>
-                <form method="POST" action="/telecom/service/add/subscribing">
-                    <input type="hidden" name="rateId" value="${rate.id}"/>
-                    <input type="hidden" name="productId" value="${productId}"/>
-                    <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.subscribing"/>'>
-                </form>
-             </td>
-             </c:if>
+        <c:if test = "${ratesMap.get(rate) == 'false'}">
+            <c:if test = "${subscriber.lock == 'false'}">
+                <c:if test = "${rate.unusable == 'false'}">
+                <td>
+                    <form method="POST" action="/telecom/service/add/subscribing">
+                        <input type="hidden" name="rateId" value="${rate.id}"/>
+                        <input type="hidden" name="productId" value="${productId}"/>
+                        <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.subscribing"/>'>
+                    </form>
+                </td>
+                </c:if>
+            </c:if>
+        </c:if>
+        <c:if test = "${ratesMap.get(rate) == 'true'}">
+           <td><lan:print message="rate.buproduct.jsp.table.using_rate"/></td>
         </c:if>
     </c:if>
   </tr>
@@ -49,7 +54,7 @@
 <c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">
 
       <form method="GET" action="/telecom/service/rate/add">
-            <input type="hidden" name="id" value="${productId}"/>
+            <input type="hidden" name="productId" value="${productId}"/>
                 <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.add_rate"/>'>
       </form>
 

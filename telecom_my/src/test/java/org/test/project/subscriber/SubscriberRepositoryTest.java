@@ -1,15 +1,14 @@
 package org.test.project.subscriber;
 
-import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.test.project.subscriber.dto.SubscriberCreateDTO;
+import org.test.project.subscriber.dto.SubscriberReplenishDTO;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import java.sql.*;
@@ -42,30 +41,30 @@ public class SubscriberRepositoryTest {
     private SubscriberRepository repository;
 
     private static final String GET_BY_ID = "SELECT * FROM user JOIN subscriber ON user.id=subscriber.id WHERE user.id=1";
-    private static final String GET_BY_LOGIN = "SELECT id FROM user WHERE user.login='login'";
+    private static final String GET_BY_LOGIN = "SELECT user.id, balance, locked FROM user JOIN subscriber ON user.id=subscriber.id " +
+            "WHERE user.login='login'";
     private static final String INSERT_INTO_USER = "INSERT INTO user (login,password,role) VALUES (?,?,?);";
     private static final String INSERT_INTO_SUBSCRIBER = "INSERT INTO subscriber (id) VALUES (?)";
     private static final String GET_ALL = "SELECT * FROM user JOIN subscriber ON user.id=subscriber.id";
-    private static final String LOCK_SUBSCRIBER = "UPDATE subscriber SET locked=true WHERE id=1";
-    private static final String UNLOCK_SUBSCRIBER = "UPDATE subscriber SET locked=false WHERE id=1";
     private static final String REPLENISH_BALANCE = "UPDATE subscriber SET balance=? WHERE id=1";
-    private final Long ID = 1L;
+    private static final Long ID = 1L;
     private static final String LOGIN = "login";
     private static final String PASSWORD = "pass";
     private static final Double BALANCE = 20d;
 
-    @SneakyThrows
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.createStatement()).thenReturn(statement);
     }
 
-    @SneakyThrows
     @Test
-    public void getByIdWhenFoundSubscriber() {
+    public void getByIdWhenFoundSubscriber() throws SQLException {
         Subscriber subscriber = new Subscriber();
         subscriber.setId(ID);
+        subscriber.setLogin(LOGIN);
+        subscriber.setLock(false);
+        subscriber.setBalance(BALANCE);
 
         when(statement.executeQuery(GET_BY_ID)).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true);
@@ -73,64 +72,50 @@ public class SubscriberRepositoryTest {
         when(resultSet.getDouble("balance")).thenReturn(BALANCE);
         when(resultSet.getBoolean("locked")).thenReturn(false);
 
-        Optional<Subscriber> resultSubscriber = repository.getById(subscriber);
+        Optional<Subscriber> resultSubscriber = repository.getById(ID);
         assertNotNull(resultSubscriber);
         assertTrue(resultSubscriber.isPresent());
         assertEquals(subscriber, resultSubscriber.get());
-
-        verify(statement).executeQuery(GET_BY_ID);
-        verify(resultSet).next();
-        verify(resultSet).getString("login");
-        verify(resultSet).getDouble("balance");
-        verify(resultSet).getBoolean("locked");
     }
 
-    @SneakyThrows
     @Test
-    public void getByIdWhenNotFoundSubscriber() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(ID);
-
+    public void getByIdWhenNotFoundSubscriber() throws SQLException {
         when(statement.executeQuery(GET_BY_ID)).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
 
-        Optional<Subscriber> resultSubscriber = repository.getById(subscriber);
+        Optional<Subscriber> resultSubscriber = repository.getById(ID);
         assertFalse(resultSubscriber.isPresent());
 
         verify(statement).executeQuery(GET_BY_ID);
         verify(resultSet).next();
     }
 
-    @SneakyThrows
     @Test
-    public void getByLoginWhenFoundSubscriber() {
+    public void getByLoginWhenFoundSubscriber() throws SQLException {
         Subscriber subscriber = new Subscriber();
+        subscriber.setId(ID);
         subscriber.setLogin(LOGIN);
+        subscriber.setLock(false);
+        subscriber.setBalance(BALANCE);
 
         when(statement.executeQuery(GET_BY_LOGIN)).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getLong("id")).thenReturn(ID);
+        when(resultSet.getDouble("balance")).thenReturn(BALANCE);
+        when(resultSet.getBoolean("locked")).thenReturn(false);
 
-        Optional<Subscriber> resultSubscriber = repository.getByLogin(subscriber);
+        Optional<Subscriber> resultSubscriber = repository.getByLogin(LOGIN);
         assertNotNull(resultSubscriber);
         assertTrue(resultSubscriber.isPresent());
         assertEquals(subscriber, resultSubscriber.get());
-
-        verify(statement).executeQuery(GET_BY_LOGIN);
-        verify(resultSet).next();
-        verify(resultSet).getLong("id");
     }
 
-    @SneakyThrows
     @Test
-    public void getByLoginWhenNotFoundSubscriber() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setLogin(LOGIN);
-
+    public void getByLoginWhenNotFoundSubscriber() throws SQLException {
         when(statement.executeQuery(GET_BY_LOGIN)).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
 
-        Optional<Subscriber> resultSubscriber = repository.getByLogin(subscriber);
+        Optional<Subscriber> resultSubscriber = repository.getByLogin(LOGIN);
         assertNotNull(resultSubscriber);
         assertFalse(resultSubscriber.isPresent());
 
@@ -138,21 +123,21 @@ public class SubscriberRepositoryTest {
         verify(resultSet).next();
     }
 
-    @SneakyThrows
     @Test
-    public void insertSubscriberIsCommit() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setLogin(LOGIN);
-        subscriber.setPassword(PASSWORD);
+    public void insertSubscriberIsCommit() throws SQLException {
+        SubscriberCreateDTO expectedDTO = new SubscriberCreateDTO(ID, LOGIN, PASSWORD);
+
+        SubscriberCreateDTO subscriberDTO = new SubscriberCreateDTO();
+        subscriberDTO.setLogin(LOGIN);
+        subscriberDTO.setPassword(PASSWORD);
 
         when(connection.prepareStatement(INSERT_INTO_USER, Statement.RETURN_GENERATED_KEYS)).thenReturn(preparedStatement);
         when(preparedStatement.getGeneratedKeys()).thenReturn(resultSet);
         when(resultSet.getLong(1)).thenReturn(ID);
         when(connection.prepareStatement(INSERT_INTO_SUBSCRIBER)).thenReturn(preparedStatement1);
 
-        Subscriber resultSubscriber = repository.insertSubscriber(subscriber);
-        assertNotNull(resultSubscriber);
-        assertEquals(subscriber, resultSubscriber);
+        SubscriberCreateDTO resultSubscriberDTO = repository.insertSubscriber(subscriberDTO);
+        assertEquals(expectedDTO, resultSubscriberDTO);
 
         verify(connection).setAutoCommit(false);
         verify(preparedStatement).setString(1, LOGIN);
@@ -167,17 +152,16 @@ public class SubscriberRepositoryTest {
         verify(connection).close();
     }
 
-    @SneakyThrows
     @Test(expected = SubscriberException.class)
-    public void insertSubscriberIsRollback() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setLogin(LOGIN);
-        subscriber.setPassword(PASSWORD);
+    public void insertSubscriberIsRollback() throws SQLException {
+        SubscriberCreateDTO subscriberDTO = new SubscriberCreateDTO();
+        subscriberDTO.setLogin(LOGIN);
+        subscriberDTO.setPassword(PASSWORD);
 
         when(connection.prepareStatement(INSERT_INTO_USER, Statement.RETURN_GENERATED_KEYS)).thenReturn(preparedStatement);
         when(preparedStatement.execute()).thenThrow(SQLException.class);
 
-        repository.insertSubscriber(subscriber);
+        repository.insertSubscriber(subscriberDTO);
 
         verify(connection).setAutoCommit(false);
         verify(preparedStatement).setString(1, LOGIN);
@@ -189,9 +173,8 @@ public class SubscriberRepositoryTest {
         verify(connection).close();
     }
 
-    @SneakyThrows
     @Test
-    public void getAllWhenFoundSubscribers() {
+    public void getAllWhenFoundSubscribers() throws SQLException {
         Subscriber subscriber1 = new Subscriber();
         subscriber1.setId(ID);
         subscriber1.setLogin(LOGIN);
@@ -218,9 +201,8 @@ public class SubscriberRepositoryTest {
         assertEquals(2, resultList.size());
     }
 
-    @SneakyThrows
     @Test
-    public void getAllWhenNotFoundSubscribers() {
+    public void getAllWhenNotFoundSubscribers() throws SQLException {
         List<Subscriber> expectedList = Collections.emptyList();
 
         when(connection.prepareStatement(GET_ALL)).thenReturn(preparedStatement);
@@ -233,47 +215,36 @@ public class SubscriberRepositoryTest {
         assertTrue(resultList.isEmpty());
     }
 
-    @SneakyThrows
     @Test
     public void lockSubById() {
         Subscriber subscriber = new Subscriber();
         subscriber.setId(ID);
-        when(connection.createStatement()).thenReturn(statement);
+        subscriber.setLock(true);
 
-        Subscriber resultSubscriber = repository.lockSubById(subscriber);
-        assertNotNull(resultSubscriber);
+        Subscriber resultSubscriber = repository.lockSubById(ID);
         assertEquals(subscriber, resultSubscriber);
         assertTrue(resultSubscriber.isLock());
-
-        verify(statement).execute(LOCK_SUBSCRIBER);
     }
 
-    @SneakyThrows
     @Test
     public void unlockSubById() {
         Subscriber subscriber = new Subscriber();
         subscriber.setId(ID);
-        when(connection.createStatement()).thenReturn(statement);
+        subscriber.setLock(false);
 
-        Subscriber resultSubscriber = repository.unlockSubById(subscriber);
-        assertNotNull(resultSubscriber);
+        Subscriber resultSubscriber = repository.unlockSubById(ID);
         assertEquals(subscriber, resultSubscriber);
         assertFalse(resultSubscriber.isLock());
-
-        verify(statement).execute(UNLOCK_SUBSCRIBER);
     }
 
-    @SneakyThrows
     @Test
-    public void topUpBalanceById() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(ID);
+    public void replenishBalanceById() throws SQLException {
+        SubscriberReplenishDTO replenishDTO = new SubscriberReplenishDTO(ID, BALANCE);
 
         when(connection.prepareStatement(REPLENISH_BALANCE)).thenReturn(preparedStatement);
 
-        Subscriber resultSubscriber = repository.topUpBalanceById(subscriber, BALANCE);
-        assertNotNull(resultSubscriber);
-        assertEquals(subscriber, resultSubscriber);
+        SubscriberReplenishDTO resultSubscriberDTO = repository.replenishBalanceById(replenishDTO);
+        assertEquals(replenishDTO, resultSubscriberDTO);
 
         verify(preparedStatement).setDouble(1, BALANCE);
         verify(preparedStatement).execute();

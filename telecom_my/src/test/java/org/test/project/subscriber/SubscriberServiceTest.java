@@ -5,6 +5,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.test.project.subscriber.dto.SubscriberCreateDTO;
+import org.test.project.subscriber.dto.SubscriberReplenishDTO;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,47 +20,50 @@ public class SubscriberServiceTest {
 
     @Mock
     private SubscriberRepository subscriberRepository;
+    @Mock
+    private SubscriberMapper subscriberMapper;
 
     @InjectMocks
     private SubscriberService subscriberService;
 
     private static final Long ID = 1L;
+    private static final String LOGIN = "login";
+    private static final String PASSWORD = "pass";
 
     @Test
     public void create() {
         Subscriber subscriber = new Subscriber();
-        when(subscriberRepository.insertSubscriber(subscriber)).thenReturn(subscriber);
+        subscriber.setId(ID);
+        subscriber.setLogin(LOGIN);
+        subscriber.setPassword(PASSWORD);
+        SubscriberCreateDTO subscriberCreateDTO = new SubscriberCreateDTO();
+        subscriberCreateDTO.setLogin(LOGIN);
+        subscriberCreateDTO.setPassword(PASSWORD);
+        SubscriberCreateDTO returnSubscriberDTO = new SubscriberCreateDTO(ID, LOGIN, PASSWORD);
 
-        Subscriber resultSubscriber = subscriberService.create(subscriber);
+        when(subscriberRepository.insertSubscriber(subscriberCreateDTO)).thenReturn(returnSubscriberDTO);
+        when(subscriberMapper.getSubscriberFromCreateDTO(returnSubscriberDTO)).thenReturn(subscriber);
+
+        Subscriber resultSubscriber = subscriberService.create(subscriberCreateDTO);
         assertNotNull(resultSubscriber);
-        assertEquals(resultSubscriber, new Subscriber());
-
-        verify(subscriberRepository).insertSubscriber(subscriber);
+        assertEquals(subscriber, resultSubscriber);
     }
 
     @Test
     public void getSubscriberByIdRepositoryReturnSubscriber() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(ID);
         Subscriber expectedSubscriber = new Subscriber(ID, "login", "password", 0, false);
-        when(subscriberRepository.getById(subscriber)).thenReturn(Optional.of(expectedSubscriber));
 
-        Subscriber resultSubscriber = subscriberService.getSubscriberById(subscriber);
+        when(subscriberRepository.getById(ID)).thenReturn(Optional.of(expectedSubscriber));
+
+        Subscriber resultSubscriber = subscriberService.getSubscriberById(ID);
         assertNotNull(resultSubscriber);
         assertEquals(expectedSubscriber, resultSubscriber);
-
-        verify(subscriberRepository).getById(subscriber);
     }
 
     @Test(expected = SubscriberException.class)
     public void getSubscriberByIdRepositoryReturnOptionalEmpty() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(ID);
-        when(subscriberRepository.getById(subscriber)).thenReturn(Optional.empty());
-
-        subscriberService.getSubscriberById(subscriber);
-
-        verify(subscriberRepository).getById(subscriber);
+        when(subscriberRepository.getById(ID)).thenReturn(Optional.empty());
+        subscriberService.getSubscriberById(ID);
     }
 
     @Test
@@ -75,46 +80,28 @@ public class SubscriberServiceTest {
 
     @Test
     public void lockSubscriberById() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(ID);
-        Subscriber returnedSubscriber = new Subscriber(ID, "login", "password", 0, false);
-        Subscriber expectedSubscriber = new Subscriber(ID, "login", "password", 0, true);
-
-        when(subscriberRepository.getById(subscriber)).thenReturn(Optional.of(returnedSubscriber));
-        when(subscriberRepository.lockSubById(returnedSubscriber)).thenReturn(expectedSubscriber);
-
-        Subscriber resultSubscriber = subscriberService.lockSubscriberById(subscriber);
+        Subscriber expectedSubscriber = new Subscriber(ID, LOGIN, PASSWORD, 0, true);
+        when(subscriberRepository.lockSubById(ID)).thenReturn(expectedSubscriber);
+        Subscriber resultSubscriber = subscriberService.lockSubscriberById(ID);
         assertNotNull(resultSubscriber);
         assertEquals(expectedSubscriber, resultSubscriber);
-
-        verify(subscriberRepository).getById(subscriber);
-        verify(subscriberRepository).lockSubById(returnedSubscriber);
     }
 
     @Test
     public void unlockSubscriberById() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(ID);
         Subscriber expectedSubscriber = new Subscriber(ID, "login", "password", 0, false);
-        Subscriber returnedSubscriber = new Subscriber(ID, "login", "password", 0, true);
-        when(subscriberRepository.getById(subscriber)).thenReturn(Optional.of(returnedSubscriber));
-        when(subscriberRepository.unlockSubById(returnedSubscriber)).thenReturn(expectedSubscriber);
-
-        Subscriber resultSubscriber = subscriberService.unlockSubscriberById(subscriber);
+        when(subscriberRepository.unlockSubById(ID)).thenReturn(expectedSubscriber);
+        Subscriber resultSubscriber = subscriberService.unlockSubscriberById(ID);
         assertNotNull(resultSubscriber);
         assertEquals(expectedSubscriber, resultSubscriber);
-
-        verify(subscriberRepository).getById(subscriber);
-        verify(subscriberRepository).unlockSubById(returnedSubscriber);
     }
 
     @Test
-    public void topUpBalanceWithoutIf() {
+    public void replenishBalanceWithoutIf() {
         double amount = 5;
         double balanceBefore = 10;
         double balanceNew = balanceBefore + amount;
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(ID);
+        SubscriberReplenishDTO replenishDTO = new SubscriberReplenishDTO(ID, balanceNew);
         Subscriber subWithBalanceBefore = new Subscriber();
         subWithBalanceBefore.setBalance(balanceBefore);
         subWithBalanceBefore.setId(ID);
@@ -122,24 +109,21 @@ public class SubscriberServiceTest {
         subWithNewBalance.setBalance(balanceNew);
         subWithNewBalance.setId(ID);
 
-        when(subscriberRepository.getById(subscriber)).thenReturn(Optional.of(subWithBalanceBefore));
-        when(subscriberRepository.topUpBalanceById(subWithBalanceBefore, balanceNew)).thenReturn(subWithNewBalance);
+        when(subscriberRepository.getById(ID)).thenReturn(Optional.of(subWithBalanceBefore));
+        when(subscriberRepository.replenishBalanceById(replenishDTO)).thenReturn(replenishDTO);
+        when(subscriberMapper.getSubscriberFromReplenishDTO(replenishDTO)).thenReturn(subWithNewBalance);
 
-        Subscriber resultSubscriber = subscriberService.topUpBalance(subscriber, amount);
+        Subscriber resultSubscriber = subscriberService.replenishBalance(replenishDTO, amount);
         assertNotNull(resultSubscriber);
         assertEquals(subWithNewBalance, resultSubscriber);
-
-        verify(subscriberRepository).getById(subscriber);
-        verify(subscriberRepository).topUpBalanceById(subWithBalanceBefore, balanceNew);
     }
 
     @Test
-    public void topUpBalanceWithIf() {
+    public void replenishBalanceWithIf() {
         double amount = 20;
         double balanceBefore = -10;
         double balanceNew = balanceBefore + amount;
-        Subscriber subscriber = new Subscriber();
-        subscriber.setId(ID);
+        SubscriberReplenishDTO replenishDTO = new SubscriberReplenishDTO(ID, balanceNew);
         Subscriber subWithBalanceBefore = new Subscriber();
         subWithBalanceBefore.setBalance(balanceBefore);
         subWithBalanceBefore.setId(ID);
@@ -150,48 +134,30 @@ public class SubscriberServiceTest {
         unlockSubscriber.setBalance(balanceNew);
         unlockSubscriber.setLock(false);
 
-        when(subscriberRepository.getById(subscriber)).thenReturn(Optional.of(subWithBalanceBefore));
-        when(subscriberRepository.topUpBalanceById(subWithBalanceBefore, balanceNew)).thenReturn(subWithNewBalance);
-        when(subscriberRepository.unlockSubById(subWithNewBalance)).thenReturn(unlockSubscriber);
+        when(subscriberRepository.getById(ID)).thenReturn(Optional.of(subWithBalanceBefore));
+        when(subscriberRepository.replenishBalanceById(replenishDTO)).thenReturn(replenishDTO);
+        when(subscriberMapper.getSubscriberFromReplenishDTO(replenishDTO)).thenReturn(subWithNewBalance);
+        when(subscriberRepository.unlockSubById(ID)).thenReturn(unlockSubscriber);
 
-        Subscriber resultSubscriber = subscriberService.topUpBalance(subscriber, amount);
+        Subscriber resultSubscriber = subscriberService.replenishBalance(replenishDTO, amount);
         assertNotNull(resultSubscriber);
-        assertEquals(unlockSubscriber, resultSubscriber);
-
-        verify(subscriberRepository).getById(subscriber);
-        verify(subscriberRepository).topUpBalanceById(subWithBalanceBefore, balanceNew);
-        verify(subscriberRepository).unlockSubById(subWithNewBalance);
+        assertEquals(subWithNewBalance, resultSubscriber);
     }
 
     @Test
     public void getSubscriberByLoginWhenRepositoryReturnSubscriber() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setLogin("login");
-        Subscriber foundedSubscriber = new Subscriber();
-        foundedSubscriber.setLogin("login");
-        foundedSubscriber.setId(ID);
-        Subscriber expectedSubscriber = new Subscriber(ID, "login", "password", 0, false);
+        Subscriber expectedSubscriber = new Subscriber(ID, LOGIN, PASSWORD, 0, false);
 
-        when(subscriberRepository.getByLogin(subscriber)).thenReturn(Optional.of(foundedSubscriber));
-        when(subscriberRepository.getById(foundedSubscriber)).thenReturn(Optional.of(expectedSubscriber));
+        when(subscriberRepository.getByLogin(LOGIN)).thenReturn(Optional.of(expectedSubscriber));
 
-        Subscriber resultSubscriber = subscriberService.getSubscriberByLogin(subscriber);
+        Subscriber resultSubscriber = subscriberService.getSubscriberByLogin(LOGIN);
         assertNotNull(resultSubscriber);
         assertEquals(expectedSubscriber, resultSubscriber);
-
-        verify(subscriberRepository).getByLogin(subscriber);
-        verify(subscriberRepository).getById(foundedSubscriber);
     }
 
     @Test(expected = SubscriberException.class)
     public void getSubscriberByLoginWhenRepositoryNotFoundSubscriber() {
-        Subscriber subscriber = new Subscriber();
-        subscriber.setLogin("login");
-
-        when(subscriberRepository.getByLogin(subscriber)).thenReturn(Optional.empty());
-
-        subscriberService.getSubscriberByLogin(subscriber);
-
-        verify(subscriberRepository).getByLogin(subscriber);
+        when(subscriberRepository.getByLogin(LOGIN)).thenReturn(Optional.empty());
+        subscriberService.getSubscriberByLogin(LOGIN);
     }
 }

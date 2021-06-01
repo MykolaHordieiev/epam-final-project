@@ -50,7 +50,7 @@
                         <c:if test = "${subscriber.lock == 'true'}">
                             <form method="POST" action="/telecom/service/subscriber/unlock">
                                 <input type="hidden" name="id" value="${subscriber.id}"/>
-                                <input type="submit" value="'<lan:print message="subscriber.all.jsp.button.unlock"/>'">
+                                <input type="submit" value='<lan:print message="subscriber.all.jsp.button.unlock"/>'>
                             </form>
                         </c:if>
                     </td>

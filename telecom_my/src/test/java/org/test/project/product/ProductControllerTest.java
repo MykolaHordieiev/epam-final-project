@@ -51,7 +51,5 @@ public class ProductControllerTest {
         assertFalse(modelAndView.isRedirect());
         assertEquals("/product/all.jsp", modelAndView.getView());
         assertEquals(products, modelAndView.getAttributes().get("products"));
-
-        verify(productService).getAllProduct();
     }
 }

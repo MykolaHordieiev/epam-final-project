@@ -1,6 +1,5 @@
 package org.test.project.user;
 
-import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,12 +8,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.test.project.operator.Operator;
 import org.test.project.subscriber.Subscriber;
+import org.test.project.user.dto.UserLoginDTO;
 
 import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -39,10 +40,10 @@ public class UserRepositoryTest {
     private static final String PASSWORD = "pass";
     private static final String QUERY = "SELECT * FROM user WHERE login=?";
     private static final Long ID = 1L;
+    private static UserLoginDTO userLoginDTO = new UserLoginDTO(LOGIN, PASSWORD);
 
-    @SneakyThrows
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(QUERY)).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
@@ -50,9 +51,8 @@ public class UserRepositoryTest {
         when(resultSet.getString("password")).thenReturn(PASSWORD);
     }
 
-    @SneakyThrows
     @Test
-    public void getUserByLoginWhenReturnedSubscriber() {
+    public void getUserByLoginWhenReturnedSubscriber() throws SQLException {
         User expectedSubscriber = new Subscriber();
         expectedSubscriber.setId(ID);
         expectedSubscriber.setLogin(LOGIN);
@@ -61,7 +61,7 @@ public class UserRepositoryTest {
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString("role")).thenReturn("SUBSCRIBER");
 
-        Optional<User> resultSubscriber = userRepository.getUserByLogin(LOGIN);
+        Optional<User> resultSubscriber = userRepository.getUserByLogin(userLoginDTO);
         assertNotNull(resultSubscriber);
         assertTrue(resultSubscriber.isPresent());
         assertEquals(expectedSubscriber, resultSubscriber.get());
@@ -70,15 +70,14 @@ public class UserRepositoryTest {
         verify(connection).prepareStatement(QUERY);
     }
 
-    @SneakyThrows
     @Test
-    public void getUserByLoginWhenReturnedOperator() {
+    public void getUserByLoginWhenReturnedOperator() throws SQLException {
         User expectedOperator = new Operator(ID, LOGIN, PASSWORD, UserRole.OPERATOR);
 
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString("role")).thenReturn("OPERATOR");
 
-        Optional<User> resultOperator = userRepository.getUserByLogin(LOGIN);
+        Optional<User> resultOperator = userRepository.getUserByLogin(userLoginDTO);
         assertNotNull(resultOperator);
         assertTrue(resultOperator.isPresent());
         assertEquals(expectedOperator, resultOperator.get());
@@ -86,12 +85,11 @@ public class UserRepositoryTest {
         verify(preparedStatement).setString(1, LOGIN);
     }
 
-    @SneakyThrows
     @Test
-    public void getUserByLoginWhenNotFoundUser() {
+    public void getUserByLoginWhenNotFoundUser() throws SQLException {
         when(resultSet.next()).thenReturn(false);
 
-        Optional<User> resultUser = userRepository.getUserByLogin(LOGIN);
+        Optional<User> resultUser = userRepository.getUserByLogin(userLoginDTO);
         assertNotNull(resultUser);
         assertFalse(resultUser.isPresent());
 
