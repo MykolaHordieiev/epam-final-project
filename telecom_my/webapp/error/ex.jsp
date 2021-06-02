@@ -1,7 +1,7 @@
 <DOCTYPE html>
 <html>
     <head>
-        <title>JSP file</title>
+        <title>error:400</title>
         <meta charset="UTF-8">
     </head>
     <body>

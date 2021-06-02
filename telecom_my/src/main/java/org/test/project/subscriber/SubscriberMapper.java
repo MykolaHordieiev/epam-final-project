@@ -15,7 +15,7 @@ public class SubscriberMapper {
     public Subscriber getSubscriberFromReplenishDTO(SubscriberReplenishDTO replenishDTO) {
         Subscriber subscriber = new Subscriber();
         subscriber.setId(replenishDTO.getId());
-        subscriber.setBalance(replenishDTO.getBalance());
+        subscriber.setBalance(Double.parseDouble(replenishDTO.getBalance().toString()));
         return subscriber;
     }
 }

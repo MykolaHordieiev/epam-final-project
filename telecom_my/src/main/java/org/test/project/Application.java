@@ -29,7 +29,8 @@ public class Application {
     public static void main(String[] args) {
 
         //config
-        DataSourceConfig dataSourceConfig = new DataSourceConfig();
+        ConfigLoader configLoader = new ConfigLoader();
+        DataSourceConfig dataSourceConfig = new DataSourceConfig(configLoader);
         ServerStarterConfig serverStarterConfig = new ServerStarterConfig();
         ExceptionHandlerConfig exceptionHandlerConfig = new ExceptionHandlerConfig();
 

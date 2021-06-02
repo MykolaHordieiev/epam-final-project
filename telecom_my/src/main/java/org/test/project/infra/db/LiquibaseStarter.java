@@ -20,7 +20,7 @@ public class LiquibaseStarter {
 
     private final DataSource dataSource;
 
-    private final static String CHANGE_LOG_FILE = "/liquibase/db-changelog-master.xml";
+    private final static String CHANGE_LOG_FILE = "/db/liquibase/db-changelog-master.xml";
 
     @SneakyThrows
     public void updateDatabase() {

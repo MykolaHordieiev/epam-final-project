@@ -39,7 +39,8 @@ public class RateRepositoryTest {
     @InjectMocks
     private RateRepository repository;
 
-    private static final String GET_ALL_RATES = "SELECT * FROM rate WHERE product_id=1";
+    private static final String GET_ALL_RATES_BY_PRODUCT_ID = "SELECT * FROM rate WHERE product_id=1";
+    private static final String GET_ALL_RATES_BY_SUBSCRIBER_ID = "SELECT * FROM rate JOIN subscribing ON subscribing.rate_id=rate.id WHERE subscriber_id =1";
     private static final String GET_RATE_BY_ID = "SELECT * FROM rate WHERE id=1";
     private static final String CHANGE_RATE = "UPDATE rate SET name_rate=?, price=? WHERE id=?";
     private static final String INSERT_RATE = "INSERT INTO rate (name_rate, price, product_id) VALUES (?,?,?)";
@@ -62,7 +63,7 @@ public class RateRepositoryTest {
         Rate rate2 = new Rate(2L, "low", 20d, ID, true);
         List<Rate> expectedList = Arrays.asList(rate1, rate2);
 
-        when(statement.executeQuery(GET_ALL_RATES)).thenReturn(resultSet);
+        when(statement.executeQuery(GET_ALL_RATES_BY_PRODUCT_ID)).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
         when(resultSet.getLong("id")).thenReturn(ID).thenReturn(2L);
         when(resultSet.getString("name_rate")).thenReturn(NAME).thenReturn("low");
@@ -77,10 +78,40 @@ public class RateRepositoryTest {
     public void getRatesByProductWhenRateNotFound() throws SQLException {
         List<Rate> expectedList = Collections.emptyList();
 
-        when(statement.executeQuery(GET_ALL_RATES)).thenReturn(resultSet);
+        when(statement.executeQuery(GET_ALL_RATES_BY_PRODUCT_ID)).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
 
         List<Rate> resultList = repository.getRatesByProduct(ID);
+        assertTrue(resultList.isEmpty());
+        assertEquals(expectedList, resultList);
+    }
+
+    @Test
+    public void getRatesBySubscriberIdWhenRateFound() throws SQLException {
+        Rate rate1 = new Rate(ID, NAME, PRICE, ID, false);
+        Rate rate2 = new Rate(2L, "low", 20d, ID, true);
+        List<Rate> expectedList = Arrays.asList(rate1, rate2);
+
+        when(statement.executeQuery(GET_ALL_RATES_BY_SUBSCRIBER_ID)).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
+        when(resultSet.getLong("id")).thenReturn(ID).thenReturn(2L);
+        when(resultSet.getString("name_rate")).thenReturn(NAME).thenReturn("low");
+        when(resultSet.getDouble("price")).thenReturn(PRICE).thenReturn(20d);
+        when(resultSet.getBoolean("unusable")).thenReturn(false).thenReturn(true);
+        when(resultSet.getLong("rate.product_id")).thenReturn(ID);
+
+        List<Rate> resultList = repository.getRatesBySubscriberId(ID);
+        assertEquals(expectedList, resultList);
+    }
+
+    @Test
+    public void getRatesBySubscriberWhenRateNotFound() throws SQLException {
+        List<Rate> expectedList = Collections.emptyList();
+
+        when(statement.executeQuery(GET_ALL_RATES_BY_SUBSCRIBER_ID)).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+
+        List<Rate> resultList = repository.getRatesBySubscriberId(ID);
         assertTrue(resultList.isEmpty());
         assertEquals(expectedList, resultList);
     }

@@ -17,7 +17,7 @@ public class AuthorizationFilter implements Filter {
     private List<AuthorizationMatcher> pathMatchers;
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
         List<AuthorizationMatcher> pathMatchers = new ArrayList<>();
 
         pathMatchers.add(new AuthorizationMatcher("/operator/home.jsp", UserRole.OPERATOR));

@@ -28,13 +28,13 @@ public class UserController implements Controller {
         this.viewMap = viewMap;
         this.queryValueResolver = queryValueResolver;
         requestMatchers = new ArrayList<>();
+        requestMatchers.add(new RequestMatcher("/login", "POST", this::login));
+        requestMatchers.add(new RequestMatcher("/logout", "POST", this::logout));
+        requestMatchers.add(new RequestMatcher("/change/locale", "POST", this::changeLocale));
     }
 
     @Override
     public List<RequestMatcher> getRequestMatcher() {
-        requestMatchers.add(new RequestMatcher("/login", "POST", this::login));
-        requestMatchers.add(new RequestMatcher("/logout", "POST", this::logout));
-        requestMatchers.add(new RequestMatcher("/change/locale", "POST", this::changeLocale));
         return requestMatchers;
     }
 

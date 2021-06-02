@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.PrintWriter;
 import java.util.*;
-import java.util.function.Predicate;
 
 import static java.lang.Long.parseLong;
 
@@ -39,16 +38,16 @@ public class RateController implements Controller {
         this.validator = validator;
         this.queryValueResolver = queryValueResolver;
         requestMatchers = new ArrayList<>();
-    }
-
-    @Override
-    public List<RequestMatcher> getRequestMatcher() {
         requestMatchers.add(new RequestMatcher("/rate/product", "GET", this::getAllRates));
         requestMatchers.add(new RequestMatcher("/rate/info", "GET", this::getRateById));
         requestMatchers.add(new RequestMatcher("/rate", "POST", this::changeRates));
         requestMatchers.add(new RequestMatcher("/rate/add", "GET", this::returnViewAddRates));
         requestMatchers.add(new RequestMatcher("/rate/add", "POST", this::addRate));
         requestMatchers.add(new RequestMatcher("/download/rate", "GET", this::downloadListOfRates));
+    }
+
+    @Override
+    public List<RequestMatcher> getRequestMatcher() {
         return requestMatchers;
     }
 
@@ -56,7 +55,7 @@ public class RateController implements Controller {
         Subscriber subscriberFromSession = getSubscriberFromSession(request);
         Long productId = parseLong(request.getParameter("productId"));
         List<Rate> ratesByProductId = rateService.getRatesByProductId(productId);
-        List<Rate> usingRatesBySubscriber = rateService.getRAtesBySubscriberId(subscriberFromSession.getId());
+        List<Rate> usingRatesBySubscriber = rateService.getRatesBySubscriberId(subscriberFromSession.getId());
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/rate/byproduct.jsp");
         modelAndView.addAttribute("rates", ratesByProductId);

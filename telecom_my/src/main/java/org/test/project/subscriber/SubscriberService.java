@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.test.project.subscriber.dto.SubscriberCreateDTO;
 import org.test.project.subscriber.dto.SubscriberReplenishDTO;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -37,15 +38,21 @@ public class SubscriberService {
     public Subscriber replenishBalance(SubscriberReplenishDTO replenishDTO, Double amount) {
         Subscriber subscriberBeforeReplenish = getSubscriberById(replenishDTO.getId());
         double balanceBefore = subscriberBeforeReplenish.getBalance();
-        replenishDTO.setBalance(balanceBefore + amount);
+        replenishDTO.setBalance(getNewBalance(balanceBefore, amount));
         subscriberRepository.replenishBalanceById(replenishDTO);
         Subscriber subscriberAfterReplenish = subscriberMapper.getSubscriberFromReplenishDTO(replenishDTO);
-        if (balanceBefore < 0 && replenishDTO.getBalance() > 0) {
+        if (balanceBefore < 0 && replenishDTO.getBalance() >= 0) {
             Subscriber unlockSubById = subscriberRepository.unlockSubById(subscriberAfterReplenish.getId());
             subscriberAfterReplenish.setLock(unlockSubById.isLock());
             subscriberAfterReplenish.setLogin(subscriberBeforeReplenish.getLogin());
         }
         return subscriberAfterReplenish;
+    }
+
+    private double getNewBalance(Double currentBalance, Double amount) {
+        BigDecimal currBalance = BigDecimal.valueOf(currentBalance);
+        BigDecimal amountBigDec = BigDecimal.valueOf(amount);
+        return Double.parseDouble(currBalance.add(amountBigDec).toString());
     }
 
     public Subscriber getSubscriberByLogin(String login) {

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.test.project.rate.dto.RateAddSubscribingDTO;
 import org.test.project.subscriber.dto.SubscriberAddSubscribingDTO;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -21,9 +22,9 @@ public class SubscribingService {
         return subscribingRepository.getSubscribingBySubscriberId(id);
     }
 
-    public Double getNewBalance(SubscriberAddSubscribingDTO subscriberDTO, RateAddSubscribingDTO rateDTO) {
-        Double balance = subscriberDTO.getBalance();
-        Double cost = rateDTO.getPrice();
-        return balance - cost;
+    public double getNewBalance(SubscriberAddSubscribingDTO subscriberDTO, RateAddSubscribingDTO rateDTO) {
+        BigDecimal balance = BigDecimal.valueOf(subscriberDTO.getBalance());
+        BigDecimal cost = BigDecimal.valueOf(rateDTO.getPrice());
+        return Double.parseDouble(balance.subtract(cost).toString());
     }
 }

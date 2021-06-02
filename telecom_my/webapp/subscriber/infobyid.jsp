@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" isELIgnored="false" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="/WEB-INF/tag/language.tld" prefix="lan" %>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <html>
     <head>
         <title>subscriber info</title>
@@ -34,7 +35,10 @@
         </tr>
         <tr>
             <td>${subscriber.login}</td>
-            <td>${subscriber.balance}</td>
+            <td>
+                <fmt:setLocale value = "en_US"/>
+                <fmt:formatNumber value="${subscriber.balance}" type="currency"/>
+            </td>
             <td>
                 <c:if test = "${subscriber.lock == 'true'}"><lan:print message="subscriber.infobyid.jsp.table.status.lock"/></c:if>
                 <c:if test = "${subscriber.lock == 'false'}"><lan:print message="subscriber.infobyid.jsp.table.status.unlock"/></c:if>

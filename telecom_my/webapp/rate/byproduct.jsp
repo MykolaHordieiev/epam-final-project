@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" isELIgnored="false" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="/WEB-INF/tag/language.tld" prefix="lan" %>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <html>
     <head>
         <title>Rate info</title>
@@ -21,7 +22,11 @@
   <c:forEach items="${rates}" var="rate">
   <tr>
     <td>${rate.name}</td>
-    <td>${rate.price}</td>
+    <td>
+                    <fmt:setLocale value = "en_US"/>
+                    <fmt:formatNumber value="${rate.price}" type="currency"/>
+                </td>
+
     <c:if test = "${sessionScope.user.userRole == 'OPERATOR'}">
         <td>
             <form method="GET" action="/telecom/service/rate/info">
@@ -55,7 +60,7 @@
 
       <form method="GET" action="/telecom/service/rate/add">
             <input type="hidden" name="productId" value="${productId}"/>
-                <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.add_rate"/>'>
+            <input type="submit" value='<lan:print message="rate.byproduct.jsp.button.add_rate"/>'>
       </form>
 
     </c:if>

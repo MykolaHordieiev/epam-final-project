@@ -2,7 +2,7 @@
 <%@taglib uri="/WEB-INF/tag/language.tld" prefix="lan" %>
 <html>
     <head>
-        <title>JSP file</title>
+        <title>error:500</title>
         <meta charset="UTF-8">
     </head>
     <body>

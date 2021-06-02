@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" isELIgnored="false" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="/WEB-INF/tag/language.tld" prefix="lan" %>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <html>
     <head>
         <title>get all subscribers</title>
@@ -28,7 +29,6 @@
         <table id="subscribers">
         <caption><lan:print message="subscriber.all.jsp.table.caption"/></caption>
              <tr>
-                <th><lan:print message="subscriber.all.jsp.table.id"/></th>
                 <th><lan:print message="subscriber.all.jsp.table.login"/></th>
                 <th><lan:print message="subscriber.all.jsp.table.balance"/></th>
                 <th><lan:print message="subscriber.all.jsp.table.status"/></th>
@@ -36,9 +36,11 @@
              </tr>
              <c:forEach items="${subscribers}" var="subscriber">
                 <tr>
-                    <td>${subscriber.id}</td>
                     <td>${subscriber.login}</td>
-                    <td>${subscriber.balance}</td>
+                     <td>
+                        <fmt:setLocale value = "en_US"/>
+                        <fmt:formatNumber value="${subscriber.balance}" type="currency"/>
+                    </td>
                     <td>${subscriber.lock}</td>
                     <td>
                         <c:if test = "${subscriber.lock == 'false'}">

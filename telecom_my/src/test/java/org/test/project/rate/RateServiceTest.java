@@ -38,6 +38,16 @@ public class RateServiceTest {
     }
 
     @Test
+    public void getRatesBySubscriberId() {
+        List<Rate> expectedRateList = Arrays.asList(new Rate(), new Rate());
+
+        when(rateRepository.getRatesBySubscriberId(ID)).thenReturn(expectedRateList);
+
+        List<Rate> resultRateList = rateService.getRatesBySubscriberId(ID);
+        Assert.assertEquals(expectedRateList, resultRateList);
+    }
+
+    @Test
     public void getRateByIdWhenRepositoryReturnRate() {
         Rate rate = new Rate(ID, "Last", 10d, 2L, false);
 

@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class SubscriberValidator {
 
     private final static String REGEX_LOGIN = "(^[a-zа-я0-9_-]{3,26}$)|(^[a-z_0-9]{0,20}@(?:[a-zA-Z]+\\.)+[a-zA-Z]{2,6}$)";
-    private final static String REGEX_PASSWORD = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,30}$";
+    private final static String REGEX_PASSWORD = "^(?=.*[A-ZА-яa-zа-я])(?=.*\\d)(?=.*[@$!%*#?&])[A-ZА-яa-zа-я\\d@$!%*#?&]{8,30}$";
 
     public String checkEmptyLogin(String login) {
         if (login.equals("")) {

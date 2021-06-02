@@ -21,9 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -69,21 +67,28 @@ public class RateControllerTest {
         Subscriber returnedSubscriber = new Subscriber(ID, "log", "pass", 0, false);
         Rate rate1 = new Rate(ID, "100 min", 10d, ID, false);
         Rate rate2 = new Rate(2L, "200 min", 20d, ID, false);
-        List<Rate> expectedList = Arrays.asList(rate1, rate2);
+        Rate rate3 = new Rate(3L, "super", 50d, 2L, true);
+        List<Rate> expectedRatesByProductId = Arrays.asList(rate1, rate2);
+        List<Rate> expectedRatesBySubscriberId = Arrays.asList(rate1, rate3);
+        Map<Rate, Boolean> ratesMap = new HashMap<>();
+        ratesMap.put(rate1, true);
+        ratesMap.put(rate2, false);
 
         when(request.getParameter("productId")).thenReturn("1");
-        when(rateService.getRatesByProductId(ID)).thenReturn(expectedList);
+        when(rateService.getRatesByProductId(ID)).thenReturn(expectedRatesByProductId);
         when(request.getSession(false)).thenReturn(session);
         when(session.getAttribute("user")).thenReturn(subscriberFromSession);
         when(subscriberService.getSubscriberById(ID)).thenReturn(returnedSubscriber);
+        when(rateService.getRatesBySubscriberId(ID)).thenReturn(expectedRatesBySubscriberId);
 
         ModelAndView modelAndView = rateController.getAllRates(request, response);
         assertNotNull(modelAndView);
         assertEquals("/rate/byproduct.jsp", modelAndView.getView());
         assertFalse(modelAndView.isRedirect());
         assertEquals(returnedSubscriber, modelAndView.getAttributes().get("subscriber"));
-        assertEquals(expectedList, modelAndView.getAttributes().get("rates"));
+        assertEquals(expectedRatesByProductId, modelAndView.getAttributes().get("rates"));
         assertEquals(ID, modelAndView.getAttributes().get("productId"));
+        assertEquals(ratesMap, modelAndView.getAttributes().get("ratesMap"));
     }
 
     @Test
@@ -104,6 +109,8 @@ public class RateControllerTest {
     public void changeRates() {
         String name = "super";
         Double price = 100d;
+        Subscriber subscriberFromSession = new Subscriber();
+        subscriberFromSession.setId(ID);
         Subscriber returnedSubscriber = new Subscriber(ID, "log", "pass", 0, false);
         RateChangeRequestDTO rateDTO = new RateChangeRequestDTO(ID, name, price);
 
@@ -113,7 +120,8 @@ public class RateControllerTest {
         when(rateService.changeRateById(rateDTO)).thenReturn(rateDTO);
         when(request.getParameter("productId")).thenReturn("1");
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("user")).thenReturn(returnedSubscriber);
+        when(session.getAttribute("user")).thenReturn(subscriberFromSession);
+        when(subscriberService.getSubscriberById(ID)).thenReturn(returnedSubscriber);
 
         ModelAndView modelAndView = rateController.changeRates(request, response);
         assertNotNull(modelAndView);
@@ -123,6 +131,7 @@ public class RateControllerTest {
         verify(request, times(2)).getParameter(anyString());
         verify(request).getSession(false);
         verify(rateService).getRatesByProductId(anyLong());
+        verify(rateService).getRatesBySubscriberId(anyLong());
         verify(session).getAttribute("user");
         verify(subscriberService).getSubscriberById(anyLong());
     }
@@ -235,9 +244,9 @@ public class RateControllerTest {
         assertNotNull(returnedResponse);
 
         verify(response).setContentType(anyString());
-        verify(response).setHeader(anyString(),anyString());
+        verify(response).setHeader(anyString(), anyString());
         verify(response).getWriter();
-        verify(writer,atLeastOnce()).write(anyString());
+        verify(writer, atLeastOnce()).write(anyString());
         verify(writer).close();
     }
 }

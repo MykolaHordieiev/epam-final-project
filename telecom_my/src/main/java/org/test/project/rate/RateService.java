@@ -17,7 +17,7 @@ public class RateService {
         return rateRepository.getRatesByProduct(productId);
     }
 
-    public List<Rate> getRAtesBySubscriberId(Long subscriberId) {
+    public List<Rate> getRatesBySubscriberId(Long subscriberId) {
         return  rateRepository.getRatesBySubscriberId(subscriberId);
     }
 

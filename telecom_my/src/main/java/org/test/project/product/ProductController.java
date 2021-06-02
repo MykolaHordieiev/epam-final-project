@@ -15,11 +15,11 @@ public class ProductController implements Controller {
     public ProductController(ProductService productService) {
         this.productService = productService;
         requestMatchers = new ArrayList<>();
+        requestMatchers.add(new RequestMatcher("/get/all/product", "GET", this::getAllProducts));
     }
 
     @Override
     public List<RequestMatcher> getRequestMatcher() {
-        requestMatchers.add(new RequestMatcher("/get/all/product", "GET", this::getAllProducts));
         return requestMatchers;
     }
 

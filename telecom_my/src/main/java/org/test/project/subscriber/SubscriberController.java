@@ -33,10 +33,6 @@ public class SubscriberController implements Controller {
         this.validator = validator;
         this.queryValueResolver = queryValueResolver;
         requestMatchers = new ArrayList<>();
-    }
-
-    @Override
-    public List<RequestMatcher> getRequestMatcher() {
         requestMatchers.add(new RequestMatcher("/subscriber", "GET", this::getSubscriberById));
         requestMatchers.add(new RequestMatcher("/subscriber/bylogin", "GET", this::getSubscriberByLogin));
         requestMatchers.add(new RequestMatcher("/subscriber", "POST", this::createSubscriber));
@@ -44,6 +40,10 @@ public class SubscriberController implements Controller {
         requestMatchers.add(new RequestMatcher("/subscriber/lock", "POST", this::lockSubscriber));
         requestMatchers.add(new RequestMatcher("/subscriber/unlock", "POST", this::unlockSubscriber));
         requestMatchers.add(new RequestMatcher("/subscriber/balance", "POST", this::replenishBalance));
+    }
+
+    @Override
+    public List<RequestMatcher> getRequestMatcher() {
         return requestMatchers;
     }
 

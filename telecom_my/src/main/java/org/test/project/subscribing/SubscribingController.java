@@ -29,11 +29,11 @@ public class SubscribingController implements Controller {
         this.subscriberService = subscriberService;
         this.rateService = rateService;
         requestMatchers = new ArrayList<>();
+        requestMatchers.add(new RequestMatcher("/add/subscribing", "POST", this::addSubscribing));
     }
 
     @Override
     public List<RequestMatcher> getRequestMatcher() {
-        requestMatchers.add(new RequestMatcher("/add/subscribing", "POST", this::addSubscribing));
         return requestMatchers;
     }
 
