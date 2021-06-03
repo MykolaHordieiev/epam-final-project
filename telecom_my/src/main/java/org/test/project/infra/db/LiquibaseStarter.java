@@ -11,6 +11,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -18,8 +20,9 @@ import java.sql.Connection;
 @RequiredArgsConstructor
 public class LiquibaseStarter {
 
-    private final DataSource dataSource;
+    private static Logger logger = LogManager.getLogger(LiquibaseStarter.class);
 
+    private final DataSource dataSource;
     private final static String CHANGE_LOG_FILE = "/db/liquibase/db-changelog-master.xml";
 
     @SneakyThrows
@@ -28,6 +31,8 @@ public class LiquibaseStarter {
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
             Liquibase liquibase = new liquibase.Liquibase(CHANGE_LOG_FILE, new ClassLoaderResourceAccessor(), database);
             liquibase.update(new Contexts(), new LabelExpression());
+
+            logger.info("Update database");
         }
     }
 }

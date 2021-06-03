@@ -23,13 +23,16 @@ public class AuthorizationFilter implements Filter {
         pathMatchers.add(new AuthorizationMatcher("/operator/home.jsp", UserRole.OPERATOR));
         pathMatchers.add(new AuthorizationMatcher("/operator/create.jsp", UserRole.OPERATOR));
         pathMatchers.add(new AuthorizationMatcher("/subscriber/home.jsp", UserRole.SUBSCRIBER));
-        pathMatchers.add(new AuthorizationMatcher("/subscriber/all.jsp", UserRole.OPERATOR));
-        pathMatchers.add(new AuthorizationMatcher("subscriber/infobyid.jsp", UserRole.OPERATOR, UserRole.SUBSCRIBER));
+        pathMatchers.add(new AuthorizationMatcher("/service/subscriber/all", UserRole.OPERATOR));
+        pathMatchers.add(new AuthorizationMatcher("/service/subscriber", UserRole.OPERATOR, UserRole.SUBSCRIBER));
+        pathMatchers.add(new AuthorizationMatcher("/service/subscriber/bylogin", UserRole.OPERATOR));
         pathMatchers.add(new AuthorizationMatcher("/subscriber/lock.jsp", UserRole.SUBSCRIBER));
         pathMatchers.add(new AuthorizationMatcher("/product/all.jsp", UserRole.OPERATOR, UserRole.OPERATOR));
         pathMatchers.add(new AuthorizationMatcher("/rate/add.jsp", UserRole.OPERATOR));
         pathMatchers.add(new AuthorizationMatcher("/rate/byid.jsp", UserRole.OPERATOR, UserRole.SUBSCRIBER));
         pathMatchers.add(new AuthorizationMatcher("/rate/byproduct.jsp", UserRole.OPERATOR, UserRole.SUBSCRIBER));
+        pathMatchers.add(new AuthorizationMatcher("/service/rate/add", UserRole.OPERATOR));
+        pathMatchers.add(new AuthorizationMatcher("/service/rate/info", UserRole.OPERATOR));
 
         this.pathMatchers = pathMatchers;
     }

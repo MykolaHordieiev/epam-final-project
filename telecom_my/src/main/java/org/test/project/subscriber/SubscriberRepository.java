@@ -3,6 +3,8 @@ package org.test.project.subscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.test.project.subscriber.dto.SubscriberCreateDTO;
 import org.test.project.subscriber.dto.SubscriberReplenishDTO;
 
@@ -15,6 +17,8 @@ import java.util.Optional;
 @Log4j2
 @RequiredArgsConstructor
 public class SubscriberRepository {
+
+    private static Logger logger = LogManager.getLogger(SubscriberRepository.class);
 
     private final DataSource dataSource;
 
@@ -83,6 +87,7 @@ public class SubscriberRepository {
             if (connection != null) {
                 connection.rollback();
             }
+            logger.error(ex.getMessage());
             throw new SubscriberException("transaction failed with create Subscriber");
         } finally {
             close(preparedStatement);
@@ -90,7 +95,6 @@ public class SubscriberRepository {
         }
         return subscriberCreateDTO;
     }
-
 
     @SneakyThrows
     public List<Subscriber> getAll() {
@@ -144,8 +148,6 @@ public class SubscriberRepository {
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setDouble(1, replenishDTO.getBalance());
             preparedStatement.execute();
-        } catch (SQLException ex) {
-            throw new SubscriberException("filed top up balance");
         }
         return replenishDTO;
     }

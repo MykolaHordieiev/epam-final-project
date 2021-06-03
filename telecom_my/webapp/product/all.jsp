@@ -3,7 +3,7 @@
 <%@taglib uri="/WEB-INF/tag/language.tld" prefix="lan" %>
 <html>
     <head>
-        <title>Refactor rate</title>
+        <title>Products</title>
         <meta charset="UTF-8">
     </head>
     <body>

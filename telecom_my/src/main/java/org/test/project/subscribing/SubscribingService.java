@@ -22,7 +22,7 @@ public class SubscribingService {
         return subscribingRepository.getSubscribingBySubscriberId(id);
     }
 
-    public double getNewBalance(SubscriberAddSubscribingDTO subscriberDTO, RateAddSubscribingDTO rateDTO) {
+    private double getNewBalance(SubscriberAddSubscribingDTO subscriberDTO, RateAddSubscribingDTO rateDTO) {
         BigDecimal balance = BigDecimal.valueOf(subscriberDTO.getBalance());
         BigDecimal cost = BigDecimal.valueOf(rateDTO.getPrice());
         return Double.parseDouble(balance.subtract(cost).toString());

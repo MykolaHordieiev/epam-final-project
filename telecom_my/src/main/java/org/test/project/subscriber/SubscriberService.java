@@ -57,7 +57,7 @@ public class SubscriberService {
 
     public Subscriber getSubscriberByLogin(String login) {
         return subscriberRepository.getByLogin(login).orElseThrow(
-                () -> new SubscriberException("Subscriber with login " + login + " not found"));
+                () -> new SubscriberException("Subscriber with login: " + login + " not found"));
 
     }
 }

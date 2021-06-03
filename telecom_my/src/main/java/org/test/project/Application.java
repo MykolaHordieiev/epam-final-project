@@ -61,6 +61,7 @@ public class Application {
                                                        SubscriberService subscriberService, ProductService productService,
                                                        RateService rateService, SubscribingService subscribingService,
                                                        QueryValueResolver queryValueResolver) {
+
         SubscriberController subscriberController = getSubscriberController(subscriberService, subscribingService, queryValueResolver);
         UserController userController = getUserController(userService, queryValueResolver);
         RateController rateController = getRateController(rateService, subscriberService, productService, queryValueResolver);

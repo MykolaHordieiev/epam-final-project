@@ -15,14 +15,6 @@ public class RequestMatcher {
     private String regexMethod;
     private BiFunction<HttpServletRequest, HttpServletResponse, ?> biFunction;
 
-//    public RequestMatcher(String regexPath, String regexMethod,
-//                          BiFunction<HttpServletRequest, HttpServletResponse, ?> biFunction) {
-//        this.regexPath = regexPath;
-//        this.regexMethod = regexMethod;
-//        this.biFunction = biFunction;
-//    }
-
-
     public boolean matcherPath(String path) {
         return regexPath.equals(path);
     }

@@ -87,6 +87,7 @@ public class RateRepository {
         return rateDTO;
     }
 
+    @SneakyThrows
     public RateAddRequestDTO addRateByProductId(RateAddRequestDTO rateAddRequestDTO) {
         String addRate = "INSERT INTO rate (name_rate, price, product_id) VALUES (?,?,?)";
         try (Connection connection = dataSource.getConnection();
@@ -99,8 +100,6 @@ public class RateRepository {
                 resultSet.next();
                 rateAddRequestDTO.setRateId(resultSet.getLong(1));
             }
-        } catch (SQLException ex) {
-            throw new RateException("filed create new rate");
         }
         return rateAddRequestDTO;
     }

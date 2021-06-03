@@ -1,6 +1,7 @@
 package org.test.project.infra.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,13 +9,10 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 public class QueryValueResolver {
 
     private final ObjectMapper objectMapper;
-
-    public QueryValueResolver(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @SneakyThrows
     public <T> T getObject(HttpServletRequest req, Class<T> tClass) {
@@ -25,6 +23,6 @@ public class QueryValueResolver {
             String value = req.getParameter(name);
             valuesMap.put(name, value);
         }
-       return objectMapper.convertValue(valuesMap, tClass);
+        return objectMapper.convertValue(valuesMap, tClass);
     }
 }

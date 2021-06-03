@@ -3,6 +3,8 @@ package org.test.project.subscribing;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.test.project.product.Product;
 import org.test.project.rate.Rate;
 import org.test.project.subscriber.Subscriber;
@@ -18,6 +20,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class SubscribingRepository {
+
+    private static Logger logger = LogManager.getLogger(SubscribingRepository.class);
 
     private final DataSource dataSource;
 
@@ -44,7 +48,8 @@ public class SubscribingRepository {
             if (connection != null) {
                 connection.rollback();
             }
-            throw new SubscribingException("filed transaction in addSubscribing");
+            logger.error(ex.getMessage());
+            throw new RuntimeException("filed transaction in addSubscribing");
         } finally {
             close(preparedStatement);
             close(connection);
@@ -67,7 +72,6 @@ public class SubscribingRepository {
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(getSubscribing)) {
             while (resultSet.next()) {
-
                 subscriber.setId(id);
                 subscriber.setLogin(resultSet.getString("login"));
                 subscriber.setBalance(resultSet.getDouble("balance"));

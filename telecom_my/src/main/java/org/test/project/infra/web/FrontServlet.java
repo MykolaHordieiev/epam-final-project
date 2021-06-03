@@ -3,6 +3,8 @@ package org.test.project.infra.web;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.test.project.subscriber.SubscriberException;
 
 import javax.servlet.RequestDispatcher;
@@ -16,6 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FrontServlet extends HttpServlet {
 
+    private static Logger logger = LogManager.getLogger(FrontServlet.class);
+
     private final List<Controller> controllers;
     private final ExceptionHandler exceptionHandler;
     @Getter
@@ -26,6 +30,8 @@ public class FrontServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        logger.info("Started processing request");
+
         String controllerPath = getPath(req);
         String method = req.getMethod();
         ModelAndView modelAndView;
@@ -45,7 +51,9 @@ public class FrontServlet extends HttpServlet {
             }
             modelAndView = (ModelAndView) returnElement;
         } catch (Exception ex) {
+            logger.error(ex.getMessage());
             modelAndView = exceptionHandler.handle(ex);
+            logger.info("Set view for handled exception --> " + modelAndView.getView());
         }
         processModel(req, resp, modelAndView);
     }
