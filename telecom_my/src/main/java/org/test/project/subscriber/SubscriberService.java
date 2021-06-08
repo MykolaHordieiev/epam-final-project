@@ -23,8 +23,14 @@ public class SubscriberService {
                 + id + " doesn't exist"));
     }
 
-    public List<Subscriber> getAll() {
-        return subscriberRepository.getAll();
+    public List<Subscriber> getAll(int page) {
+        int index = (page - 1) * 5;
+        return subscriberRepository.getAll(index);
+    }
+
+    public double getCountOfHref() {
+        double countOfRows = subscriberRepository.getCountOfRows();
+        return Math.ceil(countOfRows / 5);
     }
 
     public Subscriber lockSubscriberById(Long id) {
@@ -60,4 +66,5 @@ public class SubscriberService {
                 () -> new SubscriberException("Subscriber with login: " + login + " not found"));
 
     }
+
 }

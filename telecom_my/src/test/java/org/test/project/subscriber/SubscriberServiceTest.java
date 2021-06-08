@@ -69,13 +69,23 @@ public class SubscriberServiceTest {
     @Test
     public void getAll() {
         List<Subscriber> expected = Arrays.asList(new Subscriber(), new Subscriber());
-        when(subscriberRepository.getAll()).thenReturn(expected);
+        when(subscriberRepository.getAll(anyInt())).thenReturn(expected);
 
-        List<Subscriber> result = subscriberService.getAll();
+        List<Subscriber> result = subscriberService.getAll(anyInt());
         assertNotNull(result);
         assertEquals(expected, result);
 
-        verify(subscriberRepository).getAll();
+        verify(subscriberRepository).getAll(anyInt());
+    }
+
+    @Test
+    public void getCountOfHref() {
+        double expected = 3.0;
+
+        when(subscriberRepository.getCountOfRows()).thenReturn(11.0);
+
+        double result = subscriberService.getCountOfHref();
+        assertEquals(expected, result, 0.0);
     }
 
     @Test

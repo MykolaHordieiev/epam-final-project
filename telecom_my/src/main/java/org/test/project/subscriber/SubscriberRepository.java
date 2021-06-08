@@ -97,22 +97,37 @@ public class SubscriberRepository {
     }
 
     @SneakyThrows
-    public List<Subscriber> getAll() {
-        String query = "SELECT * FROM user JOIN subscriber ON user.id=subscriber.id";
+    public List<Subscriber> getAll(int index) {
+        String query = "SELECT * FROM user JOIN subscriber ON user.id=subscriber.id LIMIT ?, 5";
         List<Subscriber> list = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                Subscriber subscriber = new Subscriber();
-                subscriber.setId(resultSet.getLong(1));
-                subscriber.setLogin(resultSet.getString("login"));
-                subscriber.setBalance(resultSet.getDouble("balance"));
-                subscriber.setLock(resultSet.getBoolean("locked"));
-                list.add(subscriber);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, index);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Subscriber subscriber = new Subscriber();
+                    subscriber.setId(resultSet.getLong(1));
+                    subscriber.setLogin(resultSet.getString("login"));
+                    subscriber.setBalance(resultSet.getDouble("balance"));
+                    subscriber.setLock(resultSet.getBoolean("locked"));
+                    list.add(subscriber);
+                }
             }
             return list;
         }
+    }
+
+    @SneakyThrows
+    public double getCountOfRows() {
+        String query = "SELECT COUNT(*) FROM user JOIN subscriber ON user.id=subscriber.id";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            if (resultSet.next()) {
+                return resultSet.getDouble(1);
+            }
+        }
+        return 0;
     }
 
     @SneakyThrows

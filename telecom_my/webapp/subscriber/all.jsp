@@ -2,6 +2,7 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="/WEB-INF/tag/language.tld" prefix="lan" %>
 <%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page language="java" %>
 <html>
     <head>
         <title>get all subscribers</title>
@@ -59,6 +60,11 @@
                 </tr>
              </c:forEach>
         </table>
+        <c:if test = "${countOfHref != 0}">
+            <c:forEach var = "i" begin = "1" end = "${countOfHref}">
+                <a href="/telecom/service/subscriber/all?page=${i}"> ${i} </a>
+            </c:forEach>
+        </c:if>
         <form method="GET" action="/telecom/operator/home.jsp">
             <input type="submit" value='<lan:print message="subscriber.all.jsp.button.home"/>'>
         </form>

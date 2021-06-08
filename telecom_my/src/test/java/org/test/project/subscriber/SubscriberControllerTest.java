@@ -106,17 +106,21 @@ public class SubscriberControllerTest {
 
     @Test
     public void getAll() {
+        double countOfHref = 1.0;
         List<Subscriber> expectedList = Arrays.asList(new Subscriber(ID, LOGIN, PASSWORD, 0, false),
                 new Subscriber(2L, "lo", "pa", 10d, true));
 
-        when(subscriberService.getAll()).thenReturn(expectedList);
+        when(request.getParameter("page")).thenReturn("1");
+        when(subscriberService.getAll(anyInt())).thenReturn(expectedList);
+        when(subscriberService.getCountOfHref()).thenReturn(countOfHref);
 
         ModelAndView modelAndView = subscriberController.getAll(request, response);
         assertNotNull(modelAndView);
         assertEquals("/subscriber/all.jsp", modelAndView.getView());
         assertEquals(expectedList, modelAndView.getAttributes().get("subscribers"));
+        assertEquals(countOfHref,modelAndView.getAttributes().get("countOfHref"));
 
-        verify(subscriberService).getAll();
+        verify(subscriberService).getAll(anyInt());
     }
 
     @Test

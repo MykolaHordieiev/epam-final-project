@@ -26,6 +26,7 @@
              <lan:print message="operator.home.jsp.get_all_subscriber"/>.
         </p>
                 <form method="GET" action="/telecom/service/subscriber/all">
+                        <input type="hidden" name="page" value="1">
                         <input type="submit" value='<lan:print message="operator.home.jsp.button.Get_info"/>'>
                 </form>
         <p>

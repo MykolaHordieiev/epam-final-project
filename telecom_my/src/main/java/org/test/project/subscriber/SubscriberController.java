@@ -76,9 +76,11 @@ public class SubscriberController implements Controller {
     }
 
     public ModelAndView getAll(HttpServletRequest request, HttpServletResponse response) {
+        int page = Integer.parseInt(request.getParameter("page"));
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setView("/subscriber/all.jsp");
-        modelAndView.addAttribute("subscribers", subscriberService.getAll());
+        modelAndView.addAttribute("subscribers", subscriberService.getAll(page));
+        modelAndView.addAttribute("countOfHref", subscriberService.getCountOfHref());
         return modelAndView;
     }
 

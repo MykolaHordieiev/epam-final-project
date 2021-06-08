@@ -45,7 +45,8 @@ public class SubscriberRepositoryTest {
             "WHERE user.login='login'";
     private static final String INSERT_INTO_USER = "INSERT INTO user (login,password,role) VALUES (?,?,?);";
     private static final String INSERT_INTO_SUBSCRIBER = "INSERT INTO subscriber (id) VALUES (?)";
-    private static final String GET_ALL = "SELECT * FROM user JOIN subscriber ON user.id=subscriber.id";
+    private static final String GET_ALL = "SELECT * FROM user JOIN subscriber ON user.id=subscriber.id LIMIT ?, 5";
+    private static final String COUNT_OF_ROWS = "SELECT COUNT(*) FROM user JOIN subscriber ON user.id=subscriber.id";
     private static final String REPLENISH_BALANCE = "UPDATE subscriber SET balance=? WHERE id=1";
     private static final Long ID = 1L;
     private static final String LOGIN = "login";
@@ -195,10 +196,12 @@ public class SubscriberRepositoryTest {
         when(resultSet.getDouble("balance")).thenReturn(BALANCE).thenReturn(10d);
         when(resultSet.getBoolean("locked")).thenReturn(false);
 
-        List<Subscriber> resultList = repository.getAll();
+        List<Subscriber> resultList = repository.getAll(0);
         assertNotNull(resultList);
         assertEquals(expectedList, resultList);
         assertEquals(2, resultList.size());
+
+        verify(preparedStatement).setInt(1, 0);
     }
 
     @Test
@@ -209,10 +212,35 @@ public class SubscriberRepositoryTest {
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
 
-        List<Subscriber> resultList = repository.getAll();
+        List<Subscriber> resultList = repository.getAll(0);
         assertNotNull(resultList);
         assertEquals(expectedList, resultList);
         assertTrue(resultList.isEmpty());
+    }
+
+    @Test
+    public void getCountOfRowsWhenFoundSubscribers() throws SQLException {
+        double expected = 11.0;
+
+        when(connection.prepareStatement(COUNT_OF_ROWS)).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getDouble(1)).thenReturn(11.0);
+
+        double result = repository.getCountOfRows();
+        assertEquals(expected, result, 0.0);
+    }
+
+    @Test
+    public void getCountOfRowsWhenNotFoundSubscribers() throws SQLException {
+        double expected = 0;
+
+        when(connection.prepareStatement(COUNT_OF_ROWS)).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+
+        double result = repository.getCountOfRows();
+        assertEquals(expected, result, 0.0);
     }
 
     @Test

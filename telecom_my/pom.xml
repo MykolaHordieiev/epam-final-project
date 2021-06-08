@@ -21,6 +21,7 @@
         <log4j2.version>2.6.1</log4j2.version>
         <junit.version>4.12</junit.version>
         <mockito.version>3.10.0</mockito.version>
+        <jackson.version>2.11.1</jackson.version>
     </properties>
 
     <dependencies>
@@ -70,11 +71,6 @@
             <version>${tomcat.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${jacksonyml.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-jsp-api</artifactId>
             <version>${tomcat.version}</version>
@@ -110,6 +106,11 @@
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
     </dependencies>
 
